@@ -31,16 +31,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
-  <link rel="stylesheet" href="styles.css?v=67">
+  <link rel="stylesheet" href="styles.css?v=68">
   <link rel="stylesheet" href="components/site-header.css?v=43">
   <!-- Old hero globe, unused; to bring it back, restore these two tags and the
        globe markup and scripts below, and remove the hero-visuals ones.
   <link rel="stylesheet" href="components/dotted-globe.css?v=34"> -->
-  <!-- Hero animations, unused while the market cap chart is the hero; to
-       bring one back, restore this tag, the data-hero-visual markup and the
-       hero-visuals scripts below, and remove the market-cap-chart ones.
+  <!-- Hero animations, unused: the hero is text only. To bring one back,
+       restore this tag, the hero__stage markup and the hero-visuals scripts
+       below, and remove the hero--text class from the hero.
   <link rel="stylesheet" href="components/hero-visuals.css?v=4"> -->
-  <link rel="stylesheet" href="components/market-cap-chart.css?v=1">
   <link rel="stylesheet" href="components/feature-visuals.css?v=12">
   <link rel="stylesheet" href="components/learn/learn.css?v=2">
   <!-- Site settings and production mode: load first. -->
@@ -164,28 +163,20 @@
   <script src="components/site-links.js?v=8"></script>
   <script src="components/site-header.js?v=42"></script>
   <main>
-    <!-- Section 1: one screen. The hero visual (components/hero-visuals.*;
-         which option shows is heroVariant in hero-visuals.config.js) is
-         centred in the area under the menu bar; the slogan (top-left) and supporting text (lower-left, on
-         the slogan's left edge) are separate overlay layers, so they never move it. -->
-    <section class="hero hero--chart" aria-labelledby="hero-title">
+    <!-- Section 1: one screen, text only: the slogan and supporting text,
+         centred, with the scroll-down arrow below. -->
+    <section class="hero hero--text" aria-labelledby="hero-title">
       <h1 id="hero-title" class="hero__title">Crypto research built to institutional standards.</h1>
       <p class="hero__text">Deep-dive token reports scored on an 80-point framework and backed by on-chain forensics. Know what you hold before the market tells you.</p>
+      <!-- Hero visual, unused (see the <head>); either one goes back here:
       <div class="hero__stage">
-        <!-- Total crypto market cap history (components/market-cap-chart.*;
-             data in data/, built by tools/build-market-cap-data.py).
-             Hero animations, unused: <div data-hero-visual></div> -->
-        <figure data-market-cap-chart
-                data-src="data/total-market-cap-monthly.json?v=1"
-                data-events="data/crypto-events.json?v=1">
-          <noscript>Total crypto market cap history: this chart needs JavaScript.</noscript>
-        </figure>
-        <!-- Old globe, unused:
+        <div data-hero-visual></div>
+        or the old globe:
         <div class="dotted-globe" data-dotted-globe role="img"
              aria-label="A slowly rotating globe made of dots that outline the world's continents. Drag to spin it.">
           <canvas></canvas>
-        </div> -->
-      </div>
+        </div>
+      </div> -->
       <a class="scroll-hint" href="#our-process" aria-label="Scroll to content">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -519,7 +510,6 @@
   <script src="components/hero-verdict.js?v=1"></script>
   <script src="components/hero-noise.js?v=1"></script>
   <script src="components/hero-visuals.js?v=2"></script> -->
-  <script src="components/market-cap-chart.js?v=1"></script>
   <script src="script.js?v=40"></script>
 
   <!-- DEV FONT PANEL START ====================================================
