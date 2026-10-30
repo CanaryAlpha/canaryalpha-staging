@@ -1,0 +1,636 @@
+/*
+ * Feature visuals (components/feature-visuals.js). Colours are the theme
+ * tokens from styles.css only, so Light and Dark both work. Sizes are
+ * in em, so one font-size on .fv scales a whole visual (.fv--lg is bigger).
+ *
+ * Motion pattern: the rules below describe the FINAL state. While a visual
+ * waits to play it has .is-armed (start state, further down); .is-on then
+ * transitions it to the final state. Each replay fades the content out
+ * (.is-resetting), swaps in new results, fades back in and plays again.
+ * Reduced motion never arms, so it shows the final state with no movement.
+ *
+ * Steady size: a visual is built once and only its text and classes change,
+ * and every changing text sits in a fixed slot (one line, truncated, or a
+ * fixed number of lines), so its height is the same on every frame of
+ * every run. Motion uses only opacity, transform and clip-path.
+ *
+ * The visual has no box of its own: it sits straight on the page. Label
+ * backings and hollow marks use --fv-surface (default --ground, the page
+ * colour); set it if a visual is ever placed on another colour.
+ *
+ * Timing: delays are multiplied by --fv-d and durations by --fv-s, which
+ * feature-visuals.js sets so each run fills the cycle in the config.
+ */
+.fv {
+  --fv-track: color-mix(in srgb, var(--ink) 12%, transparent);
+  --fv-good: var(--success);
+  /* Green for text: a touch closer to --ink so small text keeps AA (>= 4.5:1)
+     on the light tiles and tints, where plain --success falls just short. */
+  --fv-good-text: color-mix(in srgb, var(--success) 80%, var(--ink));
+  --fv-bad: var(--danger);
+  --fv-good-tint: color-mix(in srgb, var(--success) 12%, var(--ground));
+  --fv-bad-tint: color-mix(in srgb, var(--danger) 12%, var(--ground));
+  --fv-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --fv-d: 1;
+  --fv-s: 1;
+  --fv-reset: 1s;
+
+  container-type: inline-size;
+  box-sizing: border-box;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--ink);
+  background: transparent;
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+  padding: clamp(1rem, 3cqi, 1.75rem);
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  overflow-anchor: none; /* never used as a scroll anchor (backstop) */
+}
+.fv--lg { font-size: 1.125rem; }
+.fv__stage { transition: opacity 0.45s ease; }
+.fv.is-resetting .fv__stage { opacity: 0; transition: opacity var(--fv-reset) ease; }
+/* While hidden between runs: jump everything back to its start state. */
+.fv.is-rewinding .fv__stage *,
+.fv.is-rewinding .fv__stage *::before,
+.fv.is-rewinding .fv__stage *::after { transition: none !important; animation: none !important; }
+.fv *, .fv *::before, .fv *::after { box-sizing: border-box; }
+
+/* Small uppercase label, shared. */
+.fv-eyebrow {
+  font-size: 0.6875em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.fv svg { display: block; }
+
+/* ---- 1. Scoring ---------------------------------------------------------- */
+.fv-score__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1em;
+  padding-bottom: 0.75em;
+  border-bottom: 1px solid var(--rule);
+}
+.fv-score__asset { font-size: 0.875em; }
+.fv-score {
+  display: grid;
+  gap: 1.25em;
+  margin-top: 1em;
+}
+.fv-score__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75em;
+}
+.fv-score__cols {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.6875em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.fv-score__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.35em 1em;
+  font-size: 0.875em;
+}
+.fv-score__name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* With an "Explain this" icon: only the text truncates, the icon stays whole. */
+.fv-score__name.has-explain, .fv-check__label.has-explain { display: flex; align-items: center; min-width: 0; overflow: visible; }
+.fv-label-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fv-score__value { color: var(--muted); white-space: nowrap; }
+.fv-score__got { display: inline-block; min-width: 2ch; text-align: right; color: var(--ink); }
+.fv-score__track {
+  grid-column: 1 / -1;
+  height: 0.375em;
+  border-radius: 999px;
+  background: var(--fv-track);
+  overflow: hidden;
+}
+.fv-score__fill {
+  display: block;
+  height: 100%;
+  background: var(--ink);
+  border-radius: inherit;
+  transform-origin: left center;
+  transform: scaleX(var(--fill));
+}
+.fv-score__summary {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 0.25em 1em;
+  padding-top: 1em;
+  border-top: 1px solid var(--rule);
+}
+.fv-score__summary > .fv-eyebrow { grid-column: 1 / -1; }
+.fv-score__total { display: flex; align-items: baseline; gap: 0.25em; }
+.fv-score__num { min-width: 2ch; font-size: 3em; line-height: 1; letter-spacing: -0.02em; }
+.fv-score__max { font-size: 1.125em; color: var(--muted); }
+.fv-score__verdict {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35em;
+}
+.fv-badge {
+  display: inline-grid;
+  justify-items: center;
+  padding: 0.35em 0.9em;
+  font-size: 0.875em;
+  border-radius: 999px;
+  background: var(--selected-bg);
+  color: var(--selected-ink);
+  white-space: nowrap;
+}
+/* All band labels share one cell; only the verdict is visible, so the
+   badge keeps the width of the longest label on every run. */
+.fv-badge > span { grid-area: 1 / 1; visibility: hidden; }
+.fv-badge > .is-shown { visibility: visible; }
+
+/* Wide: bars left, total and verdict right. */
+@container (min-width: 36rem) {
+  .fv-score { grid-template-columns: 1.7fr 1fr; gap: 2.5em; align-items: center; }
+  .fv-score__summary {
+    grid-template-columns: 1fr;
+    padding: 0 0 0 2.5em;
+    border-top: 0;
+    border-left: 1px solid var(--rule);
+    align-self: stretch;
+    align-content: center;
+    gap: 0.5em;
+  }
+  .fv-score__num { font-size: 4.5em; }
+  .fv-score__verdict { align-items: flex-start; margin-top: 1.25em; }
+}
+
+/* ---- 2. Forensics -------------------------------------------------------- */
+.fv-graph {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  margin-bottom: 1.25em;
+}
+@container (min-width: 30rem) {
+  .fv-graph { aspect-ratio: 16 / 8; }
+}
+.fv-graph__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.fv-flow path { fill: none; stroke-width: 1.5; stroke-linecap: round; }
+.fv-flow__base { stroke: var(--rule); stroke-dasharray: 1 1; }
+.fv-flow__dash {
+  stroke: var(--ink);
+  stroke-dasharray: 2 10;
+  stroke-opacity: calc(0.35 + 0.65 * var(--k, 1)); /* --k: flow intensity */
+}
+.fv-flow--flagged .fv-flow__base { stroke: var(--fv-bad); stroke-width: 2; }
+.fv-flow--flagged .fv-flow__dash { stroke: var(--fv-bad); stroke-width: 2.5; }
+
+/* A node is a zero-size point at (x, y); its mark is centred on it and its
+   label hangs below (left-aligned near the left edge, right near the right). */
+.fv-node { position: absolute; width: 0; height: 0; }
+.fv-node__mark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0.875em;
+  height: 0.875em;
+  transform: translate(-50%, -50%);
+  border: 1.5px solid var(--ink);
+  border-radius: 50%;
+  background: var(--fv-surface, var(--ground));
+}
+.fv-node--whale .fv-node__mark { width: 1.125em; height: 1.125em; background: var(--ink); }
+.fv-node--treasury .fv-node__mark {
+  width: 0.9em; height: 0.9em;
+  border-radius: 0.15em;
+  background: var(--ink);
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+.fv-node--wallet .fv-node__mark { width: 0.625em; height: 0.625em; }
+.fv-node--exchange .fv-node__mark { width: 1.25em; height: 1.25em; border-radius: 0.2em; }
+.fv-node--flagged .fv-node__mark { border-color: var(--fv-bad); }
+.fv-node--flagged.fv-node--whale .fv-node__mark,
+.fv-node--flagged.fv-node--treasury .fv-node__mark { background: var(--fv-bad); }
+.fv-node__label {
+  position: absolute;
+  top: 0.9em;
+  left: 0;
+  transform: translateX(-50%);
+  padding: 0 0.3em;
+  font-size: 0.75em;
+  color: var(--muted);
+  white-space: nowrap;
+  background: var(--fv-surface, var(--ground)); /* lines pass behind the label */
+  border-radius: 0.2em;
+}
+.fv-node--start .fv-node__label { left: -0.6em; transform: none; }
+.fv-node--end .fv-node__label { left: auto; right: -0.75em; transform: none; }
+
+.fv-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 1.5em;
+  font-size: 0.75em;
+  color: var(--muted);
+}
+.fv-legend__item { display: inline-flex; align-items: center; gap: 0.5em; }
+.fv-legend__item::before {
+  content: "";
+  width: 1.5em;
+  border-top: 2px dashed var(--ink);
+}
+.fv-legend__item--flagged::before { border-top-color: var(--fv-bad); }
+
+.fv-note {
+  display: grid;
+  gap: 0.2em;
+  margin-top: 0.875em;
+  padding: 0.625em 0.875em;
+  border-left: 2px solid var(--fv-bad);
+  background: var(--fv-bad-tint);
+  font-size: 0.875em;
+}
+.fv-note__title { color: var(--fv-bad); }
+/* Always exactly two lines tall, whatever the path; longer text is cut. */
+.fv-note__text {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  height: 2.8em;
+  overflow: hidden;
+}
+
+/* ---- 3. Screening -------------------------------------------------------- */
+.fv-screen { display: grid; gap: 1.5em; }
+@container (min-width: 40rem) {
+  .fv-screen { grid-template-columns: 1.15fr 1fr; gap: 2em; align-items: start; }
+}
+.fv-checks { list-style: none; margin: 0; padding: 0; }
+.fv-check {
+  display: grid;
+  grid-template-columns: 1.25em minmax(0, 1fr) 9em; /* fixed note slot */
+  align-items: center;
+  gap: 0.75em;
+  min-height: 2.5em;
+  margin: 0 -0.5em;
+  padding: 0.35em 0.5em;
+  border-radius: 0.25em;
+  border-top: 1px solid var(--fv-track);
+  font-size: 0.875em;
+}
+.fv-check:first-child { border-top: 0; }
+.fv-check--flag { background: var(--fv-bad-tint); }
+.fv-check__icon { position: relative; width: 1.25em; height: 1.25em; }
+.fv-check__pending,
+.fv-check__result { position: absolute; inset: 0; }
+.fv-check__pending {
+  border: 1.5px solid var(--rule);
+  border-radius: 50%;
+  opacity: 0;
+}
+.fv-check__result svg { width: 100%; height: 100%; }
+.fv-check--pass .fv-check__result--flag,
+.fv-check--flag .fv-check__result--pass { visibility: hidden; }
+.fv-check--pass .fv-check__result { color: var(--fv-good); }
+.fv-check--flag .fv-check__result { color: var(--fv-bad); }
+.fv-check__note {
+  font-size: 0.857em;
+  color: var(--muted);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fv-check--flag .fv-check__note { color: var(--fv-bad); }
+.fv-screen__summary {
+  margin: 0.75em 0 0;
+  padding-top: 0.75em;
+  border-top: 1px solid var(--rule);
+  font-size: 0.875em;
+  color: var(--fv-good-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fv-screen__summary--flag { color: var(--fv-bad); }
+
+.fv-chart { margin: 0; }
+.fv-chart__head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.25em 1em;
+  margin-bottom: 0.75em;
+}
+.fv-chart__key { display: flex; gap: 1em; font-size: 0.75em; color: var(--muted); }
+.fv-chart__key > span { display: inline-flex; align-items: center; gap: 0.4em; }
+.fv-chart__key-price::before { content: ""; width: 1em; border-top: 2px solid var(--ink); }
+.fv-chart__key-volume::before {
+  content: "";
+  width: 0.625em;
+  height: 0.625em;
+  background: color-mix(in srgb, var(--fv-bad) 55%, var(--ground));
+}
+.fv-chart__plot {
+  position: relative;
+  aspect-ratio: 2 / 1;
+  border-bottom: 1px solid var(--rule);
+}
+.fv-chart__plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.fv-chart__bars rect {
+  fill: color-mix(in srgb, var(--fv-bad) 55%, var(--ground));
+  transform-box: fill-box;
+  transform-origin: center bottom;
+}
+.fv-chart__line path {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.fv-chart__line { clip-path: inset(-0.5em -0.5em -0.5em -0.5em); }
+
+/* ---- 4. Revisit ---------------------------------------------------------- */
+.fv-stack { display: grid; }
+.fv-card {
+  grid-area: 1 / 1;
+  width: min(20em, 88%);
+  padding: 1em 1.125em 0.5em;
+  border-radius: 0.375em;
+  /* A faint raised surface, so the overlapping cards read as cards on the
+     plain page background. */
+  background: color-mix(in srgb, var(--ink) 5%, var(--ground));
+}
+.fv-card--previous {
+  justify-self: start;
+  transform-origin: left top;
+  transform: scale(0.95);
+  opacity: 0.45;
+}
+.fv-card--current {
+  justify-self: end;
+  margin-top: 2.25em;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0.75em 2em -1em color-mix(in srgb, var(--ink) 35%, transparent);
+}
+.fv-card__head { display: flex; justify-content: space-between; align-items: baseline; gap: 1em; }
+.fv-card__quarter { font-size: 0.875em; }
+.fv-card__asset { margin: 0.35em 0 0.5em; font-size: 1.125em; }
+.fv-card__rows { margin: 0; }
+.fv-card__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1em;
+  height: 2.75em; /* fixed: values and deltas never change it */
+  margin: 0 -0.5em;
+  padding: 0.35em 0.5em;
+  border-top: 1px solid var(--fv-track);
+  border-radius: 0.25em;
+  font-size: 0.875em;
+}
+.fv-card__row dt { color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fv-card__row dd { margin: 0; display: flex; align-items: center; gap: 0.6em; text-align: right; white-space: nowrap; }
+.fv-delta.is-none { visibility: hidden; }
+.fv-card__row--good { background: var(--fv-good-tint); }
+.fv-card__row--bad { background: var(--fv-bad-tint); }
+.fv-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15em;
+  font-size: 0.857em;
+  white-space: nowrap;
+}
+.fv-delta svg { width: 1em; height: 1em; }
+.fv-card__row--good .fv-delta { color: var(--fv-good-text); }
+.fv-card__row--bad .fv-delta { color: var(--fv-bad); }
+
+/* Quarter timeline: dots at even spacing, the marker rings the latest. */
+.fv-timeline {
+  position: relative;
+  height: 3em;
+  margin: 1.75em 0.5em 0;
+}
+.fv-timeline__track,
+.fv-timeline__fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0.5em;
+  border-top: 2px solid var(--rule);
+}
+.fv-timeline__fill {
+  border-top-color: var(--ink);
+  transform-origin: left center;
+  transform: scaleX(var(--to));
+}
+.fv-timeline__steps { list-style: none; margin: 0; padding: 0; }
+.fv-timeline__step { position: absolute; top: 0; width: 0; }
+.fv-timeline__dot {
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 0.625em;
+  height: 0.625em;
+  transform: translate(-50%, calc(-50% + 1px));
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+  background: var(--ink);
+}
+.fv-timeline__step.is-future .fv-timeline__dot { border-color: var(--rule); background: var(--fv-surface, var(--ground)); }
+.fv-timeline__label {
+  position: absolute;
+  top: 2.3em; /* clear of the marker ring (in the label's smaller em) */
+  left: 0;
+  transform: translateX(-50%);
+  font-size: 0.6875em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.fv-timeline__step--first .fv-timeline__label { transform: translateX(-0.5em); }
+.fv-timeline__step--last .fv-timeline__label { transform: translateX(calc(-100% + 0.5em)); }
+.fv-timeline__step.is-current .fv-timeline__label { color: var(--ink); }
+/* The marker spans the track and slides by a share of its own width
+   (transform only); the ring sits at its left end. */
+.fv-timeline__marker {
+  position: absolute;
+  top: 0.5em;
+  left: 0;
+  right: 0;
+  height: 0;
+  transform: translateX(calc(var(--to) * 100%));
+}
+.fv-timeline__ring {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.25em;
+  height: 1.25em;
+  transform: translate(-50%, calc(-50% + 1px));
+  border: 2px solid var(--ink);
+  border-radius: 50%;
+}
+/* Narrow: only the two compared quarters keep their labels, and a delta
+   sits under its value instead of beside it. */
+@container (max-width: 26rem) {
+  .fv-timeline__step:not(.is-current):not(.is-previous) .fv-timeline__label { display: none; }
+  .fv-card { width: 92%; }
+  .fv-card__row dd { flex-direction: column; align-items: flex-end; gap: 0.1em; }
+  /* Tall enough for a value with its delta slot under it. */
+  .fv-card__row { height: 3.6em; }
+}
+
+/* ---- Start states and timing (motion only) -------------------------------
+   Times are written at normal pace: delays as calc(x * var(--fv-d)),
+   durations as calc(x * var(--fv-s)). */
+
+/* 1. Scoring: bars fill in turn, the total counts up (JS), then the verdict. */
+.fv.is-armed .fv-score__fill {
+  transition: transform calc(0.9s * var(--fv-s)) var(--fv-ease)
+    calc((0.2s + var(--i, 0) * 0.22s) * var(--fv-d));
+}
+.fv.is-armed .fv-score__got {
+  transition: opacity calc(0.4s * var(--fv-s)) ease
+    calc((0.5s + var(--i, 0) * 0.22s) * var(--fv-d));
+}
+.fv.is-armed .fv-score__verdict {
+  transition: opacity calc(0.6s * var(--fv-s)) ease calc(2.3s * var(--fv-d)),
+    transform calc(0.6s * var(--fv-s)) var(--fv-ease) calc(2.3s * var(--fv-d));
+}
+.fv.is-armed:not(.is-on) .fv-score__fill { transform: scaleX(0); }
+.fv.is-armed:not(.is-on) .fv-score__got { opacity: 0; }
+.fv.is-armed:not(.is-on) .fv-score__verdict { opacity: 0; transform: translateY(0.5em); }
+
+/* 2. Forensics: nodes appear, flows draw in, dashes start moving, the
+   flagged path turns red, then the note. The dashes loop while on screen,
+   each flow at its own speed (--k, its intensity). */
+.fv.is-armed .fv-node {
+  transition: opacity calc(0.5s * var(--fv-s)) ease calc(var(--i, 0) * 0.07s * var(--fv-d));
+}
+.fv.is-armed .fv-flow__base {
+  transition:
+    stroke-dashoffset calc(0.8s * var(--fv-s)) var(--fv-ease)
+      calc((0.45s + var(--i, 0) * 0.15s) * var(--fv-d)),
+    stroke calc(0.6s * var(--fv-s)) ease calc(2.2s * var(--fv-d));
+}
+.fv.is-armed .fv-flow__dash {
+  transition: opacity calc(0.6s * var(--fv-s)) ease calc(1.5s * var(--fv-d)),
+    stroke calc(0.6s * var(--fv-s)) ease calc(2.2s * var(--fv-d));
+}
+.fv.is-armed .fv-node__mark {
+  transition: border-color calc(0.6s * var(--fv-s)) ease calc(2.2s * var(--fv-d)),
+    background-color calc(0.6s * var(--fv-s)) ease calc(2.2s * var(--fv-d));
+}
+.fv.is-armed .fv-note {
+  transition: opacity calc(0.6s * var(--fv-s)) ease calc(2.7s * var(--fv-d)),
+    transform calc(0.6s * var(--fv-s)) var(--fv-ease) calc(2.7s * var(--fv-d));
+}
+.fv.is-armed.is-on .fv-flow__dash {
+  animation: fv-flow calc(1.6s / var(--k, 1)) linear infinite;
+}
+.fv.is-armed.is-offscreen .fv-flow__dash { animation-play-state: paused; }
+.fv.is-armed:not(.is-on) .fv-node { opacity: 0; }
+.fv.is-armed:not(.is-on) .fv-flow__base { stroke-dashoffset: 1; }
+.fv.is-armed:not(.is-on) .fv-flow__dash { opacity: 0; }
+.fv.is-armed:not(.is-on) .fv-flow--flagged .fv-flow__base { stroke: var(--rule); }
+.fv.is-armed:not(.is-on) .fv-flow--flagged .fv-flow__dash { stroke: var(--ink); }
+.fv.is-armed:not(.is-on) .fv-node--flagged .fv-node__mark { border-color: var(--ink); }
+.fv.is-armed:not(.is-on) .fv-node--flagged.fv-node--whale .fv-node__mark,
+.fv.is-armed:not(.is-on) .fv-node--flagged.fv-node--treasury .fv-node__mark { background: var(--ink); }
+.fv.is-armed:not(.is-on) .fv-note { opacity: 0; transform: translateY(0.5em); }
+@keyframes fv-flow { to { stroke-dashoffset: -12; } }
+
+/* 3. Screening: each check resolves in turn; the chart draws alongside. */
+.fv.is-armed .fv-check {
+  --at: calc((0.4s + var(--i, 0) * 0.35s) * var(--fv-d));
+  transition: background-color calc(0.5s * var(--fv-s)) ease var(--at);
+}
+.fv.is-armed .fv-check__pending { transition: opacity calc(0.25s * var(--fv-s)) ease var(--at); }
+.fv.is-armed .fv-check__result,
+.fv.is-armed .fv-check__note {
+  transition: opacity calc(0.35s * var(--fv-s)) ease var(--at),
+    transform calc(0.35s * var(--fv-s)) var(--fv-ease) var(--at);
+}
+.fv.is-armed .fv-screen__summary {
+  transition: opacity calc(0.6s * var(--fv-s)) ease calc(2.6s * var(--fv-d));
+}
+.fv.is-armed .fv-chart__bars rect {
+  transition: transform calc(0.6s * var(--fv-s)) var(--fv-ease)
+    calc((0.3s + var(--i, 0) * 0.12s) * var(--fv-d));
+}
+.fv.is-armed .fv-chart__line {
+  transition: clip-path calc(1.8s * var(--fv-d)) cubic-bezier(0.45, 0, 0.55, 1)
+    calc(0.4s * var(--fv-d));
+}
+.fv.is-armed:not(.is-on) .fv-check { background-color: transparent; }
+.fv.is-armed:not(.is-on) .fv-check__pending { opacity: 1; }
+.fv.is-armed:not(.is-on) .fv-check__result { opacity: 0; transform: scale(0.6); }
+.fv.is-armed:not(.is-on) .fv-check__note { opacity: 0; }
+.fv.is-armed:not(.is-on) .fv-screen__summary { opacity: 0; }
+.fv.is-armed:not(.is-on) .fv-chart__bars rect { transform: scaleY(0); }
+.fv.is-armed:not(.is-on) .fv-chart__line { clip-path: inset(-0.5em 100% -0.5em -0.5em); }
+
+/* 4. Revisit: the previous card shows, slides back and dims; the new card
+   slides in; changed rows and their deltas light up; the marker moves on. */
+.fv.is-armed.is-on .fv-card--previous {
+  animation: fv-card-back calc(1.6s * var(--fv-d)) var(--fv-ease) calc(0.1s * var(--fv-d)) both;
+}
+.fv.is-armed .fv-card--current {
+  transition: opacity calc(0.7s * var(--fv-s)) ease calc(0.9s * var(--fv-d)),
+    transform calc(0.9s * var(--fv-s)) var(--fv-ease) calc(0.9s * var(--fv-d));
+}
+.fv.is-armed .fv-card__row {
+  transition: background-color calc(0.6s * var(--fv-s)) ease
+    calc((1.9s + var(--i, 0) * 0.18s) * var(--fv-d));
+}
+.fv.is-armed .fv-delta {
+  transition: opacity calc(0.5s * var(--fv-s)) ease
+    calc((1.9s + var(--i, 0) * 0.18s) * var(--fv-d));
+}
+.fv.is-armed .fv-timeline__fill {
+  transition: transform calc(0.9s * var(--fv-s)) var(--fv-ease) calc(0.9s * var(--fv-d));
+}
+.fv.is-armed .fv-timeline__marker {
+  transition: transform calc(0.9s * var(--fv-s)) var(--fv-ease) calc(0.9s * var(--fv-d));
+}
+.fv.is-armed:not(.is-on) .fv-card--previous { opacity: 0; transform: none; }
+/* Slides in from just 1em right, which the padding around it absorbs, so the
+   card never crosses the tile edge (the tile clips overflow). */
+.fv.is-armed:not(.is-on) .fv-card--current { opacity: 0; transform: translateX(1em); }
+.fv.is-armed:not(.is-on) .fv-card__row { background-color: transparent; }
+.fv.is-armed:not(.is-on) .fv-delta { opacity: 0; }
+.fv.is-armed:not(.is-on) .fv-timeline__fill { transform: scaleX(var(--from)); }
+.fv.is-armed:not(.is-on) .fv-timeline__marker { transform: translateX(calc(var(--from) * 100%)); }
+@keyframes fv-card-back {
+  0%   { opacity: 0; transform: translateY(0.5em); }
+  30%  { opacity: 1; transform: none; }
+  50%  { opacity: 1; transform: none; }
+  100% { opacity: 0.45; transform: scale(0.95); }
+}
+
+/* Belt and braces: if reduce motion is switched on after the page loaded. */
+@media (prefers-reduced-motion: reduce) {
+  .fv *, .fv *::before, .fv *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

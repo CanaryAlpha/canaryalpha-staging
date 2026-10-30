@@ -1,0 +1,3 @@
+node_modules/
+# Renders: rebuild with `npm run render`.
+out/

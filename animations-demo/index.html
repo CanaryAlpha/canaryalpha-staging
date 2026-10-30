@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en" data-page="dev">
+<head>
+  <!-- STAGING build of f4859d4e2733c62fb4b5ffb55bb222f174c580ab (tools/build-staging.py) -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="ca-staging-build" content="f4859d4e2733c62fb4b5ffb55bb222f174c580ab">
+  <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Feature Animations | Canary Alpha Research</title>
+  <meta name="description" content="The four animated feature visuals from the Canary Alpha Research home page, one per screen.">
+  <link rel="icon" type="image/svg+xml" href="../brand/favicon.svg">
+  <!-- Site fonts: Satoshi (headings and logo), Work Sans (body). -->
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&amp;display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="../styles.css?v=66">
+  <link rel="stylesheet" href="../components/site-header.css?v=43">
+  <link rel="stylesheet" href="../components/feature-visuals.css?v=12">
+  <!-- Site settings and production mode: load first. -->
+  <script src="../components/site.config.js?v=2"></script>
+  <script src="../components/site-mode.js?v=1"></script>
+  <!-- Applies a saved theme before first paint (no flash). -->
+  <script>
+    (function () {
+      try {
+        var r = document.documentElement;
+        var t = localStorage.getItem("ca-demo-theme");
+        // Night mode was removed: a saved "night" becomes "dark".
+        if (t === "night") { t = "dark"; localStorage.setItem("ca-demo-theme", t); }
+        if (t === "light" || t === "dark") r.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+  <!-- Demo login (DEMO ONLY, see components/auth.js). -->
+  <script src="../components/auth.config.js?v=1"></script>
+  <script src="../components/auth.js?v=2"></script>
+</head>
+<body>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build f4859d4 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <header class="site-header" data-site-header data-home="../" data-root="../"></header>
+  <script src="../components/site-links.js?v=8"></script>
+  <script src="../components/site-header.js?v=42"></script>
+  <main class="fv-demo">
+    <!-- The four visuals from the home page's "Our process" tiles, large,
+         one per screen. Labels and numbers: components/feature-visuals.config.js. -->
+    <section class="fv-demo__screen" aria-labelledby="fv-demo-scoring">
+      <div class="fv-demo__text">
+        <p class="fv-demo__step">1 of 4</p>
+        <h2 class="fv-demo__title" id="fv-demo-scoring">80-point scoring framework</h2>
+        <p class="fv-demo__copy">Each token is scored across six weighted categories, ending in a clear verdict.</p>
+      </div>
+      <div class="fv--lg" data-feature-visual="scoring"></div>
+    </section>
+
+    <section class="fv-demo__screen" aria-labelledby="fv-demo-forensics">
+      <div class="fv-demo__text">
+        <p class="fv-demo__step">2 of 4</p>
+        <h2 class="fv-demo__title" id="fv-demo-forensics">On-chain forensics</h2>
+        <p class="fv-demo__copy">We trace whale wallets, treasury movements, and token flows to see what insiders are doing, not just what they're saying.</p>
+      </div>
+      <div class="fv--lg" data-feature-visual="forensics"></div>
+    </section>
+
+    <section class="fv-demo__screen" aria-labelledby="fv-demo-screening">
+      <div class="fv-demo__text">
+        <p class="fv-demo__step">3 of 4</p>
+        <h2 class="fv-demo__title" id="fv-demo-screening">Scam screening</h2>
+        <p class="fv-demo__copy">A six-point red-flag check catches warning signs early: inactive developers, silent teams, and sell pressure hidden behind rising prices.</p>
+      </div>
+      <div class="fv--lg" data-feature-visual="screening"></div>
+    </section>
+
+    <section class="fv-demo__screen" aria-labelledby="fv-demo-revisit">
+      <div class="fv-demo__text">
+        <p class="fv-demo__step">4 of 4</p>
+        <h2 class="fv-demo__title" id="fv-demo-revisit">Built to revisit</h2>
+        <p class="fv-demo__copy">Quarterly updates track what changed since the last report, so your thesis stays current.</p>
+      </div>
+      <div class="fv--lg" data-feature-visual="revisit"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" data-site-footer data-root="../">
+    <p class="site-footer__disclaimer">Canary Alpha Research LLC provides research for informational purposes only, not investment advice. Crypto assets are high risk. <a href="../disclaimer/">Read our disclaimer.</a></p>
+  </footer>
+  <script src="../components/site-footer.js?v=1"></script>
+
+  <script src="../script.js?v=40"></script>
+  <script src="../components/feature-visuals.config.js?v=9"></script>
+  <script src="../components/feature-visuals.js?v=8"></script>
+</body>
+</html>

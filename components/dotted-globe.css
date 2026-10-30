@@ -1,0 +1,64 @@
+/*
+ * Dotted globe component. Size: a square that is ~75% of the width on
+ * phones, ~55% on tablets, ~42% on desktop, never taller than 65% of the
+ * visible height. Colours are per-theme tokens read by dotted-globe.js.
+ *
+ * --globe-base is cobe's base colour. With --globe-dark: 0 (light) it tints
+ * the sphere and cobe draws the land dots dark (charcoal) on it; with
+ * --globe-dark: 1 it is the colour of the dots on a dark sphere.
+ * --globe-glow is the edge glow; on Light it equals the page, so none shows.
+ */
+:root,
+:root[data-theme="light"] {
+  --globe-base: #ffffff;   /* pale sphere, charcoal dots */
+  --globe-glow: #ffffff;   /* = ground: no visible glow */
+  --globe-dark: 0;
+  --globe-diffuse: 1.2;
+  --globe-brightness: 6;
+  --globe-ocean: 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --globe-base: #c6ccd6; /* soft cool-white dots */
+    --globe-glow: #000000;   /* = ground: no visible glow */
+    --globe-dark: 1;
+    --globe-brightness: 6;
+  }
+}
+
+:root[data-theme="dark"] {
+  --globe-base: #c6ccd6;
+  --globe-glow: #000000;
+  --globe-dark: 1;
+  --globe-brightness: 6;
+}
+
+/* The size lives in --globe-size so pages can position things relative to
+   the globe (e.g. text at its edge) without measuring it. */
+:root { --globe-size: min(75vw, 65vh); }
+@media (min-width: 768px) { :root { --globe-size: min(55vw, 65vh); } }
+@media (min-width: 1200px) { :root { --globe-size: min(42vw, 65vh); } }
+@supports (height: 1dvh) {
+  :root { --globe-size: min(75vw, 65dvh); }
+  @media (min-width: 768px) { :root { --globe-size: min(55vw, 65dvh); } }
+  @media (min-width: 1200px) { :root { --globe-size: min(42vw, 65dvh); } }
+}
+
+.dotted-globe {
+  width: var(--globe-size);
+  aspect-ratio: 1;
+  cursor: grab;
+}
+.dotted-globe.is-dragging { cursor: grabbing; }
+
+.dotted-globe canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Dragging on the globe never scrolls the page; elsewhere scrolls as usual. */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+

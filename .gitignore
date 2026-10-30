@@ -1,0 +1,10 @@
+# macOS Finder metadata
+.DS_Store
+
+# Environment files (keys, secrets); keep an example file if one is added
+.env
+.env.*
+!.env.example
+
+# Brand build fonts (SIL OFL, downloaded; see brand/build_logo.py)
+brand/fonts/

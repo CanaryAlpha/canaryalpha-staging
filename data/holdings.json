@@ -1,0 +1,12 @@
+{
+  "_readme": [
+    "Company holdings: the one file behind /holdings/ and the Disclosure line on reports (components/holdings/).",
+    "Policy (disclaimer/, section 8): disclose WHETHER a position is held, never how much. Never add amount, size, value, quantity or entry-price fields; the page refuses to show an entry that has one.",
+    "lastUpdated: YYYY-MM-DD, shown at the top of the page. Change it every time you edit this file.",
+    "holdings: one entry per token. ticker (e.g. \"BTC\"), name (e.g. \"Bitcoin\"), status (\"held\" or \"not-held\"), disclosed (YYYY-MM-DD). Optional: logo (path from the site root without the size, e.g. \"assets/logos/bitcoin\", needs -64.png and -128.png), report: { \"title\": \"...\", \"url\": \"/reports/btc/\" }.",
+    "changes: the public record, newest first. date (YYYY-MM-DD), ticker, event (\"Position opened\" or \"Position closed\"). Optional: note. Never delete an entry; add a new one."
+  ],
+  "lastUpdated": "2026-10-29",
+  "holdings": [],
+  "changes": []
+}

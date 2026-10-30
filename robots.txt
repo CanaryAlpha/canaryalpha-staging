@@ -1,0 +1,3 @@
+# STAGING: not for search engines. The live site is https://canaryalpha.co/
+User-agent: *
+Disallow: /

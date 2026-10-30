@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- STAGING build of f4859d4e2733c62fb4b5ffb55bb222f174c580ab (tools/build-staging.py) -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="ca-staging-build" content="f4859d4e2733c62fb4b5ffb55bb222f174c580ab">
+  <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign Up — Canary Alpha Research</title>
+  <meta name="description" content="Canary Alpha Research member accounts open soon. Join the list to hear when they do.">
+  <!-- Search and link previews. -->
+  <link rel="canonical" href="https://canaryalpha.co/signup/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Canary Alpha Research">
+  <meta property="og:title" content="Sign Up — Canary Alpha Research">
+  <meta property="og:description" content="Canary Alpha Research member accounts open soon. Join the list to hear when they do.">
+  <meta property="og:url" content="https://canaryalpha.co/signup/">
+  <meta property="og:image" content="https://canaryalpha.co/brand/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Canary Alpha Research: institutional-grade crypto research.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="../brand/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="../brand/favicon-512.png">
+  <link rel="apple-touch-icon" href="../brand/apple-touch-icon.png">
+  <!-- Site fonts: Satoshi (headings and logo), Work Sans (body). -->
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&amp;display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="../styles.css?v=66">
+  <link rel="stylesheet" href="../components/site-header.css?v=43">
+  <!-- Site settings and production mode: load first. -->
+  <script src="../components/site.config.js?v=2"></script>
+  <script src="../components/site-mode.js?v=1"></script>
+  <!-- Applies a saved theme before first paint (no flash). -->
+  <script>
+    (function () {
+      try {
+        var r = document.documentElement;
+        var t = localStorage.getItem("ca-demo-theme");
+        // Night mode was removed: a saved "night" becomes "dark".
+        if (t === "night") { t = "dark"; localStorage.setItem("ca-demo-theme", t); }
+        if (t === "light" || t === "dark") r.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+  <!-- Demo login (DEMO ONLY, see components/auth.js). -->
+  <script src="../components/auth.config.js?v=1"></script>
+  <script src="../components/auth.js?v=2"></script>
+</head>
+<body>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build f4859d4 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <header class="site-header" data-site-header data-home="../" data-root="../"></header>
+  <script src="../components/site-links.js?v=8"></script>
+  <script src="../components/site-header.js?v=42"></script>
+  <main>
+    <!-- Production mode (components/site.config.js): accounts aren't open
+         yet, so this page is "Join the list". Log in and the dashboards send
+         visitors here. The form sends name and email to the "waitlist"
+         Formspree endpoint (signup.js); until it is set, it asks visitors to
+         email us. -->
+    <article class="form-page" data-production-only aria-labelledby="join-title">
+      <h1 id="join-title" class="form-page__title">Accounts open soon</h1>
+      <p class="form-page__intro">We&rsquo;re getting member accounts ready. Join the list and we&rsquo;ll email you when they open.</p>
+      <form class="form" id="join-form" data-mail-subject="Join the list" novalidate>
+        <div class="field">
+          <label class="field__label" for="join-name">Name (optional)</label>
+          <input class="field__input" id="join-name" name="name" type="text" autocomplete="name" maxlength="100">
+        </div>
+        <div class="field">
+          <label class="field__label" for="join-email">Email</label>
+          <input class="field__input" id="join-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="254" aria-describedby="join-email-error">
+          <p class="field__error" id="join-email-error" aria-live="polite"></p>
+        </div>
+        <div class="form__actions">
+          <button type="submit" class="form__submit" data-busy="Joining&hellip;">Join the list</button>
+          <p class="form__status" data-form-status data-success="You&rsquo;re on the list. We&rsquo;ll email you when accounts open." role="status" aria-live="polite"></p>
+        </div>
+        <p class="form__legal">We&rsquo;ll only use your email to tell you when accounts open. See our <a href="../privacy/">Privacy Policy</a>.</p>
+      </form>
+    </article>
+
+    <!-- DEMO (production mode off): a valid signup starts a demo free-tier
+         session (components/auth.js) and opens the free dashboard. Nothing
+         is sent, and the password is never stored; see signup.js. -->
+    <article class="form-page" data-demo-only aria-labelledby="form-title">
+      <h1 id="form-title" class="form-page__title">Sign up</h1>
+      <p class="form-page__intro">Get access to our Bitcoin and Ethereum reports for free.</p>
+      <form class="form" id="signup-form" novalidate>
+        <div class="field">
+          <label class="field__label" for="signup-name">Name</label>
+          <input class="field__input" id="signup-name" name="name" type="text" autocomplete="name" required maxlength="100" aria-describedby="signup-name-error">
+          <p class="field__error" id="signup-name-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="signup-email">Email</label>
+          <input class="field__input" id="signup-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="254" aria-describedby="signup-email-error">
+          <p class="field__error" id="signup-email-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="signup-password">Password</label>
+          <div class="field__pw">
+            <input class="field__input" id="signup-password" name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="200" aria-describedby="signup-password-hint signup-password-error">
+            <button type="button" class="field__pw-toggle" data-password-toggle aria-controls="signup-password" aria-pressed="false" aria-label="Show password">Show</button>
+          </div>
+          <p class="field__hint" id="signup-password-hint">At least 8 characters.</p>
+          <p class="field__error" id="signup-password-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="signup-phone">Phone (optional)</label>
+          <input class="field__input" id="signup-phone" name="phone" type="tel" autocomplete="tel" maxlength="30" aria-describedby="signup-phone-error">
+          <p class="field__error" id="signup-phone-error" aria-live="polite"></p>
+        </div>
+        <div class="field field--check">
+          <input class="field__check" id="signup-sms_opt_in" name="sms_opt_in" type="checkbox" value="yes" data-depends="phone" aria-describedby="signup-sms_opt_in-error">
+          <label class="field__check-label" for="signup-sms_opt_in">Text me updates about my account and free reports. Message and data rates may apply. Reply STOP to unsubscribe.</label>
+          <p class="field__error" id="signup-sms_opt_in-error" aria-live="polite"></p>
+        </div>
+        <div class="form__actions">
+          <button type="submit" class="form__submit" data-busy="Signing up&hellip;">Sign up</button>
+          <p class="form__status" data-form-status data-success="You&rsquo;re in. Check your inbox soon." role="status" aria-live="polite"></p>
+        </div>
+        <p class="form__legal">By signing up, you agree to our <a href="../terms/">Terms of Service</a> and <a href="../privacy/">Privacy Policy</a>.</p>
+      </form>
+      <p class="form__switch">Already have an account? <a href="../login/">Log in</a></p>
+    </article>
+  </main>
+
+  <footer class="site-footer" data-site-footer data-root="../">
+    <p class="site-footer__disclaimer">Canary Alpha Research LLC provides research for informational purposes only, not investment advice. Crypto assets are high risk. <a href="../disclaimer/">Read our disclaimer.</a></p>
+  </footer>
+  <script src="../components/site-footer.js?v=1"></script>
+
+  <script src="../components/form-fields.js?v=4"></script>
+  <script src="signup.js?v=4"></script>
+  <script src="../script.js?v=40"></script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en" data-page="dev">
+<head>
+  <!-- STAGING build of f4859d4e2733c62fb4b5ffb55bb222f174c580ab (tools/build-staging.py) -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="ca-staging-build" content="f4859d4e2733c62fb4b5ffb55bb222f174c580ab">
+  <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Font Compare — Canary Alpha Research</title>
+  <link rel="icon" type="image/svg+xml" href="../brand/favicon.svg">
+  <!-- Site fonts: Satoshi (headings and logo), Work Sans (body). -->
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&amp;display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="../styles.css?v=66">
+  <link rel="stylesheet" href="../components/site-header.css?v=43">
+  <!-- Site settings and production mode: load first. -->
+  <script src="../components/site.config.js?v=2"></script>
+  <script src="../components/site-mode.js?v=1"></script>
+  <!-- Applies a saved theme before first paint (no flash). -->
+  <script>
+    (function () {
+      try {
+        var r = document.documentElement;
+        var t = localStorage.getItem("ca-demo-theme");
+        if (t === "night") { t = "dark"; localStorage.setItem("ca-demo-theme", t); }
+        if (t === "light" || t === "dark") r.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+  <!-- Design tool (not linked anywhere): every heading/body font pair as a
+       specimen card. Fonts load as cards scroll into view. -->
+  <style>
+    .fc { width: min(100% - 2rem, 90rem); margin: 0 auto; padding: calc(var(--site-header-h, 64px) + 2rem) 0 4rem; }
+    .fc__title { margin: 0; font-size: var(--section-title-size); font-weight: 700; line-height: 1.1; }
+    .fc__intro { margin: 0.75rem 0 0; color: var(--muted); max-width: 46rem; }
+    .fc__bar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; margin: 1.5rem 0; }
+    .fc__bar label { display: inline-flex; align-items: center; gap: 0.4rem; }
+    .fc__bar select { font: inherit; min-height: 36px; padding: 0 0.4rem; color: var(--ink); background: var(--ground); border: 1px solid var(--rule); border-radius: 4px; }
+    .fc__bar input { margin: 0; accent-color: var(--ink); }
+    .fc__count { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .fc__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); gap: 1rem; margin: 0; padding: 0; list-style: none; }
+    .fc-card { position: relative; display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem; border: 1px solid var(--rule); border-radius: 8px; cursor: pointer; font-family: var(--font-body); }
+    .fc-card:hover, .fc-card:focus-within { border-color: var(--ink); }
+    .fc-card__meta { display: flex; flex-wrap: wrap; gap: 0.35rem 0.75rem; margin: 0; color: var(--muted); font: 12px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    .fc-card__meta b { color: var(--ink); font-weight: 600; }
+    .fc-card__open { all: unset; position: absolute; inset: 0; border-radius: 8px; cursor: pointer; }
+    .fc-card__open:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+    .fc-card__fav { position: relative; z-index: 1; margin-left: auto; min-height: 28px !important; min-width: 28px !important; padding: 0 0.4rem !important; border: 0 !important; background: none !important; color: var(--ink) !important; font-size: 1rem !important; }
+    .fc-card h2 { margin: 0; font-family: var(--font-heading); font-size: 1.75rem; line-height: 1.1; font-weight: var(--fc-weight, 700); letter-spacing: var(--fc-tracking, -0.015em); }
+    .fc-card p { margin: 0; }
+    .fc-card__price { font-family: var(--font-heading); font-size: 1.5rem; font-weight: 700; }
+    .fc-card__price span { color: var(--muted); font-size: 0.6em; font-weight: 400; }
+    .fc-card table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    .fc-card th, .fc-card td { padding: 0.3rem 0; border-bottom: 1px solid var(--rule); text-align: right; }
+    .fc-card th:first-child, .fc-card td:first-child { text-align: left; }
+    .fc-card th { color: var(--muted); font-weight: 400; }
+    .fc-card .button { align-self: flex-start; margin-left: -1.25rem; pointer-events: none; }
+    .fc__empty { color: var(--muted); }
+  </style>
+  <!-- Demo login (DEMO ONLY, see components/auth.js). -->
+  <script src="../components/auth.config.js?v=1"></script>
+  <script src="../components/auth.js?v=2"></script>
+</head>
+<body>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build f4859d4 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <header class="site-header" data-site-header data-home="../" data-root="../"></header>
+  <script src="../components/site-links.js?v=8"></script>
+  <script src="../components/site-header.js?v=42"></script>
+  <main class="fc">
+    <h1 class="fc__title">Font compare</h1>
+    <p class="fc__intro">Every heading and body pair, set with real site content. Click a card to use that pair and open the homepage with the font panel. ☆ saves a pair to the panel's favorites.</p>
+    <div class="fc__bar">
+      <label><input type="checkbox" id="fc-favs"> Favorites only</label>
+      <label>Heading <select id="fc-heading"><option value="">Any</option></select></label>
+      <label>Body <select id="fc-body"><option value="">Any</option></select></label>
+      <label><input type="checkbox" id="fc-same"> Same font only</label>
+      <span class="fc__count" id="fc-count" aria-live="polite"></span>
+    </div>
+    <ul class="fc__grid" id="fc-grid"></ul>
+  </main>
+  <script src="../components/font-panel.js?v=3"></script>
+  <script>
+    (function () {
+      var F = window.CAFonts;
+      var grid = document.getElementById("fc-grid");
+      var count = document.getElementById("fc-count");
+      var favsOnly = document.getElementById("fc-favs");
+      var sameOnly = document.getElementById("fc-same");
+      var hSel = document.getElementById("fc-heading");
+      var bSel = document.getElementById("fc-body");
+      var nmOk = false;
+
+      function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+      function usable(f) { return !(f.licensed && !nmOk); }
+
+      function favKeys() {
+        var keys = {};
+        F.getFavorites().forEach(function (f) { keys[f.heading + "|" + f.body] = true; });
+        return keys;
+      }
+
+      function card(h, b) {
+        var li = document.createElement("li");
+        li.className = "fc-card";
+        li.dataset.heading = h.id;
+        li.dataset.body = b.id;
+        li.style.setProperty("--font-heading", h.headingFamily || h.family);
+        li.style.setProperty("--font-body", b.family);
+        var name = h.name + " / " + b.name;
+        li.innerHTML =
+          '<p class="fc-card__meta"><span>Heading <b>' + esc(h.name) + "</b></span><span>Body <b>" + esc(b.name) + "</b></span>" +
+          '<span data-tab>Tabular numbers …</span>' +
+          '<button type="button" class="fc-card__fav" aria-pressed="false" aria-label="Favorite ' + esc(name) + '">☆</button></p>' +
+          "<h2>Crypto research built to institutional standards.</h2>" +
+          "<p>We trace whale wallets, treasury movements, and token flows to see what insiders are doing, not just what they're saying.</p>" +
+          '<p class="fc-card__price">$30<span>/month</span></p>' +
+          "<table><thead><tr><th scope=\"col\">Asset</th><th scope=\"col\">Price</th><th scope=\"col\">24h</th></tr></thead><tbody>" +
+          "<tr><td>BTC</td><td>$67,432.18</td><td>+2.41%</td></tr>" +
+          "<tr><td>ETH</td><td>$3,518.06</td><td>-0.87%</td></tr>" +
+          "<tr><td>SOL</td><td>$148.90</td><td>+11.04%</td></tr></tbody></table>" +
+          '<span class="button button--ghost">Sign up <svg class="button__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></span>' +
+          '<button type="button" class="fc-card__open" aria-label="Use ' + esc(name) + ' and open the homepage"></button>';
+        li.querySelector(".fc-card__open").addEventListener("click", function () {
+          F.setState({ heading: h.id, body: b.id, weight: null, tracking: null, link: h.id === b.id });
+          try { sessionStorage.setItem("ca-font-panel", "1"); } catch (e) {}
+          location.href = "../?fonts=1";
+        });
+        li.querySelector(".fc-card__fav").addEventListener("click", function (e) {
+          e.stopPropagation();
+          var favs = F.getFavorites();
+          var any = favs.some(function (f) { return f.heading === h.id && f.body === b.id; });
+          if (any) favs = favs.filter(function (f) { return !(f.heading === h.id && f.body === b.id); });
+          else favs.push({ heading: h.id, body: b.id, weight: null, tracking: null });
+          F.setFavorites(favs);
+          render();
+        });
+        return li;
+      }
+
+      // Fonts load only for cards on (or near) the screen.
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          io.unobserve(e.target);
+          var li = e.target;
+          F.load(li.dataset.heading);
+          F.tabular(li.dataset.body).then(function (ok) {
+            li.querySelector("[data-tab]").textContent = ok === null ? "Not loaded" : "Tabular numbers " + (ok ? "✓" : "✗");
+          });
+        });
+      }, { rootMargin: "300px 0px" });
+
+      var cards = [];
+      function build() {
+        grid.innerHTML = "";
+        cards = [];
+        F.FONTS.filter(usable).forEach(function (h) {
+          F.FONTS.filter(usable).forEach(function (b) {
+            if (b.headingOnly) return;
+            var c = card(h, b);
+            cards.push(c);
+            grid.appendChild(c);
+            io.observe(c);
+          });
+        });
+        render();
+      }
+      function render() {
+        var keys = favKeys(), shown = 0;
+        cards.forEach(function (c) {
+          var k = c.dataset.heading + "|" + c.dataset.body;
+          var fav = !!keys[k];
+          var star = c.querySelector(".fc-card__fav");
+          star.textContent = fav ? "★" : "☆";
+          star.setAttribute("aria-pressed", String(fav));
+          var show = (!favsOnly.checked || fav) &&
+            (!hSel.value || hSel.value === c.dataset.heading) &&
+            (!bSel.value || bSel.value === c.dataset.body) &&
+            (!sameOnly.checked || c.dataset.heading === c.dataset.body);
+          c.hidden = !show;
+          if (show) shown++;
+        });
+        count.textContent = shown + (shown === 1 ? " pair" : " pairs");
+        var empty = document.getElementById("fc-empty");
+        if (!shown && !empty) {
+          empty = document.createElement("p");
+          empty.id = "fc-empty";
+          empty.className = "fc__empty";
+          empty.textContent = favsOnly.checked ? "No favorites match. Use ☆ on a card or in the font panel." : "No pairs match.";
+          grid.after(empty);
+        } else if (shown && empty) empty.remove();
+      }
+      function fillFilters() {
+        [hSel, bSel].forEach(function (s, i) {
+          var keep = s.value;
+          s.length = 1;
+          F.FONTS.forEach(function (f) {
+            if (!usable(f) || (i === 1 && f.headingOnly)) return;
+            s.add(new Option(f.name, f.id));
+          });
+          s.value = keep;
+        });
+      }
+      [favsOnly, sameOnly, hSel, bSel].forEach(function (c) { c.addEventListener("change", render); });
+      window.addEventListener("storage", render);
+
+      fillFilters();
+      build();
+      fetch("../fonts/neue-montreal/NeueMontreal-Regular.woff2", { method: "HEAD", cache: "no-store" })
+        .then(function (r) { return r.ok; }, function () { return false; })
+        .then(function (ok) {
+          if (!ok) return;
+          nmOk = true;
+          fillFilters();
+          build();
+        });
+    })();
+  </script>
+  <script src="../components/site-footer.js?v=1"></script>
+  <script src="../script.js?v=40"></script>
+</body>
+</html>

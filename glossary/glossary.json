@@ -1,0 +1,2290 @@
+{
+  "_readme": "Glossary terms for glossary/. Add a term by copying any entry in \"terms\" (order doesn't matter; the page sorts A-Z). Required: term, definition, category. Optional: slug (made from the term if left out), example, also, firstUsedIn, firstUsedAt. Categories: tokenomics, on-chain, market structure, security, governance, technical, general finance, regulatory.",
+  "_source": {
+    "copiedFrom": "canaryalpha-research/published/_glossary.json",
+    "schema": "canaryalpha-glossary-v1",
+    "sourceUpdatedAt": "2026-09-12T07:17:45Z",
+    "sourceMd5": "650df1a5587ed976820052e0d7e650b4",
+    "copiedOn": "2026-10-21",
+    "changes": "Field names renamed for this site; Slippage's category \"market\" moved to \"market structure\"."
+  },
+  "terms": [
+    {
+      "term": "2% Sell Depth",
+      "slug": "two-percent-sell-depth",
+      "definition": "The dollar value of selling a market can absorb before the price falls 2%. Measured across every venue, it is the practical size limit on an exit, and it is normally far smaller than daily volume or market capitalization.",
+      "example": "AZTEC's all-venue 2% sell depth is $644,496, against a month-1 unlock of $14,366,971.",
+      "also": [
+        "all-venue 2% depth",
+        "depth to -2%"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Accrued Entitlement",
+      "slug": "accrued-entitlement",
+      "definition": "A reward that has already been earned and is sitting in a contract, withdrawable whenever its owner chooses. It carries no unlock date and appears on no unlock calendar, which is what distinguishes it from a scheduled vesting release.",
+      "example": "MEGA's 417,312,063.06 claimable tranche rewards are an accrued entitlement, not an unlock: there is no date to hedge and the stock is exercisable today.",
+      "also": [
+        "claimable stock",
+        "unclaimed rewards",
+        "claimable on demand"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Actively Validated Service (AVS)",
+      "slug": "actively-validated-service",
+      "definition": "A service that pays restaking operators to do work for it and, in exchange, gains the right to slash their collateral if they fail. An AVS is the customer side of a restaking marketplace.",
+      "example": "EigenDA is the issuer's own AVS and was the payer on all 43 EIGEN reward submissions since 2026-03-12.",
+      "also": [
+        "AVS",
+        "actively validated service"
+      ],
+      "category": "technical",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Address Poisoning",
+      "slug": "address-poisoning",
+      "definition": "An attack that plants transactions from lookalike addresses in a target's history, so that someone copying a destination out of that history sends funds to the attacker instead. Nothing is stolen at the time it is planted, because any contract can emit any transfer event it likes; the loss happens later, when a signer copies the wrong line.",
+      "example": "17 poisoning events ran against the STRATO admin Safe between 2026-07-07 and 2026-08-17, including one address mimicking a real 725,004-USDC destination.",
+      "also": [
+        "address spoofing",
+        "lookalike address attack",
+        "homoglyph token"
+      ],
+      "category": "security",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Admission to Trading",
+      "slug": "admission-to-trading",
+      "definition": "Under the European Union's MiCA regime, the formal act by which a regulated venue lists a crypto-asset, accompanied by a notified filing naming the venue and the offeror. Notification is not approval, and the filings say so.",
+      "example": "MEGA's admission to trading was notified 2026-01-25 and became effective 2026-02-23, with OKX Europe Ltd named as the admitting venue.",
+      "also": [
+        "MiCA admission",
+        "admission filing"
+      ],
+      "category": "regulatory",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Allowlist (Transfer Endpoint)",
+      "slug": "allowlist",
+      "definition": "A list of addresses a token contract treats as permitted counterparties, so that a transfer settles only when the sender or the recipient appears on it. Adding or removing an address is an ordinary transaction by whoever holds the administrative role, which makes tradability a matter of the operator's discretion rather than of the token's design.",
+      "example": "The Uniswap V4 PoolManager was added to STRATO's allowlist at block 25231662 and removed at block 25296234, which ended trading in the only pool that ever existed.",
+      "also": [
+        "transfer endpoints",
+        "whitelist",
+        "transferEndpoints"
+      ],
+      "category": "technical",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Annual Percentage Rate (APR)",
+      "slug": "annual-percentage-rate",
+      "definition": "A yield stated as a simple annual rate, with no compounding. A staking APR paid out of a fixed pre-minted pool ends when that pool empties, unlike one funded from ongoing revenue.",
+      "example": "AZTEC's 22.96% staking APR is paid from a pool that empties around 2027-03-03.",
+      "also": [
+        "APR",
+        "yield"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Arbitrage",
+      "slug": "arbitrage",
+      "definition": "Buying an asset on one venue and selling it on another to capture the price difference. An arbitrage program can generate very large transaction counts while holding almost none of the asset.",
+      "also": [
+        "arb",
+        "arbitrage bot"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Archive Node",
+      "slug": "archive-node",
+      "definition": "A node that retains the full historical state of a chain, so a query can be answered as of any past block rather than only the latest one. Reading a contract at a fixed past block on an archive node is what makes an on-chain measurement reproducible by a third party.",
+      "also": [
+        "archive provider",
+        "historical state"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Attestation",
+      "slug": "attestation",
+      "definition": "A signed statement from a named party asserting that something is true off-chain, such as that reserves of a stated size exist. A chain can check that the signature is valid and that the signer is authorized; it cannot check that the underlying statement is true.",
+      "example": "STRATO's mint path validates an attestation-signer quorum, which is the only thing Ethereum can check about the reserve behind the token.",
+      "also": [
+        "signed attestation",
+        "attestation signature"
+      ],
+      "category": "security",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Attestation Threshold",
+      "slug": "attestation-threshold",
+      "definition": "The number of authorized signatures a contract requires before it accepts an attestation and acts on it. A threshold of one over a signer count of one means a single key is the entire control, so compromise of that key is compromise of the mechanism.",
+      "example": "STRATO's bridge reads attestationThreshold() = 1 against attestationSignerCount() = 1 at the pin, on a mint entry point that carries no role modifier of its own.",
+      "also": [
+        "attestationThreshold",
+        "signer quorum"
+      ],
+      "category": "security",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Automated Market Maker (AMM)",
+      "slug": "automated-market-maker",
+      "definition": "A pool of two assets that quotes a price from its own balances by formula rather than from resting orders. Anyone can trade against it at any size, but the price moves further the larger the trade.",
+      "also": [
+        "AMM",
+        "liquidity pool",
+        "DEX pool"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Backing Token",
+      "slug": "backing-token",
+      "definition": "A non-tradable token held one-for-one inside a wrapper contract against the tradable token the wrapper issues. The backing token carries the protocol machinery; the wrapped token is what trades on venues.",
+      "example": "341,200,770.66 bEIGEN sat restaked at the pin, wrappable one-for-one into sellable EIGEN behind a withdrawal delay.",
+      "also": [
+        "bEIGEN",
+        "substrate token",
+        "wrapped pair"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Base Fee",
+      "slug": "base-fee",
+      "definition": "The portion of an Ethereum transaction fee that is destroyed rather than paid to anyone. It rises when blocks are full and falls when they are not, so it is the price of scarce block space.",
+      "example": "Ethereum's median base fee was 0.0702 gwei, down 97.9% from 3.365 gwei two years earlier.",
+      "also": [
+        "EIP-1559 base fee"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Basis Point",
+      "slug": "basis-point",
+      "definition": "One hundredth of a percentage point. Fees, spreads and rates are quoted in basis points because the differences that matter are often smaller than a whole percent.",
+      "example": "PROVE's quoted spread is 6 bps - 0.06% - on six of the eight order books measured.",
+      "also": [
+        "bp",
+        "bps",
+        "bips"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Beneficial Holder",
+      "slug": "beneficial-holder",
+      "definition": "The party entitled to tokens held inside a vesting contract, as distinct from the contract address holding them. Counting addresses overstates dispersion when many vaults resolve to one beneficiary.",
+      "example": "Aztec's 204 vaults collapse to 109 beneficiaries, of whom 17 control 51% of the vaulted pool.",
+      "also": [
+        "beneficiary"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Bid Depth",
+      "slug": "bid-depth",
+      "definition": "The total dollar value of standing buy orders within a stated distance of the current price, summed across the venues measured. It is the money actually available to absorb a sale right now, as distinct from trading volume, which is money that already changed hands.",
+      "example": "Global bid depth within 2% of PROVE's price is $742,679, against a scheduled unlock tranche worth $8,435,345.",
+      "also": [
+        "order book depth",
+        "2% depth",
+        "market depth"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Blockspace",
+      "slug": "blockspace",
+      "definition": "The finite room in a chain's blocks that transactions compete for. Selling blockspace is how most chains earn revenue, and its price is the clearest available read on demand for the chain.",
+      "example": "Polkadot sells blockspace in whole cores as coretime; 53 of 100 cores sat idle at the report date.",
+      "also": [
+        "block space",
+        "execution capacity"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Boundary Review",
+      "slug": "boundary-review",
+      "definition": "A Canary Alpha control that sends a rating to human review before publication when the composite lands close to a band boundary. The label is not assigned automatically, and a reader is told that the arithmetic, not a judgment, put it in the band it is in.",
+      "example": "EIGEN's composite of 3.98 sits 0.025 below the 4.00 Watch List floor, so boundary review is triggered.",
+      "also": [
+        "boundary_review",
+        "pre-publication review"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Bug Bounty",
+      "slug": "bug-bounty",
+      "definition": "A standing offer to pay outside researchers for reporting vulnerabilities. The top payout relative to the value at risk decides whether a researcher is better off reporting a flaw than selling it.",
+      "example": "Aztec's Critical payout is $50,000 against a $148.7M fully diluted valuation.",
+      "also": [
+        "bounty program"
+      ],
+      "category": "security",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Centralized Exchange (CEX)",
+      "slug": "centralized-exchange",
+      "definition": "A company-operated trading venue that holds customer funds and matches buyers and sellers on its own order book. Listings, custody and the accuracy of reported volume all depend on the operator.",
+      "example": "98.72% of PROVE's real flow is on centralized exchanges: $5,449,093.80 against $70,478.16 on-chain.",
+      "also": [
+        "CEX",
+        "exchange",
+        "order book venue"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Circular Flow",
+      "slug": "circular-flow",
+      "definition": "Tokens sent between two tracked wallets in both directions inside the study window. Round-tripping can manufacture the appearance of activity, so a search returning zero rules that pattern out.",
+      "also": [
+        "round-tripping"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Circulating Supply",
+      "slug": "circulating-supply",
+      "definition": "The number of tokens currently available to trade, excluding tokens still locked, unissued, or held back by the issuer. It is the denominator most market-cap figures use.",
+      "example": "AAVE is 96.39% circulating: 15,422,042 of a 16,000,000 hard cap.",
+      "also": [
+        "float supply"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Co-Spending Heuristic",
+      "slug": "co-spending-heuristic",
+      "definition": "The assumption that every input address to a single transaction is controlled by the same entity, since one signer had to authorize all of them. It is the basis of Bitcoin wallet clustering, and it fails against transactions built to defeat it.",
+      "example": "Clustering merged 40 rich-list addresses into 35 true singletons and 5 multi-address clusters.",
+      "also": [
+        "common-input-ownership heuristic"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "BTC",
+      "firstUsedAt": "2026-08-12"
+    },
+    {
+      "term": "Coefficient of Variation (CV)",
+      "slug": "coefficient-of-variation",
+      "definition": "The spread of a set of figures expressed as a fraction of their average. A CV near zero means the figures are near-identical, which is how a scheduled program is told apart from ordinary trading.",
+      "example": "Nine payments of exactly 167,363.56 EIGEN carry a CV of 0.0000.",
+      "also": [
+        "CV"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Collateral",
+      "slug": "collateral",
+      "definition": "An asset a borrower pledges to secure a loan. If the loan is not repaid or the collateral's value falls too far, the lender can seize and sell it to recover the debt.",
+      "example": "The April 2026 attacker pledged unbacked rsETH as collateral and borrowed roughly $195M against it.",
+      "also": [],
+      "category": "general finance",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Collateralized Debt Position (CDP)",
+      "slug": "collateralized-debt-position",
+      "definition": "A loan in which the borrower locks an asset in a contract and mints or draws a second asset against it, with liquidation if the collateral's value falls too far. The protocol earns from interest and liquidation penalties, so its revenue scales with how much third-party collateral it actually attracts.",
+      "example": "Externally-priced third-party collateral in the STRATO protocol is $483,083.67, against a $16.8M headline of which 97.13% is the protocol's own paper.",
+      "also": [
+        "CDP",
+        "collateralized lending"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Constant-Product Pool",
+      "slug": "constant-product-amm",
+      "definition": "An automated market maker that prices trades by holding the product of its two reserves constant, so each additional unit sold costs the buyer more than the last. The design implies a hard ceiling: no matter how much of one asset is sold into the pool, the seller can never extract more than the pool's entire holding of the other.",
+      "example": "If the transfer gate reopened and the pool were untouched, the whole 2,132,887.535062 supply sold into STRATO's 100.011444 ETH / 186,763.496165 STRATO pool would extract at most 91.936887 ETH.",
+      "also": [
+        "x*y=k",
+        "full-range position",
+        "constant product pool"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Continuous Clearing Auction",
+      "slug": "continuous-clearing-auction",
+      "definition": "A token sale in which bids arrive over a window and a single clearing price is recalculated as they do, with every filled bid settling at the final price. The price can only ratchet toward what bidders will pay, so a large move up from the floor is evidence that demand was competitive rather than arranged.",
+      "example": "STRATO's sale took 577 bids from 292 wallets and cleared 99.99% of its allocation, with the clearing price ratcheting up 4.07x across 306 updates.",
+      "also": [
+        "clearing auction",
+        "LBP-style sale"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Contractual Lockup",
+      "slug": "contractual-lockup",
+      "definition": "A restriction on selling that exists only in a signed agreement, with no contract enforcing it on chain. Nothing executes on the unlock date; somebody's permission changes, and an observer cannot verify the restriction or its release.",
+      "example": "552,842,430 EIGEN unlocks to 2027-09-30 under contractual rather than on-chain lockups, with no vesting contract in existence.",
+      "also": [
+        "off-chain lockup",
+        "contractual vesting"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Conviction Voting",
+      "slug": "conviction-voting",
+      "definition": "A voting rule that lets a holder multiply the weight of their vote by agreeing to lock the tokens for longer after the vote resolves. It prices influence in time as well as in tokens, so conviction-weighted totals are larger than the token balances behind them.",
+      "example": "147 voters cast 131,534,135 conviction-weighted votes on Referendum 1926; eighteen accounts supplied 96.4% of that weight.",
+      "also": [
+        "conviction weight",
+        "vote locking"
+      ],
+      "category": "governance",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Coretime",
+      "slug": "coretime",
+      "definition": "The unit in which Polkadot sells validated execution capacity. A buyer purchases the right to have one core validate its chain's blocks for a fixed period, either by the month (bulk) or by the block (on-demand). It replaced the fixed-length parachain slot auctions.",
+      "example": "Coretime sale #26 offered 89 cores and sold 35, every one of them a renewal, raising 472.43 DOT (about $410).",
+      "also": [
+        "blockspace-as-a-service",
+        "bulk coretime",
+        "on-demand coretime"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Cost Basis",
+      "slug": "cost-basis",
+      "definition": "The price at which a holder acquired an asset. Two holders of the same token at different cost bases face very different decisions at the same market price.",
+      "example": "Aztec insiders paid US$0.00015850 a token; December auction participants paid an average of $0.03963506.",
+      "also": [
+        "entry price"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Counterfactual",
+      "slug": "counterfactual",
+      "definition": "A figure computed under a condition that does not currently hold, published so that the size of a possible outcome is known in advance. A counterfactual is only meaningful with its condition attached, and quoting the figure without the condition converts a bounded hypothetical into a false statement about today.",
+      "example": "The 91.936887 ETH ceiling on STRATO is a counterfactual: it holds only if the transfer gate reopened and the pool were untouched.",
+      "also": [
+        "conditional estimate",
+        "what-if figure"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Critical (Audit Finding)",
+      "slug": "critical-finding",
+      "definition": "The highest severity an auditor assigns, reserved for a flaw that can cause direct loss of funds or a break in the system's core guarantees. A Critical left unresolved is an accepted live exposure, not a backlog item.",
+      "example": "Three Criticals remain unresolved, two of them on Hypercube code live on Ethereum mainnet since 2026-02-19.",
+      "also": [
+        "Critical severity",
+        "Critical advisory"
+      ],
+      "category": "security",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Cross-Chain Bridge",
+      "slug": "cross-chain-bridge",
+      "definition": "A system that moves value between two chains by locking or destroying an asset on one side and releasing or minting its counterpart on the other. The two sides are joined by a trusted process rather than by a shared ledger, so the bridge's controls are the holder's real counterparty.",
+      "example": "90 distinct addresses have used the STRATO bridge across 102 redemptions moving 992,114.964938 STRATO.",
+      "also": [
+        "bridge",
+        "token bridge"
+      ],
+      "category": "technical",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Cross-Consensus Messaging (XCM)",
+      "slug": "cross-consensus-messaging",
+      "definition": "Polkadot's format for one chain to move assets or call functions on another without a bridge operator holding the funds in between. Because both chains share the same validator set, the message is verified by consensus rather than trusted to a third party.",
+      "example": "The Polkadot ecosystem's one nine-figure-scale failure in 2026 came through an external bridge to Ethereum, not through XCM.",
+      "also": [
+        "XCM",
+        "cross-consensus message format"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Cryptoeconomic Security",
+      "slug": "cryptoeconomic-security",
+      "definition": "The protection a service buys by requiring the participants who run it to post collateral that can be destroyed if they misbehave. Its value is bounded by the collateral genuinely exposed to destruction, not by the collateral merely deposited.",
+      "example": "EIGEN's thesis is that services rent cryptoeconomic security; 94.41% of delegated restaked EIGEN was slashable by nobody at the pin.",
+      "also": [
+        "economic security",
+        "rented security"
+      ],
+      "category": "security",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Data-Carrier Output",
+      "slug": "data-carrier-output",
+      "definition": "A transaction output that stores data rather than moving value, and therefore carries zero value. A high share of these means transaction counts are rising without economic demand rising with them.",
+      "example": "5,951 of 49,082 live mempool outputs, or 12.1%, carried zero value.",
+      "also": [
+        "OP_RETURN output",
+        "zero-value output"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "BTC",
+      "firstUsedAt": "2026-08-12"
+    },
+    {
+      "term": "Decentralized Autonomous Organization (DAO)",
+      "slug": "dao",
+      "definition": "An organization whose treasury and decisions are controlled by token-holder votes executed on-chain rather than by a company board. Proposals pass or fail by vote, and approved changes execute automatically.",
+      "also": [
+        "DAO"
+      ],
+      "category": "governance",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Decentralized Exchange (DEX)",
+      "slug": "decentralized-exchange",
+      "definition": "A trading venue that runs as a smart contract, where trades execute against a pool of assets deposited by third parties rather than against another trader's order. Anyone can trade without an account, and the pool's size is a hard limit on what can be sold into it.",
+      "example": "A $1,000 PROVE sell on Uniswap V3 returns $558.30, because the Ethereum pool holds $10,315 of liquidity.",
+      "also": [
+        "DEX",
+        "automated market maker",
+        "AMM"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Declared Absence",
+      "slug": "declared-absence",
+      "definition": "A statement that a check could not be run, recorded so it is not read as a clean result. It reports the limits of the instrument rather than a finding about the asset, and it is not evidence that the thing looked for is absent.",
+      "example": "DOT's dormancy pass covered 89 of 181 specified days (49.2%) and is recorded as a declared absence, never as 'no dormant reactivation found'.",
+      "also": [
+        "gap",
+        "unmeasured",
+        "had_power false"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Denial of Service (DoS)",
+      "slug": "denial-of-service",
+      "definition": "An attack that stops a system from serving its users rather than stealing from it. On a blockchain the loss is liveness — blocks stop or slow — and no funds change hands.",
+      "example": "Three BlockSec High-severity findings against the live MegaEVM are denial-of-service vectors, not fund-theft vectors, and all three carry a published status of 'Confirmed' rather than 'Fixed'.",
+      "also": [
+        "DoS",
+        "liveness attack"
+      ],
+      "category": "security",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Deposit Forwarder",
+      "slug": "deposit-forwarder",
+      "definition": "A small contract that receives tokens at a per-customer address and sweeps them onward to an exchange's main wallet within a few blocks. A zero holding period at a forwarder is the design, not a sign of haste.",
+      "also": [
+        "forwarder",
+        "deposit address",
+        "sweep contract"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Difficulty Adjustment",
+      "slug": "difficulty-adjustment",
+      "definition": "Bitcoin's only feedback loop. Every 2,016 blocks the target changes so blocks keep arriving roughly every ten minutes, whatever the hashrate. It stabilizes the block interval, not the security budget.",
+      "example": "A -2.90% retarget was due around 2026-08-23 after blocks averaged 618.6 seconds.",
+      "also": [
+        "retarget"
+      ],
+      "category": "technical",
+      "firstUsedIn": "BTC",
+      "firstUsedAt": "2026-08-12"
+    },
+    {
+      "term": "Dilution",
+      "slug": "dilution",
+      "definition": "The reduction in each existing holder's share of the supply when new tokens are created. A holder who does nothing owns a smaller fraction of the same asset, whatever the price does.",
+      "example": "Forward dilution against D3 runs at 8.2196%/yr gross and 1.1738%/yr net of the treasury's burns.",
+      "also": [
+        "inflation",
+        "share-count increase"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Disintermediation",
+      "slug": "disintermediation",
+      "definition": "The gradual loss of business to alternatives that cut out the incumbent. It is slower and harder to detect than a single failure, because the incumbent keeps its brand and integrations while losing each new cohort of users.",
+      "example": "Aave's identified failure mode is slow disintermediation to modular competitors, not a hack.",
+      "also": [],
+      "category": "general finance",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Distribution Pipeline",
+      "slug": "distribution-pipeline",
+      "definition": "A traceable route by which insiders move tokens toward exchanges, typically through fresh intermediate wallets. Its absence means holders are not pre-positioned to sell; it does not predict what they will do.",
+      "also": [
+        "insider-selling chain",
+        "relay chain"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Dollar-Cost Averaging (DCA)",
+      "slug": "dollar-cost-averaging",
+      "definition": "Building a position in fixed increments over time rather than in a single purchase. A staged DCA ties each increment to a predefined trigger, so entry is governed by evidence rather than timing.",
+      "example": "The AAVE position is entered in three tranches against objective triggers.",
+      "also": [
+        "DCA",
+        "staged DCA",
+        "tranching in"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Dormant Wallet",
+      "slug": "dormant-wallet",
+      "definition": "An address that has not sent a transaction for a defined period - twelve months in Canary Alpha reports. Dormancy is measured, not assumed, by comparing the account's transaction counter now against its counter a year ago.",
+      "example": "44 of 151 EOAs in the ETH whale file were dormant, holding 32.4% of the EOA balance.",
+      "also": [],
+      "category": "on-chain",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Dust Attack",
+      "slug": "dust-attack",
+      "definition": "Sending tiny amounts of a coin to many addresses, usually to advertise or to attach a common sender to unrelated wallets. It creates false links in clustering analysis and must be filtered before any conclusion is drawn.",
+      "example": "All 41 candidate hub addresses were dust-spam artifacts; the top one held 0.00006732 BTC and paid 546-satoshi outputs.",
+      "also": [
+        "dust spam",
+        "dusting"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "BTC",
+      "firstUsedAt": "2026-08-12"
+    },
+    {
+      "term": "Dynamic Allocation Pool (DAP)",
+      "slug": "dynamic-allocation-pool",
+      "definition": "A governance-controlled reserve on Polkadot that receives a fixed share of new issuance, along with coretime revenue and slashed stake, and pays out only when governance directs it to. Tokens routed to it are neither burned nor distributed to holders.",
+      "example": "32.2% of Polkadot's issuance — 18,013,424 DOT a year — accrues to the DAP, whose on-chain account this run could not locate (SG-4-3).",
+      "also": [
+        "DAP"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "EigenLayer Improvement Proposal (ELIP)",
+      "slug": "elip",
+      "definition": "A numbered, publicly authored proposal to change the EigenLayer protocol. The series is the record of what the protocol has decided, so the absence of a proposal on a subject is evidence that no process on it is in flight.",
+      "example": "No fee-switch, buyback or revenue-share proposal exists in any of the 19 ELIPs.",
+      "also": [
+        "ELIP"
+      ],
+      "category": "governance",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "EIP-7702 Delegated EOA",
+      "slug": "eip-7702-delegated-eoa",
+      "definition": "An ordinary Ethereum account, controlled by one private key, that has been pointed at contract code so it can run contract logic. It remains a single key: it is not a multisignature wallet and not a timelock.",
+      "example": "The owner of the registry holding 703,179,000 undated AZTEC tokens is an EIP-7702 delegated EOA.",
+      "also": [
+        "7702 delegation",
+        "delegated EOA"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Emissions",
+      "slug": "emissions",
+      "definition": "New tokens a protocol pays out to the operators who secure it. Emissions are funded by diluting existing holders, so a protocol whose emissions far exceed its fee income is being paid for by its holders.",
+      "example": "AZTEC emissions ran 176.9 times user fees over the 30 days to 2026-08-26.",
+      "also": [
+        "token emissions",
+        "rewards"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Entity-Level Concentration",
+      "slug": "entity-level-concentration",
+      "definition": "Ownership measured by who can sign for a holding rather than by how many addresses hold it. Several addresses under one identical signer set count as one holder, and the figure is not comparable with an address-level figure from anywhere else.",
+      "example": "MEGA's entity-level top holder is 51.6012% — seven SafeProxy contracts on one byte-identical 12-owner array — against an address-level top holder of 25.0000%, a spread of 26.6 points.",
+      "also": [
+        "entity-level top-1",
+        "beneficial concentration"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Era",
+      "slug": "era",
+      "definition": "The accounting period a Substrate staking system runs on. Validator elections, reward payouts, and unbonding delays are all counted in eras rather than in blocks or days, so an era's length in seconds has to be measured rather than assumed.",
+      "example": "Polkadot's era was measured at exactly 86,400 seconds, which makes a two-era unbonding delay 48.00 hours flat.",
+      "also": [
+        "staking era"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "ERC-1967 Proxy",
+      "slug": "erc-1967-proxy",
+      "definition": "A standard layout for an upgradeable proxy that stores the address of its current implementation contract at one fixed, published storage slot. Because the slot is fixed, anyone can read that slot directly and confirm which code a proxy is actually running, without trusting a block explorer's label.",
+      "example": "Reading STRATO's ERC-1967 implementation slot at the pin returns 0xbbf8921e, matching both the Etherscan Implementation field and constructor word0.",
+      "also": [
+        "ERC1967",
+        "implementation slot",
+        "proxy slot"
+      ],
+      "category": "technical",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "ERC-20",
+      "slug": "erc-20",
+      "definition": "The Ethereum standard that defines how a fungible token records balances and moves between addresses. Meeting the standard says nothing about who controls the token or what it entitles a holder to.",
+      "example": "Trail of Bits reviewed the PROVE ERC-20 contract and found zero High and zero Critical findings.",
+      "also": [
+        "ERC20 token standard"
+      ],
+      "category": "technical",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Escape Hatch",
+      "slug": "escape-hatch",
+      "definition": "A contract path that lets a user withdraw funds from a rollup directly on Ethereum without the rollup's operators. It is what makes those operators optional rather than trusted.",
+      "also": [
+        "forced exit",
+        "walkaway property"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Escrow",
+      "slug": "escrow",
+      "definition": "A contract or account that holds an asset on behalf of someone else until a condition is met, without acquiring the right to spend it. Tokens sitting in escrow appear in a holder table as a single large balance, which overstates concentration if the escrow's beneficiaries are many and the escrow's operator cannot reach the balance.",
+      "example": "59.83% of STRATO supply sits in the auction escrow, sold and paid for, owed to 82 addresses across 98 unclaimed bid ids, and provably beyond the issuer's reach.",
+      "also": [
+        "escrow contract",
+        "unclaimed balance"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Ethereum Virtual Machine (EVM)",
+      "slug": "ethereum-virtual-machine",
+      "definition": "The execution environment Ethereum and most chains compatible with it use to run smart contracts. Naming it as a requirement is a statement about which contract code a chain can run without modification.",
+      "also": [
+        "EVM",
+        "EVM-compatible"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Event Log",
+      "slug": "event-log",
+      "definition": "The record a contract emits when something happens, indexed by topic so that every occurrence across a range of blocks can be retrieved. Sweeping the whole range answers whether an event has ever occurred, which is a stronger claim than reading current state at one block.",
+      "example": "A sweep of all 606 log records STRATO has emitted finds zero TransfersEnabledUpdated events, so the flag has never once been true.",
+      "also": [
+        "log",
+        "eth_getLogs",
+        "emitted event"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Existential Deposit",
+      "slug": "existential-deposit",
+      "definition": "The minimum balance a Substrate account must keep to continue existing. An account that falls below it is deleted, or reaped, and its remaining dust is destroyed. It exists to stop the chain's state being filled with empty accounts.",
+      "example": "About 3,000 accounts created by the 2026-08-28 DOT distribution were reaped below the existential deposit within 24 hours.",
+      "also": [
+        "ED",
+        "account reaping",
+        "reaped"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Exit Window",
+      "slug": "exit-window",
+      "definition": "A mandatory delay between a contract upgrade being announced and it taking effect, during which users can withdraw under the old rules. An exit window of none means an upgrade can change the rules with no opportunity to leave first.",
+      "example": "L2BEAT records MegaETH's contracts as instantly upgradable with exit window 'None'.",
+      "also": [
+        "upgrade delay",
+        "withdrawal window"
+      ],
+      "category": "security",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "External Data Availability",
+      "slug": "external-data-availability",
+      "definition": "An arrangement in which a chain publishes its transaction data to a separate network rather than to its settlement layer. It is cheaper, and it makes the ability to reconstruct the chain depend on that separate network rather than on the settlement layer's own guarantees.",
+      "example": "MegaETH posts data to EigenDA v2, with sequencer data roots not checked against the DACert Verifier on-chain.",
+      "also": [
+        "external DA",
+        "off-chain data availability",
+        "DA layer"
+      ],
+      "category": "technical",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Externally Owned Account (EOA)",
+      "slug": "externally-owned-account",
+      "definition": "An Ethereum address controlled by a private key rather than by code. An EOA can represent a person or a desk making decisions; a smart-contract address cannot.",
+      "example": "Only 151 of the 410 addresses in the WETH holder file were EOAs, and they held 8.36% of the balance.",
+      "also": [
+        "EOA"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Extrinsic",
+      "slug": "extrinsic",
+      "definition": "A piece of data submitted to a Substrate chain from outside it — the closest equivalent to a transaction. A signed extrinsic is one a user authorized with a key; an unsigned or inherent extrinsic is produced by the block author.",
+      "example": "Polkadot's signed extrinsics fell 17.5% over the 30 days to the report date while headline active addresses stayed flat.",
+      "also": [
+        "signed extrinsic",
+        "inherent"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Fee Switch",
+      "slug": "fee-switch",
+      "definition": "A governance-controlled setting that redirects part of a protocol's revenue to token holders. Until it is turned on, the protocol can earn while the token captures nothing.",
+      "also": [
+        "revenue switch"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Float",
+      "slug": "float",
+      "definition": "The portion of circulating supply actually available to trade on the open market, after subtracting holdings that are staked, bridged, or otherwise immobile. Thin float means large orders move the price sharply.",
+      "example": "AAVE has $20.19M of DEX liquidity against a $1.43B market cap; a $1M on-chain sell costs 31.2%.",
+      "also": [
+        "tradable float",
+        "on-chain float"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Force Inclusion",
+      "slug": "force-inclusion",
+      "definition": "A fallback that lets a user submit a transaction through the settlement layer when the chain's own operator will not process it. The delay before the transaction must be accepted sets how long a single operator can censor a user.",
+      "example": "Force inclusion via L1 on MegaETH carries a delay of up to 12 hours.",
+      "also": [
+        "forced inclusion",
+        "L1 force inclusion"
+      ],
+      "category": "technical",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Formal Verification",
+      "slug": "formal-verification",
+      "definition": "A mathematical proof that a piece of software behaves exactly as its specification says, covering every possible input rather than a sample of test cases. It is far stronger evidence than testing, and far narrower, because it only covers what was specified.",
+      "example": "62 RV-64 opcodes in SP1 are proved in Lean against the RISC-V Sail specification; memory consistency is not covered.",
+      "also": [],
+      "category": "security",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Free Float",
+      "slug": "free-float",
+      "definition": "The portion of a token's supply that is actually available to trade — total supply less whatever is bonded, vesting, conviction-locked, or otherwise immobilized. It is the denominator that matters when comparing supply against order-book depth.",
+      "example": "DOT's free float has two live readings ten hours apart, 46.82% and 43.54%, and this desk carries both rather than picking one.",
+      "also": [
+        "tradeable float",
+        "floating supply"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Fully Diluted Valuation (FDV)",
+      "slug": "fully-diluted-valuation",
+      "definition": "The market capitalization a token would carry if every token that can exist were in circulation at today's price. It is a snapshot rather than a ceiling wherever the supply cap can still be raised.",
+      "also": [
+        "FDV"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Function Selector",
+      "slug": "function-selector",
+      "definition": "The first four bytes of the hash of a function's signature, which is how a contract identifies which function a transaction is calling. Errors carry selectors too, so a failed call names its own cause, and the name can be confirmed by recomputing the hash rather than by trusting a decoder.",
+      "example": "Both STRATO swap legs revert 0x8574adcf, confirmed as TransfersDisabled() by recomputing keccak256 rather than taken on trust.",
+      "also": [
+        "selector",
+        "4-byte selector"
+      ],
+      "category": "technical",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Gas",
+      "slug": "gas",
+      "definition": "The unit that measures how much computation a transaction uses on Ethereum. Users pay for gas in ETH, so gas is how the network charges for the work it does.",
+      "example": "Ethereum's gas limit is 60,000,000 per block, and blocks were running 52.5% full at report date.",
+      "also": [
+        "gas fee"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Gnosis Safe",
+      "slug": "gnosis-safe",
+      "definition": "The most widely deployed smart-contract wallet for shared control, in which a named set of externally owned accounts holds ownership and a stated number of them must sign before the wallet acts. A 2-of-3 Safe means any two of three private keys can execute any transaction the Safe is permitted to make, immediately and without notice.",
+      "example": "One 2-of-3 Safe holds DEFAULT_ADMIN_ROLE, UPGRADER_ROLE, and TRANSFER_ADMIN_ROLE across all five STRATO representation tokens.",
+      "also": [
+        "Safe",
+        "multisig wallet",
+        "Safe{Wallet}"
+      ],
+      "category": "governance",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Governance Token",
+      "slug": "governance-token",
+      "definition": "A token whose primary right is voting on a protocol's decisions and treasury. It typically carries no dividend and no legal claim on revenue, which is why its regulatory classification differs from equity.",
+      "example": "AAVE is a governance token with no dividend and no revenue-share claim.",
+      "also": [],
+      "category": "governance",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Gwei",
+      "slug": "gwei",
+      "definition": "A unit of ETH equal to one billionth of one ETH. Gas prices are quoted in gwei because a single transaction costs a tiny fraction of one ETH.",
+      "example": "A base fee of 0.0702 gwei is roughly $0.02 per median transaction at $1,918.08 per ETH.",
+      "also": [],
+      "category": "on-chain",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Halving",
+      "slug": "halving",
+      "definition": "The scheduled event, every 210,000 blocks, at which Bitcoin's block subsidy is cut in half. It is written into the software rather than set by anyone, and it is what makes total supply finite.",
+      "example": "The 2028 halving cuts the subsidy from 3.125 to 1.5625 BTC per block, removing 82,125 BTC of annual issuance.",
+      "also": [
+        "halvening"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "BTC",
+      "firstUsedAt": "2026-08-12"
+    },
+    {
+      "term": "Hard Fork",
+      "slug": "hard-fork",
+      "definition": "A rule change that older software will reject, so every node operator must install the new version for the network to stay on one chain. Chains that carry their rules on chain can change them by vote instead, and avoid the coordination.",
+      "also": [
+        "breaking upgrade"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Hashrate",
+      "slug": "hashrate",
+      "definition": "The total computing power competing to add the next block to a proof-of-work chain, measured in hashes per second. Higher hashrate means a more expensive chain to attack.",
+      "example": "Bitcoin's hashrate was 941.7 EH/s, down 27.9% from its 2025-10-25 peak of 1,305.7 EH/s.",
+      "also": [
+        "hash rate",
+        "EH/s"
+      ],
+      "category": "technical",
+      "firstUsedIn": "BTC",
+      "firstUsedAt": "2026-08-12"
+    },
+    {
+      "term": "Hub Address",
+      "slug": "hub-address",
+      "definition": "An address that connects three or more wallets in a studied set. A hub can be an insider routing funds or an ordinary public contract everyone uses, so identifying which matters more than counting them.",
+      "example": "All eight hubs in the ETH whale graph were public protocol contracts, not private distributors.",
+      "also": [],
+      "category": "on-chain",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Intersubjective Fault",
+      "slug": "intersubjective-fault",
+      "definition": "A failure no contract can prove on its own, but which participants can observe and agree on off chain - for example, a service publishing data it later hides. The proposed remedy is a social fork of the token that penalizes whoever is judged at fault.",
+      "example": "The string 'intersubjective' appears zero times in Layr-Labs/eigenlayer-contracts on an authenticated code search.",
+      "also": [
+        "intersubjective forking",
+        "intersubjective slashing",
+        "social fork"
+      ],
+      "category": "technical",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Issuance",
+      "slug": "issuance",
+      "definition": "New units of a token created by the protocol and paid to whoever secures the network. Issuance dilutes existing holders unless an equal amount is removed from supply.",
+      "example": "Ethereum issues 1,065,138 ETH a year and burns 6,200, so net supply grows 0.868% a year.",
+      "also": [
+        "emissions"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Join-Accumulate Machine (JAM)",
+      "slug": "jam",
+      "definition": "The successor protocol specified for Polkadot, intended to replace the relay chain with a general-purpose trustless compute layer. It is a specification with a tagged draft, not a shipped system, and it contemplates a second resource token alongside DOT.",
+      "also": [
+        "JAM",
+        "Gray Paper"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "KPI Tranche",
+      "slug": "kpi-tranche",
+      "definition": "A block of tokens released when a project hits a named performance milestone rather than on a calendar date. Because the release is gated on achievement, hitting the milestone and increasing the circulating supply are the same event.",
+      "example": "MegaETH's staking contract holds 39 tranches; 417,312,063.06 MEGA of already-achieved tranche rewards is unclaimed and claimable on demand, against 1,350,000,000 MEGA in 29 tranches not yet achieved.",
+      "also": [
+        "milestone tranche",
+        "KPI-gated tranche",
+        "achievement tranche"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Layer 0",
+      "slug": "layer-0",
+      "definition": "A protocol whose product is security and interoperability sold to other blockchains, rather than blockspace sold to end users. A layer 1 asks applications to run on it; a layer 0 asks whole chains to attach to it.",
+      "also": [
+        "L0",
+        "shared-security layer"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Linear Unlock Stream",
+      "slug": "linear-unlock-stream",
+      "definition": "A release schedule that hands over tokens continuously across a fixed period rather than in dated lumps. Where the cliff duration is set to zero, nothing is released at the instant the stream starts and the daily rate is constant thereafter.",
+      "example": "Aztec's 720 vaults begin a 730-day linear stream on 2026-11-13T05:00:00Z at 6,645,868 tokens a day, with cliffDuration set to 0.",
+      "also": [
+        "linear vesting",
+        "streaming unlock"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Liquid Restaking Token (LRT)",
+      "slug": "liquid-restaking-token",
+      "definition": "A tradable receipt issued against restaked collateral, so a holder can sell the position without waiting out the withdrawal delay. The issuer of the receipt chooses which restaking protocol sits behind it and can change that choice.",
+      "example": "ether.fi converted weETH into a plain liquid-staking token and moved restaking to a separate token built on Symbiotic.",
+      "also": [
+        "LRT",
+        "liquid restaking"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Liquidation",
+      "slug": "liquidation",
+      "definition": "The forced sale of a borrower's collateral when its value falls below the level required to back the loan. In DeFi, third parties compete to execute liquidations in exchange for a fee.",
+      "also": [
+        "forced sale",
+        "margin call"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "LP Position",
+      "slug": "lp-position",
+      "definition": "A claim on the assets deposited into an automated market maker pool, usually held as a token or an NFT. Whoever holds it can withdraw the pool's liquidity, so its custody decides who can remove a market.",
+      "example": "99.56% of AZTEC's on-chain liquidity sits in one pool whose LP position NFT is held by ProtocolTreasury.",
+      "also": [
+        "liquidity provider position",
+        "LP NFT"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Market Capitalization",
+      "slug": "market-capitalization",
+      "definition": "The circulating supply multiplied by the current price. It is what the market would be worth if every circulating token could be sold at today's price, which is a different question from what the resting bids would actually pay.",
+      "example": "EIGEN's $183,280,674.59 market capitalization sits against a consolidated resting bid book of $1,129,126, or 0.616% of it.",
+      "also": [
+        "market cap",
+        "capitalization"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Markets in Crypto-Assets Regulation (MiCA)",
+      "slug": "mica",
+      "definition": "The European Union's crypto-asset regime, which requires an issuer to file a white paper carrying prescribed disclosures, including allocation and unlock tables. A filing is a disclosure obligation met; it is not an endorsement of the asset.",
+      "example": "Aztec's Foundation notified a MiCA Title II white paper on 2025-10-14, which is where the 48.31% insider allocation was disclosed.",
+      "also": [
+        "MiCA",
+        "MiCA white paper"
+      ],
+      "category": "regulatory",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Mempool",
+      "slug": "mempool",
+      "definition": "The queue of transactions each node has heard about but not yet seen confirmed in a block. Its size and fee distribution show how much competition there is for block space right now.",
+      "example": "Bitcoin's mempool held 4.03 blocks of transactions in total but only 1.15 blocks at 4 satoshis per virtual byte or above.",
+      "also": [
+        "memory pool",
+        "transaction pool"
+      ],
+      "category": "technical",
+      "firstUsedIn": "BTC",
+      "firstUsedAt": "2026-08-12"
+    },
+    {
+      "term": "Mini-Block",
+      "slug": "mini-block",
+      "definition": "A partial batch of transactions streamed to users between full blocks, so that a result can be shown before the block containing it is complete. A mini-block interval is not a block time, and per-block figures must be read against the full block.",
+      "example": "On MegaETH the 10ms object is the mini-block and the 1s object is the EVM block, so any per-block figure on that chain is a 1-second figure.",
+      "also": [
+        "preconfirmation block",
+        "micro-block"
+      ],
+      "category": "technical",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Moving Average",
+      "slug": "moving-average",
+      "definition": "The mean of a series across a rolling window, used to strip daily noise out of a trend. A 7-day moving average reports the last seven days' average, so it lags a turn by up to a week.",
+      "also": [
+        "7-day MA",
+        "rolling average"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Multisignature Wallet (Multisig)",
+      "slug": "multisig",
+      "definition": "A wallet requiring several independent private keys to approve any transaction. It removes single-key risk, but the identities behind the keys are often not visible on-chain.",
+      "example": "The two largest genuine third-party AAVE holders are both SafeProxy multisigs whose owners are unidentified.",
+      "also": [
+        "multisig",
+        "SafeProxy",
+        "Gnosis Safe"
+      ],
+      "category": "security",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Nakamoto Coefficient",
+      "slug": "nakamoto-coefficient",
+      "definition": "The smallest number of independent parties that would have to cooperate to halt or censor a network. It measures how spread out the power to stop the chain is, and says nothing about who controls the rules the chain runs.",
+      "example": "Polkadot ranked first among major chains at 172, while one entity supplied 96.4% of the conviction weight on the highest-turnout referendum sampled.",
+      "also": [
+        "decentralization coefficient"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Native Token Transfer (NTT)",
+      "slug": "native-token-transfer",
+      "definition": "A Wormhole framework for moving one token across chains. In lock-and-mint mode the original tokens are locked in a custody contract on the home chain and an equivalent representation is minted on the destination chain, so the two balances are one supply counted once and are never added together.",
+      "example": "MEGA's Solana SPL mint is an NTT representation; the NttManager on MegaETH returns mode() = 0 (LOCKING), so the Solana-side balance already sits inside totalSupply() on chainId 4326.",
+      "also": [
+        "NTT",
+        "Wormhole NTT",
+        "lock-and-mint"
+      ],
+      "category": "technical",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Nominated Proof-of-Stake (NPoS)",
+      "slug": "nominated-proof-of-stake",
+      "definition": "A staking design in which token holders do not run validators themselves but nominate the validators they back, and the protocol then elects a validator set and spreads the nominated stake across it. Rewards and penalties flow back to nominators in proportion to the stake they committed.",
+      "example": "600 active Polkadot validators are drawn from 727 candidates backed by 28,841 nominators.",
+      "also": [
+        "NPoS"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Nomination Pool",
+      "slug": "nomination-pool",
+      "definition": "A shared staking account that lets holders below the minimum nomination size stake together under one bonded position. Members receive a proportional claim on the pool's rewards and share its unbonding delay.",
+      "also": [
+        "staking pool",
+        "pooled nomination"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Nonce",
+      "slug": "nonce",
+      "definition": "A counter attached to an Ethereum account that increases by one every time the account sends a transaction. An account at nonce 0 has never signed anything, so it has no history to read.",
+      "example": "69,562,203 PROVE sits in three addresses at nonce 0 holding 0.000 ETH.",
+      "also": [
+        "transaction count"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "OpenGov",
+      "slug": "opengov",
+      "definition": "Polkadot's on-chain governance system. Anyone may submit a proposal, proposals are routed to one of several tracks according to how much power they exercise, and each track sets its own approval and support curves. There is no council and no technical-committee veto.",
+      "example": "Polkadot has executed 1,942 referenda at 21.31 a month, of which 57% fail.",
+      "also": [
+        "Polkadot OpenGov",
+        "Gov2",
+        "origin track",
+        "Root track"
+      ],
+      "category": "governance",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Operator Set",
+      "slug": "operator-set",
+      "definition": "A named group inside a restaking protocol that binds one service to a specific, bounded slice of an operator's collateral. Membership is what makes that collateral slashable by that service; collateral outside every operator set can be slashed by nobody.",
+      "example": "3 of 351 operators holding delegated EigenStrategy shares had ever joined an operator set.",
+      "also": [
+        "AllocationManager operator set",
+        "operator-set membership"
+      ],
+      "category": "technical",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Order Book",
+      "slug": "order-book",
+      "definition": "A venue's live list of resting buy and sell orders at each price. Depth is the money sitting in those orders, and a thin book moves a long way on a small trade.",
+      "also": [
+        "book",
+        "CEX book"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Over-Collateralization",
+      "slug": "over-collateralization",
+      "definition": "Holding more backing assets than are needed to redeem every claim outstanding. The surplus is the margin by which the claims stay redeemable; a wrapper below it cannot honor every holder.",
+      "example": "The EIGEN wrapper was over-collateralized by 5,343.698114 bEIGEN at the pin, and one implementation upgrade from 6.16% of D2 under.",
+      "also": [
+        "over-collateralized",
+        "collateralization ratio"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Over-the-Counter (OTC)",
+      "slug": "over-the-counter",
+      "definition": "A trade negotiated privately between two parties and settled directly, without passing through a public order book. Because it never touches a venue, it moves ownership without moving the quoted price.",
+      "example": "Whether the August re-keying of 69,562,203 PROVE was an OTC settlement, a custody migration or staging is not determinable from on-chain data.",
+      "also": [
+        "OTC",
+        "block trade"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Pallet",
+      "slug": "pallet",
+      "definition": "A module of on-chain logic in a Substrate chain — the unit that holds a feature such as balances, staking, or governance, together with the storage it reads and writes. A pallet is not a deployed contract and has no address of the kind an EVM contract has.",
+      "example": "Polkadot holds balances in pallet-balances and vesting schedules in pallet-vesting; pallet-revive is the module that executes Solidity contracts.",
+      "also": [
+        "FRAME pallet",
+        "runtime module"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Parachain",
+      "slug": "parachain",
+      "definition": "An independent blockchain that runs its own state transition rules, fee token, and governance while renting validation and finality from a relay chain. It is sovereign in what it executes and dependent on the relay chain for security.",
+      "example": "28 chains held a Polkadot core at the report date, down from Parity's own count of 37 in March 2026.",
+      "also": [
+        "para",
+        "parallel chain",
+        "para ID"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Pearson Correlation",
+      "slug": "pearson-correlation",
+      "definition": "A number between -1 and +1 measuring how closely two series move together. Values near zero mean the two are unrelated on the timescale measured, and a positive value produced by two series that are both simply declining is a shared trend rather than a shared cause.",
+      "example": "Protocol deposit activity and EIGEN transfer activity correlate at r = +0.079 over 30 days.",
+      "also": [
+        "correlation coefficient",
+        "r"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Perpetual Futures",
+      "slug": "perpetual-futures",
+      "definition": "A derivative contract that tracks an asset's price with no expiry date, funded by periodic payments between the long and short sides. Suspending a perpetual market can force positions to close and move the underlying price.",
+      "also": [
+        "perps",
+        "perpetual swap"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Pinned Block",
+      "slug": "pinned-block",
+      "definition": "A single block height at which every on-chain figure in a report is read, so the numbers describe one consistent moment. A figure read at a different block is labeled separately and is not comparable to a pinned one.",
+      "example": "Every AZTEC figure reconciling against market or free float is read at block 25842177.",
+      "also": [
+        "pin",
+        "block pin"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Polkadot Fellowship",
+      "slug": "polkadot-fellowship",
+      "definition": "An on-chain body of ranked technical members that maintains Polkadot's core code and can whitelist runtime upgrades for a faster referendum track. Ranks, promotions, and salaries are recorded on chain, and higher ranks carry more weight in the body's own votes.",
+      "example": "26 Fellowship members at rank 3 or above carry decisive weight on the whitelist that gates every Polkadot runtime upgrade.",
+      "also": [
+        "Technical Fellowship",
+        "whitelisted_caller"
+      ],
+      "category": "governance",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "PolkaVM",
+      "slug": "polkavm",
+      "definition": "The RISC-V-based virtual machine Polkadot uses to execute smart contracts, reached through the pallet-revive module. It is the execution layer under Solidity contracts deployed on Polkadot rather than on an EVM chain.",
+      "also": [
+        "pallet-revive"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Preimage",
+      "slug": "preimage",
+      "definition": "The full text of an on-chain proposal, submitted separately from the referendum that points at it by hash. Reading the preimage is the only way to know what a referendum would actually execute, as opposed to what its title says.",
+      "example": "Referendum 1710, widely reported as a 2.1B DOT hard cap, has a preimage that is a System.remark — it writes an event and mutates no state.",
+      "also": [
+        "proposal preimage",
+        "call data"
+      ],
+      "category": "governance",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Price Impact",
+      "slug": "price-impact",
+      "definition": "The share of a trade's value lost to moving the price against yourself, driven by trade size relative to available depth. It differs from slippage, which is the gap between the quote seen and the price received, and it is undefined rather than large when no trade can execute at all.",
+      "example": "If the transfer gate reopened, STRATO's pool would move $1,000 at 0.709% impact and $100,000 at 29.367%; at the report date none of those trades can execute.",
+      "also": [
+        "market impact"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Programmable Privacy",
+      "slug": "programmable-privacy",
+      "definition": "A design in which the developer chooses, contract by contract, what stays private and what is disclosed: the user, the data, the metadata, the transaction, or the code. It contrasts with a single shielded pool that is either fully private or not used at all.",
+      "also": [
+        "selective disclosure"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Proof of Reserve",
+      "slug": "proof-of-reserve",
+      "definition": "Published evidence that the assets backing a claim actually exist and are of the stated size, normally an attestation from a named third party on a stated cadence. Where the reserve sits on a chain the holder's chain cannot read, no proof of reserve is possible from the holder's side, and the claim rests on the issuer's word.",
+      "example": "STRATO's most recent attestation of any kind is 180 days old, while the marketing restated an audited-monthly claim on 2026-08-18.",
+      "also": [
+        "PoR",
+        "reserve attestation"
+      ],
+      "category": "security",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Proof of Work",
+      "slug": "proof-of-work",
+      "definition": "A method of agreeing on transaction order by making the right to add a block expensive to obtain. Participants spend electricity searching for a qualifying number, and the chain with the most cumulative work is the one everyone follows.",
+      "example": "Bitcoin uses proof of work; Ethereum moved away from it in 2022.",
+      "also": [
+        "PoW",
+        "mining"
+      ],
+      "category": "technical",
+      "firstUsedIn": "BTC",
+      "firstUsedAt": "2026-08-12"
+    },
+    {
+      "term": "Prover",
+      "slug": "prover",
+      "definition": "The party that generates the cryptographic proof a rollup submits to Ethereum. Proving is expensive to run, so provers are paid, and who is allowed to act as one determines how decentralized the system is.",
+      "also": [
+        "proving marketplace"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Proxy Account",
+      "slug": "proxy-account",
+      "definition": "An account a Substrate chain lets act on another account's behalf, within a declared and on-chain scope. Because the chain records the relationship itself, a proxy link is evidence of control rather than an inference from behavior.",
+      "example": "Two shared_proxy_controller relations were part of what tied eighteen DOT addresses into one entity.",
+      "also": [
+        "proxy",
+        "shared proxy controller"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Q96 Fixed-Point",
+      "slug": "q96-fixed-point",
+      "definition": "A way of storing fractional numbers as whole numbers, scaled by 2 to the power of 96. Uniswap-family contracts use it because Solidity has no decimal type; the real value is the stored integer divided by that scale.",
+      "example": "Aztec's auction contract reports its clearing price in Q96 form, so the price is the raw integer divided by 2**96.",
+      "also": [
+        "X96",
+        "Q64.96"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Quorum",
+      "slug": "quorum",
+      "definition": "The minimum amount of voting power that must participate for a governance vote to count. Whoever can assemble a quorum can pass proposals, so the cost of acquiring one is the cost of controlling the system.",
+      "example": "Quorum on SuccinctGovernor is 3,775,749 iPROVE, or roughly $787,136 of voting power.",
+      "also": [],
+      "category": "governance",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Rate-Limited Issuance",
+      "slug": "rate-limited-issuance",
+      "definition": "A ceiling on how fast new tokens may be created, with no ceiling on how many may exist in total. It is not a supply cap, and where the limit sits in an upgradeable contract it is a policy the owner can change rather than a rule the code enforces.",
+      "example": "EIGEN gross mint is 122,983,320.41 EIGEN/yr with no terminal cap.",
+      "also": [
+        "issuance rate limit",
+        "inflation rate limit"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Real Staking Yield",
+      "slug": "real-yield-staking",
+      "definition": "The staking reward rate minus the issuance rate that funds it. It answers whether a staker's share of total supply is growing or shrinking. A positive real yield preserves or increases supply share; a negative one means staking slows dilution without stopping it.",
+      "example": "DOT nominator APR measured 2.550% and 2.522% against 3.29% issuance, a real yield of approximately -0.7%.",
+      "also": [
+        "real yield",
+        "net-of-inflation staking yield"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Redemption-to-Burn",
+      "slug": "redemption-to-burn",
+      "definition": "An exit in which the holder destroys the token being held in exchange for delivery of the underlying asset somewhere else. It removes supply without any sale, so it produces no price and transfers nothing to holders who stay: the remaining holders end up with a larger share of a smaller float and the same claim per token.",
+      "example": "992,114.964938 STRATO, 31.75% of everything ever minted, has left by redemption-to-burn across 102 events.",
+      "also": [
+        "redeem and burn",
+        "requestRedemption",
+        "exit by destruction"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Redistributable Slashing",
+      "slug": "redistributable-slashing",
+      "definition": "Slashing that moves the seized collateral to a destination the service nominates instead of destroying it. It turns a penalty into compensation, and it also lets a service that controls both sides of the relationship move a delegator's assets to itself.",
+      "example": "Ten of the fifteen OperatorSlashed events ever emitted on mainnet came from a single operator-and-AVS pair using this mechanism at a 100% wad.",
+      "also": [
+        "ELIP-006 redistribution",
+        "restitution slashing"
+      ],
+      "category": "security",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Rehypothecation",
+      "slug": "rehypothecation",
+      "definition": "Pledging the same collateral to more than one obligation at once. It raises the return on that collateral and creates the possibility that two claims on it come due together.",
+      "also": [
+        "re-hypothecation",
+        "collateral reuse"
+      ],
+      "category": "general finance",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Relay Chain",
+      "slug": "relay-chain",
+      "definition": "The central chain in a Polkadot-style network. It runs consensus and finality for itself and for every chain that has bought a slot of its validation capacity, and it does not run user applications of its own. Chains that attach to it inherit its validator set instead of recruiting one.",
+      "example": "Polkadot's relay chain has produced blocks without interruption since genesis on 2020-05-26, and since 2025-11-04 it holds no balances, staking, or governance.",
+      "also": [
+        "relay layer"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Renounced Ownership",
+      "slug": "renounced-ownership",
+      "definition": "Permanently giving up the administrative key on a contract, so no party can change its parameters again. It removes the risk of interference and equally removes the ability to fix or postpone anything.",
+      "also": [
+        "renounced",
+        "ownership renounced"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Representation Token",
+      "slug": "representation-token",
+      "definition": "A token on one chain that stands for an asset held or recorded on another chain, minted when the underlying is locked and destroyed when it is redeemed. Its value is a claim on the issuer's reserve rather than on anything the holding chain can verify, so the holder carries the credit risk of whoever attests to that reserve.",
+      "example": "Ethereum STRATO is the Ethereum-side representation of native $STRATO on the STRATO chain, one of five such tokens on the same bridge.",
+      "also": [
+        "wrapper",
+        "wrapped representation",
+        "bridged token"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Restaking",
+      "slug": "restaking",
+      "definition": "Depositing collateral that is already staked on one network so that it simultaneously secures a second protocol. The collateral keeps its original reward and takes on the second protocol's slashing risk as well, which is what the second protocol is paying for.",
+      "example": "EigenLayer reported $6.37B of restaked total value locked at the 2026-09-02 pin.",
+      "also": [
+        "restaked collateral",
+        "shared security"
+      ],
+      "category": "technical",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Restaking Operator",
+      "slug": "restaking-operator",
+      "definition": "An address that runs the software a service requires and puts its own and its delegators' restaked collateral behind that work. Holders delegate to an operator rather than registering themselves, and they inherit whatever slashing the operator incurs.",
+      "example": "568 distinct active operators were recorded across 1,471 active operator-AVS pairs.",
+      "also": [
+        "operator",
+        "delegated operator"
+      ],
+      "category": "technical",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Revert",
+      "slug": "revert",
+      "definition": "The outcome when a contract refuses a transaction and undoes every state change it made, usually returning a named error. A revert is a refusal rather than a failure of the network, and a contract that reverts selectively is working as written.",
+      "also": [
+        "reverted transaction",
+        "failed call"
+      ],
+      "category": "technical",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Role-Based Access Control (RBAC)",
+      "slug": "role-based-access-control",
+      "definition": "A permission scheme in which a contract defines named roles, grants them to addresses, and gates each privileged function on holding the matching role. Concentrating several roles in one address removes the separation the scheme is designed to create, and an admin role can usually re-grant the others at any time.",
+      "example": "Fifteen hasRole reads confirm one signer set holds admin, transfer-admin, and upgrader roles across five tokens.",
+      "also": [
+        "RBAC",
+        "AccessControl",
+        "DEFAULT_ADMIN_ROLE"
+      ],
+      "category": "governance",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Rollup (Layer 2)",
+      "slug": "rollup",
+      "definition": "A separate chain that processes transactions cheaply and then posts compressed records back to Ethereum for final settlement. Users get lower fees; Ethereum keeps the security role and collects far less revenue.",
+      "example": "Rollups held $33.62B of value settling to Ethereum, but Arbitrum paid only $12.44M in fees over a year.",
+      "also": [
+        "L2",
+        "layer 2"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Runtime",
+      "slug": "runtime",
+      "definition": "The compiled code that defines what a Substrate chain does — its rules for consensus, balances, staking, and governance. It is stored on the chain itself and can be replaced by an on-chain vote, so a rule change needs no coordinated client upgrade.",
+      "example": "Polkadot's issuance rule lives in the runtime and is replaceable by a DOT-holder referendum on the OpenGov Root track.",
+      "also": [
+        "runtime WASM",
+        "on-chain runtime",
+        "system.setCode"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Runtime Bytecode",
+      "slug": "runtime-bytecode",
+      "definition": "The compiled code a contract actually executes, as stored on-chain, which can be read and compared byte-for-byte against another contract's. Two deployments that differ only in bytes carrying their own addresses are running identical logic, whatever their source files are called.",
+      "example": "STRATO's runtime bytecode differs from each sibling's by exactly 60 bytes, in three 20-byte runs that are each the contract's own address.",
+      "also": [
+        "deployed bytecode",
+        "on-chain code"
+      ],
+      "category": "technical",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Security Budget",
+      "slug": "security-budget",
+      "definition": "The total amount a blockchain pays the parties that secure it, which for Bitcoin is the block subsidy plus transaction fees paid to miners. It sets the cost of attacking the chain, so a shrinking security budget is a security risk rather than an accounting detail.",
+      "example": "Fees supply 0.72% of Bitcoin's security budget; the block subsidy supplies the remaining 99.3%.",
+      "also": [
+        "miner revenue",
+        "security spend"
+      ],
+      "category": "security",
+      "firstUsedIn": "BTC",
+      "firstUsedAt": "2026-08-12"
+    },
+    {
+      "term": "Sequencer",
+      "slug": "sequencer",
+      "definition": "The party that orders transactions on a rollup and publishes them as blocks. A single sequencer is a censorship and downtime risk; a permissionless sequencer set removes that risk.",
+      "also": [],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Slash Exemption",
+      "slug": "slash-exemption",
+      "definition": "A staking configuration in which a class of participant can lose nothing for the validator's misbehavior. It removes the at-risk capital that normally distinguishes a staking reward from an ordinary yield, and it makes the staked position economically closer to a deposit.",
+      "example": "Polkadot nominator stake reads slash-exempt on all four providers checked, against a documented runtime default of TRUE.",
+      "also": [
+        "AreNominatorsSlashable",
+        "non-slashable nomination"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Slashing",
+      "slug": "slashing",
+      "definition": "The destruction or confiscation of a portion of an operator's staked deposit as a penalty for failing to do the job the deposit secures. It is the enforcement half of a staking system, and it only constrains behavior if it can actually be triggered.",
+      "example": "Slashing has never once fired on Succinct's network, and 66 of 107 provers hold nothing that could be slashed.",
+      "also": [],
+      "category": "security",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Slippage",
+      "slug": "slippage",
+      "definition": "The gap between the price shown before a trade and the price actually paid. It grows with trade size and shrinks with market depth.",
+      "example": "A $1,000 ETH trade moved the price 0.0001%; a $10M trade moved it 1.4951%.",
+      "also": [],
+      "category": "market structure",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Soundness",
+      "slug": "soundness",
+      "definition": "The property that a proof system cannot be made to accept a false statement. A soundness bug lets an attacker prove something that never happened, which on a rollup means moving funds that were never theirs.",
+      "example": "Aztec's live Critical and its $4.48M June 2026 exploit history sit in the same defect class: unsound proof verification.",
+      "also": [
+        "under-constrained circuit",
+        "unsound proof verification"
+      ],
+      "category": "security",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Stablecoin",
+      "slug": "stablecoin",
+      "definition": "A token designed to hold a constant value, usually one US dollar, backed by reserves or by an on-chain mechanism. It functions as the settlement currency of most on-chain markets.",
+      "example": "Aave issues GHO, a stablecoin with $649M outstanding.",
+      "also": [],
+      "category": "market structure",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Stage 0 Rollup",
+      "slug": "stage-0-rollup",
+      "definition": "The first rung of L2BEAT's decentralization ladder, met when a rollup publishes its data and runs a working proof system while its operators retain broad control. A chain that has not met it is one whose operators can still change the rules unilaterally.",
+      "example": "L2BEAT classes MegaETH as 'not even a Stage 0 project': 4 of 5 Stage 0 requirements met, 1 under review, with 3 issues outstanding for Stage 1.",
+      "also": [
+        "Stage 0",
+        "L2BEAT stage framework"
+      ],
+      "category": "technical",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Stage 2 Rollup",
+      "slug": "stage-2-rollup",
+      "definition": "The highest maturity level in L2Beat's published rollup classification. It requires immutable core contracts, proofs that settle without operator discretion, and an exit path a user can take without anyone's permission.",
+      "example": "Very few rollups of any size hold Stage 2; Aztec reached it from an empty chain in eleven months.",
+      "also": [
+        "Stage 2"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Staking",
+      "slug": "staking",
+      "definition": "Locking a token as a security deposit in exchange for the right to help run the network and earn rewards. The deposit can be destroyed if the operator misbehaves.",
+      "example": "Roughly 41.4M ETH - 33.98% of supply - was staked at a 2.67% annual rate.",
+      "also": [],
+      "category": "on-chain",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Stash and Controller Accounts",
+      "slug": "stash-and-controller",
+      "definition": "The two-account pattern Substrate staking uses. The stash holds the bonded funds and is kept offline; the controller, proxy, or multisig submits the day-to-day staking transactions. A stash can therefore show zero transactions of its own while being actively managed.",
+      "example": "80 of 173 addresses in the DOT whale set showed count_extrinsic 0 while transferring actively, and held 43.5% of the tracked supply.",
+      "also": [
+        "stash account",
+        "controller account"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "State Trie",
+      "slug": "state-trie",
+      "definition": "The data structure a blockchain uses to store every account balance and contract slot, and to prove any one of them without revealing the rest. Its speed sets a hard floor on how fast the chain can execute.",
+      "example": "SALT is MegaETH's Pedersen/IPA replacement for the Merkle Patricia Trie, and its sub-10ms latency claim rests on it.",
+      "also": [
+        "Merkle Patricia Trie",
+        "state tree",
+        "MPT"
+      ],
+      "category": "technical",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "State-Root Proposer",
+      "slug": "state-root-proposer",
+      "definition": "The party permitted to publish a rollup's committed state to its settlement layer. Where the role is whitelisted rather than permissionless, withdrawals stop if that party fails, because no one else may propose.",
+      "example": "MegaETH has one sequencer and no permissionless proposer; vanguardAdvantage is set to an effectively infinite value, so only the Vanguard can submit state proposals.",
+      "also": [
+        "proposer",
+        "whitelisted proposer",
+        "Vanguard"
+      ],
+      "category": "technical",
+      "firstUsedIn": "MEGA",
+      "firstUsedAt": "2026-09-12"
+    },
+    {
+      "term": "Substrate",
+      "slug": "substrate",
+      "definition": "The framework Polkadot and its ecosystem are built with. A Substrate chain is assembled from modules called pallets and is upgraded by replacing its compiled runtime, which is why Substrate chains can change their own rules without a hard fork.",
+      "also": [
+        "Polkadot SDK",
+        "FRAME"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Supply Denominator",
+      "slug": "supply-denominator",
+      "definition": "The specific supply figure a percentage is divided by. Tokens with a wrapper, a restaking pool or a stranded balance have several defensible denominators that answer different questions, so a percentage is meaningless until the denominator is named.",
+      "example": "This report names three: D1 1,837,420,976.78 (bEIGEN's supply, never used for holder figures), D2 1,594,493,165.00, and D3 1,496,214,236.89.",
+      "also": [
+        "denominator",
+        "D1/D2/D3"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Time-Weighted Average Price (TWAP)",
+      "slug": "twap",
+      "definition": "An average price computed over a period of time rather than over volume, so each interval counts equally regardless of how much traded in it. On an asset with almost no trading, a TWAP mostly reports the last price that happened, repeated.",
+      "also": [
+        "TWAP",
+        "time-weighted average"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Timelock",
+      "slug": "timelock",
+      "definition": "A contract that forces a delay between a decision being made and it taking effect. The delay is what gives anyone affected time to react, so an authority with no timelock can act inside a single block.",
+      "also": [
+        "time lock",
+        "delay contract"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Token Burn",
+      "slug": "token-burn",
+      "definition": "Permanently removing tokens from supply, normally by sending them to an address nobody controls and reducing the recorded total supply. Sending tokens to a dead address without reducing total supply destroys them economically but leaves the reported supply unchanged.",
+      "example": "Aztec's named burn address holds exactly zero, and the token contract has no burn path.",
+      "also": [
+        "burn",
+        "burn address"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Token Generation Event (TGE)",
+      "slug": "token-generation-event",
+      "definition": "The moment a token is first created and distributed. Unlock schedules, lock-up clocks, and exchange listings are normally dated from it.",
+      "also": [
+        "TGE",
+        "token launch"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Total Value Locked (TVL)",
+      "slug": "total-value-locked",
+      "definition": "The dollar value of all assets deposited into a protocol at a given moment. It measures how much capital a protocol is trusted to hold, not how much revenue it earns.",
+      "example": "Aave's TVL was $14.40B at report date, down from a $45.81B peak.",
+      "also": [
+        "TVL"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Total Value Secured (TVS)",
+      "slug": "total-value-secured",
+      "definition": "The dollar value of user assets a rollup holds on behalf of its users. It is the rollup's counterpart to total value locked, and it measures adoption of the chain rather than trading liquidity in its token.",
+      "example": "Aztec's total value secured reads $744.33, three orders of magnitude below the on-chain liquidity behind its token.",
+      "also": [
+        "TVS",
+        "value secured"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Transfer Gate",
+      "slug": "transfer-gate",
+      "definition": "Code inside a token contract that inspects every transfer before it settles and rejects the ones it does not permit. A gate is a switch rather than a market condition: it either allows a transfer or reverts it, and it does not become easier to satisfy at smaller size.",
+      "example": "STRATO's transfer gate reverts TransfersDisabled() at 770.88 STRATO, at 1 STRATO, and at 1 wei alike.",
+      "also": [
+        "transfer restriction",
+        "transfersEnabled",
+        "_update override"
+      ],
+      "category": "technical",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Turnover",
+      "slug": "turnover",
+      "definition": "Trading volume over a period divided by market capitalization, expressed as a percentage. It shows how much of an asset's value changes hands, and it is only as reliable as the supply figure in the denominator.",
+      "example": "PROVE's turnover is 11.09% - $5,519,571.96 against $49,768,535.93 - and is a ceiling rather than a point estimate.",
+      "also": [
+        "volume to market cap"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Unbonding Period",
+      "slug": "unbonding-period",
+      "definition": "The delay between asking to withdraw staked tokens and being able to move them. It exists so that misbehavior discovered after the fact can still be penalized. A short unbonding period makes staked supply effectively liquid; a long one does not.",
+      "example": "Polkadot nominators unbond in 2 eras — 48.00 hours — while validators remain at 28 eras.",
+      "also": [
+        "bonding duration",
+        "unstaking period",
+        "exit queue"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Unique Stake",
+      "slug": "unique-stake",
+      "definition": "An allocation model in which an operator assigns an explicit, bounded amount of collateral to each service it serves, rather than backing every service with its whole balance. It stops a failure at one service from reaching collateral committed to another.",
+      "also": [
+        "ELIP-002 unique stake",
+        "bounded allocation"
+      ],
+      "category": "technical",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Unlock Cliff",
+      "slug": "unlock-cliff",
+      "definition": "A date on which a large block of previously restricted tokens becomes transferable all at once, rather than releasing gradually. A cliff concentrates potential selling pressure into a single day.",
+      "example": "PROVE's 12-month cliff fired on 2026-08-05, and 14 wallets holding 428,742,619 PROVE came out of dormancy within eight days of it.",
+      "also": [
+        "cliff",
+        "unlock date",
+        "tranche unlock"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    },
+    {
+      "term": "Unspent Transaction Output (UTXO)",
+      "slug": "utxo",
+      "definition": "The unit of value on Bitcoin. Rather than tracking account balances, the ledger tracks discrete unspent outputs, and a transaction consumes existing outputs to create new ones. This is why identifying a holder requires clustering rather than a lookup.",
+      "example": "Bitcoin uses a UTXO model; Ethereum uses an account model.",
+      "also": [
+        "UTXO"
+      ],
+      "category": "technical",
+      "firstUsedIn": "BTC",
+      "firstUsedAt": "2026-08-12"
+    },
+    {
+      "term": "Upgradeable Proxy",
+      "slug": "upgradeable-proxy",
+      "definition": "A contract design where the address users interact with can be pointed at new code. It allows bugs to be fixed after deployment, but it also means the contract's behavior can change after users commit funds.",
+      "example": "The AAVE token itself is an upgradeable proxy whose upgrade path terminates in a governance vote.",
+      "also": [
+        "proxy contract",
+        "implementation contract"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "UUPS (Universal Upgradeable Proxy Standard)",
+      "slug": "uups",
+      "definition": "An upgrade pattern in which the upgrade function lives in the implementation contract rather than the proxy, gated by a permission check the implementation itself defines. Whoever holds that permission can replace the running code, including with code that rewrites balances, and the replacement takes effect in the transaction that authorizes it.",
+      "example": "STRATO's token is UUPS-upgradeable with _authorizeUpgrade gated on UPGRADER_ROLE, held by a 2-of-3 Safe, with no timelock in the Ethereum path.",
+      "also": [
+        "UUPS proxy",
+        "_authorizeUpgrade"
+      ],
+      "category": "technical",
+      "firstUsedIn": "STRATO",
+      "firstUsedAt": "2026-08-31"
+    },
+    {
+      "term": "Validator",
+      "slug": "validator",
+      "definition": "A node that proposes and attests to blocks and is paid for doing so, with its own or delegated capital at stake behind the work. The set of validators is what a chain's security budget buys.",
+      "example": "Polkadot elects 600 active validators from 727 candidates each era.",
+      "also": [
+        "block producer",
+        "validator set"
+      ],
+      "category": "technical",
+      "firstUsedIn": "DOT",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Value Accrual",
+      "slug": "value-accrual",
+      "definition": "How a token benefits from the protocol's success. Strong value accrual means protocol revenue reaches token holders through a mechanism such as a buyback or a fee share; weak value accrual means the protocol can thrive while the token captures nothing.",
+      "example": "Aave routes 100% of revenue to the DAO and funds a buyback reported at roughly $50M per year.",
+      "also": [
+        "revenue-to-token mechanism"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Vesting",
+      "slug": "vesting",
+      "definition": "The gradual release of tokens to a recipient over time, under a schedule fixed in a contract. Until tokens vest the recipient cannot sell them, so a vesting schedule is a calendar of future supply.",
+      "also": [
+        "lock-up"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Vesting Cliff",
+      "slug": "vesting-cliff",
+      "definition": "A release schedule in which nothing is handed over until a set date, and a large block is released at once when that date arrives. A cliff concentrates supply into a single moment.",
+      "also": [
+        "cliff",
+        "cliff vesting"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Vesting Overhang",
+      "slug": "vesting-overhang",
+      "definition": "Tokens promised to insiders or investors that have not yet unlocked, and which will enter the market on a known schedule. A large overhang is future selling pressure that is already contractually committed.",
+      "example": "AAVE carries zero vesting overhang: no team allocation, no founder vesting contract, and no investor cliff.",
+      "also": [
+        "unlock overhang",
+        "token unlock schedule"
+      ],
+      "category": "tokenomics",
+      "firstUsedIn": "AAVE",
+      "firstUsedAt": "2026-08-08"
+    },
+    {
+      "term": "Volume-Weighted Average Price (VWAP)",
+      "slug": "vwap",
+      "definition": "The average price over a period, weighted by the size traded at each price. It describes where the volume actually transacted rather than where the last trade printed.",
+      "also": [
+        "VWAP"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Wad",
+      "slug": "wad",
+      "definition": "A fixed-point convention in which 1e18 units represent the number 1, used because smart contracts have no decimals. A slashing at a 100% wad takes the entire allocated amount.",
+      "also": [
+        "1e18",
+        "WAD"
+      ],
+      "category": "technical",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Wash Trading",
+      "slug": "wash-trading",
+      "definition": "Trading that creates volume without transferring real risk, normally to make a venue or an asset look more liquid than it is. A quoted spread far wider than the reported volume implies is one of its signatures.",
+      "also": [
+        "wash print",
+        "fake volume"
+      ],
+      "category": "market structure",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Withdrawal Delay",
+      "slug": "withdrawal-delay",
+      "definition": "A waiting period between requesting collateral back and being able to move it. It exists so a participant cannot exit ahead of a penalty, and it is the only thing standing between restaked collateral and the open market.",
+      "also": [
+        "escrow period",
+        "unbonding period",
+        "withdrawal queue"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "EIGEN",
+      "firstUsedAt": "2026-09-03"
+    },
+    {
+      "term": "Wrapped Ether (WETH)",
+      "slug": "wrapped-ether",
+      "definition": "An ERC-20 token that represents ETH one-for-one. Native ETH is not itself a token, so applications that expect a standard token use WETH instead. Anyone can create WETH by depositing ETH, and redeem it at any time.",
+      "example": "WETH total supply was 2,236,253.59 tokens against 121,939,408 ETH - 1.83% of the asset.",
+      "also": [
+        "WETH"
+      ],
+      "category": "on-chain",
+      "firstUsedIn": "ETH",
+      "firstUsedAt": "2026-08-10"
+    },
+    {
+      "term": "Zero-Knowledge Proof",
+      "slug": "zero-knowledge-proof",
+      "definition": "A cryptographic proof that a statement is true without revealing the data behind it. It lets one party show that a computation ran correctly while the inputs stay private.",
+      "example": "Aztec generates its proofs on the user's own machine, so private inputs never leave it.",
+      "also": [
+        "ZK proof",
+        "SNARK",
+        "zk-SNARK"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Zero-Knowledge Rollup (ZK Rollup)",
+      "slug": "zero-knowledge-rollup",
+      "definition": "A rollup that posts a zero-knowledge proof to Ethereum showing its batch of transactions executed correctly. Ethereum verifies the proof instead of re-running the transactions.",
+      "example": "Aztec is a privacy-preserving ZK rollup that reached L2Beat Stage 2 in eleven months.",
+      "also": [
+        "ZK rollup",
+        "validity rollup"
+      ],
+      "category": "technical",
+      "firstUsedIn": "AZTEC",
+      "firstUsedAt": "2026-08-27"
+    },
+    {
+      "term": "Zero-Knowledge Virtual Machine (zkVM)",
+      "slug": "zkvm",
+      "definition": "Software that runs an ordinary program and emits a zero-knowledge proof that it ran correctly. It lets developers prove arbitrary code rather than hand-building a circuit for each task.",
+      "example": "SP1 is Succinct's zkVM; Jolt and Nexus are competing implementations.",
+      "also": [
+        "zkVM",
+        "proving virtual machine"
+      ],
+      "category": "technical",
+      "firstUsedIn": "PROVE",
+      "firstUsedAt": "2026-08-29"
+    }
+  ]
+}

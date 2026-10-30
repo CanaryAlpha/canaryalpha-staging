@@ -1,0 +1,1431 @@
+/*
+ * Two themes, one set of tokens each. With no data-theme the page follows
+ * the OS (light, or dark via the media query); a saved choice sets it.
+ *
+ * Measured contrast, text on background (WCAG AA needs 4.5:1):
+ *   theme   text      bg        ratio    muted     ratio
+ *   light   #000000   #ffffff   21.0:1   #595959   7.0:1
+ *   dark    #ffffff   #000000   21.0:1   #a3a3a3   8.3:1
+ * --success (best-deal green): light #15803d 5.0:1, dark #4ade80 12.1:1.
+ * --danger (red flags in the feature visuals): light #b91c1c 6.5:1,
+ * dark #f87171 7.6:1.
+ */
+:root,
+:root[data-theme="light"] {
+  --ground: #ffffff;
+  --ink: #000000;
+  --muted: #595959;
+  --rule: #bdbdbd;
+  --selected-bg: #000000;
+  --selected-ink: #ffffff;
+  --success: #15803d;
+  --danger: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --ground: #000000;
+    --ink: #ffffff;
+    --muted: #a3a3a3;
+    --rule: #4d4d4d;
+    --selected-bg: #ffffff;
+    --selected-ink: #000000;
+    --success: #4ade80;
+    --danger: #f87171;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground: #000000;
+  --ink: #ffffff;
+  --muted: #a3a3a3;
+  --rule: #4d4d4d;
+  --selected-bg: #ffffff;
+  --selected-ink: #000000;
+  --success: #4ade80;
+  --danger: #f87171;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* Site fonts: every page sets text through these two tokens and nothing
+   else. Satoshi (Fontshare) and Work Sans (Google Fonts) load from <link>s
+   in each page's <head>; Helvetica covers the moment before they arrive.
+   The font test panel (components/font-panel.js, ?fonts=1) swaps them. */
+:root {
+  --font-heading: "Satoshi", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Work Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+/* Logo wordmark (built in components/site-header.js; header and footer).
+   Only the logo uses Satoshi; it is self-hosted or loaded per page, see
+   the <head>. font-size-adjust pins the cap height to --logo-cap, so the
+   logo is the same height in Satoshi and in the fallback. */
+:root {
+  --font-logo: "Satoshi", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+.ca-logo {
+  --logo-cap: 0.67rem;
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  font-family: var(--font-logo);
+  font-weight: 500;
+  font-size: calc(var(--logo-cap) / 0.7);
+  font-size-adjust: cap-height 0.7;
+  letter-spacing: 0.005em;
+  line-height: 1;
+  white-space: nowrap;
+}
+/* The α spans the cap height, a word space either side. */
+.ca-logo__alpha {
+  flex: none;
+  width: auto;
+  height: calc(var(--logo-cap) * 1.027);
+  margin: 0 0.27em -0.013em;
+}
+.ca-logo::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--logo-cap) * -0.28);
+  height: max(1px, calc(var(--logo-cap) * 0.094));
+  background: currentColor;
+  visibility: hidden;
+}
+
+/* Display heading: used by the Section 1 slogan (.hero__title); the
+   Section 5 heading (.why__title) shares all but the size. Tuned at
+   1710px wide: 90px (5.263vw); 40px floor on phones, ~76px at 1440, 105px
+   cap (dev font panel at 2304px wide), reached from ~1995px. */
+:root {
+  --display-size: clamp(2.5rem, 5.263vw, 6.5625rem);
+  --display-line-height: 1.05;
+  --display-weight: 700;
+  --display-tracking: -0.015em;
+}
+
+/* Section titles (Sections 3, 4 and 5; the hero keeps --display-size):
+   one shared size. 48px from 1200px wide, scaling down to 32px on phones. */
+:root {
+  --section-title-size: clamp(2rem, 4vw, 3rem);
+}
+
+html, body {
+  margin: 0;
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 400;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6, .dash-panel-title { font-family: var(--font-heading); }
+
+/* Numbers in tables and dashboards line up in columns. */
+table, .is-num { font-variant-numeric: tabular-nums; }
+
+/* Smooth in-page scrolling, unless the reader asked for reduced motion
+   (then links and the back-to-top button jump). */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+/* ---- Section 1 (hero) --------------------------------------------------- */
+/* Exactly one screen, read along one diagonal (top-left -> bottom-right):
+   - the slogan: top-left;
+   - the stage: the area under the menu bar, the hero visual centred in it
+     (components/hero-visuals.*; the old globe, components/dotted-globe.*,
+     is unused but kept);
+   - the supporting text: bottom-left, on the slogan's left edge.
+   Each is its own absolutely positioned layer, so resizing either text never
+   moves the visual or the other text. The text layers ignore the pointer. */
+.hero {
+  --pad: 1rem;            /* slogan's and supporting text's left margin */
+  --edge: 0.75rem;        /* = .site-header__inner side padding */
+  --arrow-clear: 4.75rem; /* keeps text above the scroll-down arrow */
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.hero__stage {
+  position: absolute;
+  inset: var(--site-header-h, 0px) 0 0 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.hero__stage .dotted-globe { pointer-events: auto; }
+
+/* A soft halo in the page colour keeps text readable where it crosses the
+   hero visual, in every theme; no boxes or borders. */
+.hero__title,
+.hero__text {
+  position: absolute;
+  z-index: 1;
+  margin: 0;
+  pointer-events: none;
+  text-shadow: 0 0 0.35em var(--ground), 0 0 0.12em var(--ground);
+}
+
+.hero__title {
+  top: calc(var(--site-header-h, 0px) + 1.5rem);
+  left: var(--pad);
+  max-width: min(14em, calc(100% - 2 * var(--pad)));
+  /* Shared display heading (see --display-* at the top). */
+  font-weight: var(--display-weight);
+  font-size: var(--display-size);
+  line-height: var(--display-line-height);
+  letter-spacing: var(--display-tracking);
+  text-wrap: balance;
+}
+
+.hero__text {
+  left: var(--pad);
+  bottom: var(--arrow-clear);
+  /* Left-aligned under the slogan. 62.5rem (1000px) from the dev font
+     panel at 2304px wide; phones cap it to the screen. */
+  max-width: min(62.5rem, calc(100% - 2 * var(--pad)));
+  color: var(--muted);
+  /* Tuned at 1710px wide: 30px (1.754vw). 18px floor on phones, ~25px at
+     1440, 30px cap (dev font panel at 2304px wide). */
+  font-size: clamp(1.125rem, 1.754vw, 1.875rem);
+  line-height: 1.45;
+  text-align: left;
+  text-wrap: pretty;
+}
+
+@media (min-width: 768px) {
+  .hero { --pad: 2.5rem; --edge: 1.5rem; }
+  .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
+}
+/* Down arrow at the bottom centre of the hero: the page continues. */
+.scroll-hint {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  bottom: 1rem;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: var(--muted);
+}
+.scroll-hint:hover { color: var(--ink); }
+
+/* Placeholder content sections. Anchored links stop below the fixed bar. */
+.content {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) 1rem;
+  scroll-margin-top: var(--site-header-h, 0px);
+}
+.content + .content { border-top: 1px solid var(--rule); }
+/* --tune-*: overrides set on one section by the font tuner (font-tuner.js). */
+.content h2 {
+  margin: 0 0 1rem;
+  font-weight: 400;
+  font-size: var(--tune-title-size, clamp(1.5rem, 1.2rem + 1.5vw, 2.25rem));
+  line-height: 1.2;
+}
+.content p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--tune-text-size, 1.0625rem);
+  width: var(--tune-text-width, auto);
+  max-width: 100%;
+  line-height: 1.6;
+}
+
+/* ---- Section 3: bento grid ---------------------------------------------- */
+
+/* SECTION 3 TYPE: the intro and the "80-point scoring framework" tile are
+   driven by these variables. max-width "none" = full width. */
+.bento {
+  --intro-title-size: var(--section-title-size);
+  --intro-title-line-height: 1.1;
+  --intro-title-max-width: none;
+  --intro-text-size: clamp(1rem, 0.9rem + 0.3vw, 1.1875rem);
+  --intro-text-line-height: 1.5;
+  --intro-text-max-width: 40rem;
+  --framework-title-size: clamp(1.75rem, 1.2rem + 2vw, 3rem);
+  --framework-title-line-height: 1.1;
+  --framework-title-max-width: none;
+  --framework-text-size: clamp(1rem, 0.9rem + 0.3vw, 1.1875rem);
+  --framework-text-line-height: 1.5;
+  --framework-text-max-width: 40em; /* 2 balanced lines on desktop */
+}
+
+/* The four feature tiles have no panel: they sit on the page background,
+   and the gaps between them keep them apart. */
+.bento {
+  --bento-row-gap: clamp(2.5rem, 6vw, 4.5rem);
+  --bento-column-gap: clamp(1.5rem, 3vw, 2.5rem);
+
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--bento-row-gap) var(--bento-column-gap);
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) 2.5rem;
+  scroll-margin-top: var(--site-header-h, 0px);
+}
+
+.bento__tile {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+}
+.bento__tile--feature,
+.bento__tile--split { grid-column: 1 / -1; }
+
+
+.bento__body {
+  position: relative;
+  z-index: 2;
+  box-sizing: border-box;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  max-width: min(36rem, 100%); /* never wider than its tile */
+}
+.bento__body--center {
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.bento__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: clamp(1.75rem, 1.2rem + 2vw, 3rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.bento__text {
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 0.9rem + 0.3vw, 1.1875rem);
+  line-height: 1.5;
+}
+
+/* Intro above the grid (spans both columns). */
+.bento__intro {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem); /* + the grid gap below */
+}
+.bento__intro-title {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--intro-title-size);
+  line-height: var(--intro-title-line-height);
+  max-width: var(--intro-title-max-width);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.bento__intro-text {
+  margin: 1rem 0 0;
+  color: var(--muted);
+  font-size: var(--intro-text-size);
+  line-height: var(--intro-text-line-height);
+  max-width: var(--intro-text-max-width);
+  text-wrap: pretty;
+}
+
+/* "80-point scoring framework" tile type. The body may use the full tile
+   width so the heading fits on one line on desktop. */
+.bento__tile--feature .bento__body { max-width: 100%; }
+.bento__tile--feature .bento__title {
+  font-size: var(--framework-title-size);
+  line-height: var(--framework-title-line-height);
+  max-width: var(--framework-title-max-width);
+}
+.bento__tile--feature .bento__text {
+  font-size: var(--framework-text-size);
+  line-height: var(--framework-text-line-height);
+  max-width: var(--framework-text-max-width);
+  text-wrap: balance;
+}
+.bento__body .button { margin-top: 1.75rem; }
+
+/* ---- Feature visuals ----
+   Each tile holds one animated visual (components/feature-visuals.*; the
+   words and numbers are in components/feature-visuals.config.js). It sits
+   right under the text. */
+.bento__visual {
+  position: relative;
+  z-index: 1;
+  padding: 0 clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 3vw, 2.5rem);
+}
+.bento__tile--feature .bento__visual {
+  width: 100%;
+  max-width: 54rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Tile 4: text left 40%, visual right. */
+.bento__tile--split { flex-direction: row; align-items: center; }
+.bento__body--split { width: 40%; max-width: none; flex: none; }
+.bento__tile--split .bento__visual {
+  flex: 1;
+  min-width: 0;
+  padding: clamp(1.5rem, 3vw, 2.5rem);
+  padding-left: 0;
+}
+
+/* Link buttons reuse the site's button rule (`button, .button` above). */
+.button.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  font-size: 1rem;
+  padding: 0 1.25rem;
+}
+.button__icon { flex: none; }
+
+/* The site's one link-button style (every "Sign up", "Learn more", plan
+   button): no frame or fill, one fixed size whatever the label, label and
+   arrow in --ink. Hover and keyboard focus: they shift to --muted (dark
+   grey in Light, light grey in Dark) over 0.2s, and the arrow slides up
+   and to the right. Hover only on devices that can hover, so a tap never
+   leaves a button stuck "hovered". Reduced motion: colour change only.
+   .button.button--ghost so it wins over the base rule later in the file. */
+.button.button--ghost {
+  justify-content: flex-start;
+  width: 10rem;
+  min-height: 44px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--ink);
+  transition: color 0.2s ease;
+}
+.button--ghost .button__icon { transition: transform 0.2s ease; }
+.button.button--ghost:focus-visible { color: var(--muted); }
+.button--ghost:focus-visible .button__icon { transform: translate(3px, -3px); }
+@media (hover: hover) {
+  .button.button--ghost:hover { color: var(--muted); }
+  .button--ghost:hover .button__icon { transform: translate(3px, -3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button.button--ghost { transition: none; }
+  .button--ghost .button__icon { transition: none; transform: none !important; }
+}
+
+/* Mobile: one column; the split tile puts its text above the visual. */
+@media (max-width: 767px) {
+  .bento {
+    grid-template-columns: 1fr;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  .bento__tile--split { flex-direction: column; align-items: stretch; }
+  .bento__body--split { width: auto; }
+  .bento__tile--split .bento__visual {
+    padding: 0 clamp(1.5rem, 3vw, 2.5rem) clamp(1.5rem, 3vw, 2.5rem);
+  }
+}
+
+/* ---- Section 4: how it works ------------------------------------------- */
+/* Two columns on desktop (heading | numbered steps + button), stacked on
+   phones. The step numbers blink 1, 2, 3 in turn (below); all colours are
+   theme tokens. */
+.steps {
+  --steps-marker: 2.5rem;          /* number circle size */
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) 2.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+  scroll-margin-top: var(--site-header-h, 0px);
+}
+.steps__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--section-title-size);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+/* Desktop: exactly two lines, "From signup to signal / in three steps."
+   The break only shows from 1024px up; each line stays whole and may run
+   into the column gap, so the steps list doesn't move. Below 1024px the
+   heading wraps naturally. */
+.steps__title-break { display: none; }
+@media (min-width: 1024px) {
+  .steps__title-break { display: inline; }
+  .steps__title { white-space: nowrap; }
+}
+.steps__track { position: relative; }
+.steps__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: clamp(2rem, 4vw, 3rem);
+}
+.steps__item {
+  display: grid;
+  grid-template-columns: var(--steps-marker) 1fr;
+  column-gap: 1.25rem;
+  align-items: start;
+}
+.steps__num {
+  width: var(--steps-marker);
+  height: var(--steps-marker);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid transparent; /* no outline; kept so the size never changes */
+  background: var(--ground);
+  color: var(--ink);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.steps__step-title {
+  margin: 0.45rem 0 0;
+  font-weight: 700;
+  font-size: clamp(1.125rem, 1rem + 0.4vw, 1.375rem);
+  line-height: 1.25;
+}
+.steps__text {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: clamp(1rem, 0.9rem + 0.3vw, 1.1875rem);
+  line-height: 1.5;
+  max-width: 34rem;
+}
+.steps__cta {
+  margin: clamp(2.5rem, 5vw, 3.5rem) 0 0 calc(var(--steps-marker) + 1.25rem);
+}
+
+/* Blinking numbers: 1, then 2, then 3, then repeat; one lit at a time.
+   Each number gets a third of the cycle: 0.2s fade in, held, 0.2s fade out
+   (on for ~0.6s of its 0.8s slot). "On" = the circle fills with
+   --selected-bg (the text colour) and the number turns --selected-ink
+   (the background colour), the theme's existing inverted pair; "off" =
+   the normal style above (just the --ink number; no fill or outline). Speed:
+   --steps-blink-cycle (the whole 1-2-3 loop); the fades scale with it.
+   steps-blink.js adds .is-offscreen to pause it off screen. */
+.steps { --steps-blink-cycle: 2.4s; }
+@keyframes steps-blink {
+  0%, 33.334%, 100% { background-color: var(--ground); border-color: transparent; color: var(--ink); }
+  8.333%, 25% { background-color: var(--selected-bg); border-color: var(--selected-bg); color: var(--selected-ink); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .steps__num {
+    animation: steps-blink var(--steps-blink-cycle) ease-in-out infinite;
+  }
+  .steps__item:nth-child(2) .steps__num { animation-delay: calc(var(--steps-blink-cycle) / 3); }
+  .steps__item:nth-child(3) .steps__num { animation-delay: calc(var(--steps-blink-cycle) * 2 / 3); }
+  .steps.is-offscreen .steps__num { animation-play-state: paused; }
+}
+
+@media (max-width: 767px) {
+  .steps {
+    grid-template-columns: 1fr;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  /* The line starts at the section top and runs down the numbers' column,
+     so the stacked heading is indented past that column to stay clear. */
+  .steps__title { padding-left: calc(var(--steps-marker) + 1.25rem); }
+}
+
+/* ---- Section 5: why Canary Alpha Research -------------------------------- */
+/* Same container and vertical padding as the other sections; heading
+   matches the other section headings (e.g. .steps__title). */
+.why {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) 2.5rem;
+  scroll-margin-top: var(--site-header-h, 0px);
+}
+.why__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.why__title {
+  margin: 0;
+  /* Same as the Section 1 slogan except the size (the shared section title
+     size) and weight (regular, not bold). */
+  font-weight: 400;
+  font-size: var(--section-title-size);
+  line-height: var(--display-line-height);
+  letter-spacing: var(--display-tracking);
+  text-wrap: balance;
+}
+.why__text {
+  margin: 1.5rem 0 0; /* a touch more room under the large heading */
+  /* 896px block: 2 lines from 1024px to large desktop (17.5-20px text). */
+  max-width: min(56rem, 100%);
+  color: var(--muted);
+  font-size: clamp(1rem, 0.9rem + 0.3vw, 1.25rem);
+  line-height: 1.5;
+  text-wrap: balance;
+}
+@media (max-width: 767px) {
+  .why { padding-left: 1rem; padding-right: 1rem; }
+}
+/* Value pillars. Each column: an animated shape (circle, triangle, square,
+   pentagon; pillar-shapes.js), a gap, a single-line title, then the
+   description. Shapes, titles and the start of the descriptions line up
+   across the row because everything above the description has the same
+   height in every column. */
+.pillars {
+  list-style: none;
+  margin: clamp(3rem, 6vw, 5rem) 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2.5rem;
+  text-align: left;
+}
+/* The shape replaced an 8px square marker with a 50px gap under it; the
+   title's top margin shrinks by the extra height so every title stays
+   exactly where it was (58px below the top of the column). */
+.pillars { --pillar-shape-size: 2rem; }
+.pillar-shape {
+  display: block;
+  width: var(--pillar-shape-size);
+  height: var(--pillar-shape-size);
+  overflow: visible; /* the morph never clips or moves anything */
+}
+.pillar-shape__path { fill: var(--ink); }
+/* Pull each shape left by its inset in the 100-unit viewBox so its left
+   edge lines up with the title's. Transforms don't affect layout. */
+.pillar-shape--circle { transform: translateX(-10%); }
+.pillar-shape--triangle { transform: translateX(-10.16%); }
+.pillar-shape--square { transform: translateX(-17.47%); }
+.pillar-shape--pentagon { transform: translateX(-8.15%); }
+.pillar__title {
+  margin: calc(8px + 50px - var(--pillar-shape-size)) 0 0;
+  font-weight: 500;
+  font-size: clamp(1.25rem, 1.1rem + 0.4vw, 1.375rem);
+  line-height: 1.2;
+  white-space: nowrap; /* single line */
+}
+.pillar__text {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+/* Tablet: 2 × 2. */
+@media (min-width: 600px) {
+  .pillars { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3rem clamp(2rem, 4vw, 3rem); }
+}
+/* Desktop: all four in one row of equal columns. */
+@media (min-width: 1200px) {
+  .pillars { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 3rem 2.5rem; }
+}
+
+/* ---- Section 6: pricing ---------------------------------------------- */
+/* Two stacked plans, Free on top, Pro below, directly on the page
+   background, separated by spacing only. Both use one grid
+   (--plan-cols) so the feature lists and buttons line up exactly. */
+.pricing {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) 2.5rem;
+  scroll-margin-top: var(--site-header-h, 0px);
+}
+.pricing__intro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.pricing__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--section-title-size);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.pricing__text {
+  margin: 1.5rem 0 0;
+  max-width: min(33rem, 100%);
+  color: var(--muted);
+  font-size: clamp(1rem, 0.9rem + 0.3vw, 1.25rem);
+  line-height: 1.5;
+  text-wrap: balance;
+}
+
+/* Two exact halves with no column gap, so the features column starts
+   at exactly 50% of the content width (the page centre). The button
+   sits in the right half too, aligned to its right edge; the features
+   keep clear of it with right padding. */
+.pricing__plans {
+  --plan-cols: minmax(0, 1fr) minmax(0, 1fr);
+  --plan-cta-w: 10rem;  /* = the .button--ghost width */
+  --plan-breath: clamp(2rem, 4vw, 4rem);  /* room either side of a column */
+  --plan-space: clamp(2.5rem, 5vw, 3.5rem);
+  display: grid;
+  margin: clamp(3rem, 6vw, 5rem) 0 0;
+}
+.plan {
+  display: grid;
+  grid-template-columns: var(--plan-cols);
+  gap: 2.5rem 0;
+  align-items: start;
+}
+.plan__info { padding-right: var(--plan-breath); }  /* stays clear of the centre */
+.plan__body {
+  grid-column: 2;
+  grid-row: 1;
+  padding-right: calc(var(--plan-cta-w) + var(--plan-breath));
+}
+.plan + .plan {
+  margin-top: var(--plan-space);
+  padding-top: var(--plan-space);
+}
+
+.plan__name {
+  margin: 0;
+  font-weight: 500;
+  font-size: clamp(1.25rem, 1.1rem + 0.4vw, 1.375rem);
+  line-height: 1.2;
+}
+.plan__price {
+  margin: 0.75rem 0 0;
+  font-size: var(--section-title-size);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.plan__period { font-size: 1rem; letter-spacing: 0; }
+/* Pro: "$30/month or $288/year" on one line, never wrapping (fits a 375px
+   phone). The yearly price and "Save 20%" are one stacked group in the
+   best-deal green; an inline-flex column takes its baseline from the price,
+   so both prices share a baseline and "Save 20%" hangs below without
+   moving anything. */
+.plan__price:has(.plan__yearly) { white-space: nowrap; }
+.plan__sep {
+  margin: 0 0.75rem;
+  color: var(--muted);
+  font-size: 1rem;
+  letter-spacing: 0;
+  vertical-align: 0.6em; /* centred on the price digits */
+}
+.plan__yearly {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  vertical-align: baseline;
+  color: var(--success);
+}
+.plan__save {
+  margin-top: 0.3rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0;
+}
+.plan__alt { margin: 0.5rem 0 0; color: var(--muted); font-size: 1rem; }
+.plan__desc {
+  margin: 1.25rem 0 0;
+  max-width: min(26rem, 100%);
+  color: var(--muted);
+  font-size: 1rem;
+  line-height: 1.55;
+}
+
+.plan__label {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.plan__features {
+  list-style: none;
+  margin: 1.25rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 1rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.plan__features li {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 0.875rem;
+  align-items: center;
+}
+/* Fine print under a feature list (Enterprise): muted, smaller, on the
+   features' left edge. */
+.plan__fine {
+  list-style: none;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  display: grid;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+/* Line icons: one size and stroke for all. */
+.plan__icon {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Plan buttons: the shared .button--ghost style; this only places them.
+   The label sits at the button's outer edge (right on desktop, left when
+   the button moves under the plan info), so the labels line up. */
+/* .button.plan__cta so it wins over the site's .button.button rule. */
+.button.plan__cta {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  justify-content: flex-end;
+}
+
+/* Tablet: info and features side by side, button below the info. */
+@media (max-width: 1023px) {
+  .plan__body { padding-right: 0; }
+  .button.plan__cta { grid-column: 1; grid-row: 2; justify-self: start; justify-content: flex-start; }
+}
+/* Phone: one column, plan info -> features -> button. */
+@media (max-width: 767px) {
+  .pricing { padding-left: 1rem; padding-right: 1rem; }
+  .pricing__plans { --plan-cols: minmax(0, 1fr); }
+  .plan { gap: 2rem; }
+  .plan__info { padding-right: 0; }
+  .plan__body, .button.plan__cta { grid-column: auto; grid-row: auto; }
+}
+
+/* ---- Section 7: FAQ ---------------------------------------------------- */
+/* Same two-column layout as Section 4: title and subline on the left,
+   questions on the right starting at the page's centre line; stacked on
+   phones. Rows are separated by spacing only (like pricing). Questions
+   use the step-title style, answers the muted body style. */
+.faq {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) 2.5rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  scroll-margin-top: var(--site-header-h, 0px);
+}
+.faq__intro { padding-right: clamp(2rem, 4vw, 4rem); }
+.faq__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--section-title-size);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+.faq__text {
+  margin: 1.5rem 0 0;
+  max-width: min(33rem, 100%);
+  color: var(--muted);
+  font-size: clamp(1rem, 0.9rem + 0.3vw, 1.25rem);
+  line-height: 1.5;
+  text-wrap: balance;
+}
+.faq__list { display: grid; gap: 0.5rem; }
+.faq__q {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  min-height: 44px;
+  padding: 0.75rem 0;
+  border-radius: 4px;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 400;
+  font-size: clamp(1.125rem, 1rem + 0.4vw, 1.375rem);
+  line-height: 1.25;
+}
+.faq__q::-webkit-details-marker { display: none; }
+.faq__icon { flex: none; }
+/* Plus -> minus: the vertical stroke folds away when open. */
+.faq__icon-v { transform-origin: 12px 12px; transition: transform 0.25s ease; }
+.faq__item[open] .faq__icon-v { transform: scaleY(0); }
+.faq__a { overflow: hidden; }
+.faq__a p {
+  margin: 0;
+  padding: 0 0 1rem;
+  max-width: 33rem;
+  color: var(--muted);
+  font-size: clamp(1rem, 0.9rem + 0.3vw, 1.1875rem);
+  line-height: 1.5;
+}
+.faq__link { color: var(--ink); text-underline-offset: 0.15em; }
+@media (prefers-reduced-motion: reduce) {
+  .faq__icon-v { transition: none; }
+}
+@media (max-width: 767px) {
+  .faq { grid-template-columns: minmax(0, 1fr); gap: 2rem; padding-left: 1rem; padding-right: 1rem; }
+  .faq__intro { padding-right: 0; }
+}
+
+/* Footer: the last thing on the page, built by components/site-footer.js
+   from components/site-links.js. Transparent, with one thin rule above it.
+   Brand on the left, link columns beside it; everything stacks on phones.
+   Same width and side padding as the sections above. No animation. */
+.site-footer {
+  border-top: 1px solid var(--rule);
+  /* Full-width rule; content in the same 72rem column as the sections. */
+  padding: clamp(2.5rem, 5vw, 3.5rem) max(2.5rem, calc((100% - 72rem) / 2 + 2.5rem)) 2rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.site-footer p { margin: 0; }
+.site-footer a { color: var(--muted); text-underline-offset: 0.15em; }
+.site-footer a:hover { color: var(--ink); }
+.site-footer a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 2px; }
+.site-footer__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: 2rem clamp(2rem, 5vw, 4rem);
+  padding-bottom: clamp(2rem, 4vw, 3rem);
+}
+/* As tall as a column heading, so the logo lines up with them. */
+.site-footer__home { display: inline-flex; align-items: center; height: 1.3125rem; color: var(--ink) !important; text-decoration: none; }
+.site-footer__logo { --logo-cap: 0.67rem; }
+.site-footer__home:hover .ca-logo::after { visibility: visible; }
+.site-footer__tagline { margin-top: 0.25rem !important; max-width: 16rem; }
+/* Columns side by side, each as wide as it needs up to an even share. */
+.site-footer__nav {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 2rem;
+}
+.site-footer__heading {
+  margin: 0 0 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 400;
+  color: var(--ink);
+}
+.site-footer__list { list-style: none; margin: 0; padding: 0; }
+.site-footer__list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+.site-footer__list a:hover { text-decoration: underline; }
+.site-footer__note { margin-top: 0.5rem !important; }
+.site-footer__disclaimer { max-width: 40rem; }
+.site-footer__copy { margin-top: 0.75rem !important; }
+@media (max-width: 767px) {
+  /* Stacked, with 44px tap targets. Extra room at the bottom so the
+     copyright line clears the back-to-top button when scrolled to the end. */
+  .site-footer { padding: 2.5rem 1rem 5rem; }
+  .site-footer__top { grid-template-columns: minmax(0, 1fr); }
+  .site-footer__home { height: 44px; }
+  .site-footer__nav { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
+  .site-footer__list a { min-height: 44px; display: flex; }
+}
+
+/* ---- Legal pages (disclaimer/, terms/) ---------------------------------- */
+/* One readable column (~720px), a heading per section, theme tokens only.
+   LEGAL: page text to be reviewed by a securities attorney before paid
+   launch. */
+.legal {
+  max-width: 45rem;
+  margin: 0 auto;
+  padding: calc(var(--site-header-h, 0px) + clamp(2.5rem, 6vw, 4.5rem)) 1.5rem clamp(3rem, 8vw, 6rem);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+.legal__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--section-title-size);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.legal__updated { margin: 0.75rem 0 0; color: var(--muted); font-size: 0.9375rem; }
+.legal__intro > p:not(.legal__updated) { margin: 1.5rem 0 0; }
+.legal__section { margin-top: 2.5rem; }
+.legal h2 {
+  margin: 0;
+  font-weight: 700;
+  font-size: clamp(1.125rem, 1rem + 0.4vw, 1.375rem);
+  line-height: 1.25;
+}
+.legal p, .legal ul { margin: 0.75rem 0 0; }
+.legal ul { padding-left: 1.25rem; }
+.legal li + li { margin-top: 0.375rem; }
+.legal a { color: var(--ink); text-underline-offset: 0.15em; }
+.legal__also { margin-top: 3rem !important; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
+.legal h3 { margin: 1.5rem 0 0; font-weight: 700; font-size: 1.0625rem; line-height: 1.3; }
+.legal__section { scroll-margin-top: calc(var(--site-header-h, 0px) + 1rem); }
+/* Table of contents: jump links in a ruled box above the sections. */
+.legal__toc {
+  margin-top: 2.5rem;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.legal .legal__toc-title { font-size: 1rem; }
+.legal__toc ol { margin: 0.75rem 0 0; padding-left: 1.5rem; columns: 2 16rem; column-gap: 2rem; }
+.legal__toc li { break-inside: avoid; margin: 0 0 0.25rem; font-size: 0.9375rem; }
+/* Data tables (privacy retention): ruled rows, scrolls sideways if needed. */
+.legal__table { width: 100%; margin-top: 0.75rem; border-collapse: collapse; font-size: 0.9375rem; }
+.legal__table th, .legal__table td { padding: 0.5rem 0.75rem 0.5rem 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.legal__table th { font-weight: 700; }
+
+/* ---- Glossary page (glossary/) ----------------------------------------- */
+/* Same readable column as the legal pages. Terms are built from
+   glossary/glossary.json by glossary/glossary.js. On desktop the A-Z index
+   sticks under the menu bar; terms and letters stop below both. */
+.glossary {
+  --glossary-stop: calc(var(--site-header-h, 0px) + 1rem);
+  max-width: 45rem;
+  margin: 0 auto;
+  padding: calc(var(--site-header-h, 0px) + clamp(2.5rem, 6vw, 4.5rem)) 1.5rem clamp(3rem, 8vw, 6rem);
+  font-size: 1.0625rem;
+  line-height: 1.65;
+}
+.glossary__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--section-title-size);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.glossary__lead { margin: 1.5rem 0 0; }
+.glossary__controls { margin-top: 2.5rem; }
+.glossary__search-label { display: block; margin-bottom: 0.5rem; color: var(--muted); font-size: 0.9375rem; }
+.glossary__search {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 0.875rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--ground);
+  color: var(--ink);
+  font: inherit;
+  font-size: 1rem;
+}
+.glossary__search::placeholder { color: var(--muted); }
+.glossary__search:focus { border-color: var(--ink); }
+/* Category chips: the menu bar's pill when selected. */
+.glossary__chips { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+.glossary__chip.glossary__chip {
+  min-height: 2.25rem;
+  padding: 0 0.875rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--muted);
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.glossary__chip.glossary__chip[aria-pressed="true"] { background: var(--selected-bg); border-color: var(--selected-bg); color: var(--selected-ink); }
+.glossary__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.25rem 1rem; margin-top: 1rem; }
+.glossary__count { margin: 0; color: var(--muted); font-size: 0.9375rem; }
+.glossary__actions { display: flex; }
+.button.button--ghost.glossary__all { width: auto; padding: 0 0.75rem; font-size: 0.9375rem; }
+.glossary__actions .glossary__all:last-child { padding-right: 0; }
+/* A-Z index: one row; letters with no terms are greyed out (not links). */
+.glossary__index { margin-top: 1.5rem; background: var(--ground); border-block: 1px solid var(--rule); }
+.glossary__letters { list-style: none; margin: 0; padding: 0; display: flex; justify-content: space-between; }
+.glossary__letters li { flex: none; }
+.glossary__letters a,
+.glossary__letters span {
+  display: grid;
+  place-items: center;
+  min-width: 1.5rem;
+  min-height: 2.75rem;
+  border-radius: 4px;
+  font-size: 0.9375rem;
+}
+.glossary__letters a { color: var(--ink); text-decoration: none; }
+.glossary__letters .is-empty { color: var(--rule); }
+.glossary__group { margin-top: 2.5rem; }
+.glossary__letter {
+  margin: 0;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid var(--rule);
+  font-weight: 700;
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  line-height: 1.25;
+}
+.glossary__letter,
+.glossary__term { scroll-margin-top: var(--glossary-stop); }
+.glossary__term { border-bottom: 1px solid var(--rule); }
+.glossary__head { display: flex; align-items: center; gap: 0.25rem; }
+.glossary__name { flex: 1; min-width: 0; margin: 0; font-size: inherit; font-weight: 400; }
+.glossary__toggle.glossary__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.625rem 0;
+  text-align: left;
+  font-size: clamp(1.0625rem, 1rem + 0.2vw, 1.1875rem);
+  line-height: 1.3;
+}
+.glossary__icon { flex: none; }
+.glossary__icon-v { transform-origin: 12px 12px; transition: transform 0.25s ease; }
+.glossary__toggle[aria-expanded="true"] .glossary__icon-v { transform: scaleY(0); }
+.glossary__permalink {
+  flex: none;
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 4px;
+  color: var(--muted);
+  text-decoration: none;
+}
+.glossary__body { padding: 0 0 1.25rem; }
+.glossary__def { margin: 0; }
+.glossary__example,
+.glossary__also { margin: 0.75rem 0 0; color: var(--muted); }
+.glossary__label { margin-right: 0.25rem; color: var(--ink); font-weight: 700; }
+.glossary__tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0 0; }
+.glossary__tag {
+  padding: 0.125rem 0.625rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.glossary__empty { margin: 2.5rem 0 0; color: var(--muted); }
+/* Hover only where a pointer can hover, so a tap never leaves it stuck. */
+@media (hover: hover) {
+  .glossary__chip.glossary__chip:hover { color: var(--ink); border-color: var(--ink); }
+  .glossary__chip.glossary__chip[aria-pressed="true"]:hover { color: var(--selected-ink); border-color: var(--selected-bg); }
+  .glossary__letters a:hover { text-decoration: underline; text-underline-offset: 0.15em; }
+  .glossary__permalink:hover { color: var(--ink); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glossary__chip.glossary__chip, .glossary__icon-v { transition: none; }
+}
+/* body's overflow-x: hidden (top of file) would make body a scroll box and
+   stop the sticky index; clip hides overflow the same way without that. */
+.glossary-page { overflow-x: clip; }
+/* Desktop: the index sticks under the menu bar. */
+@media (min-width: 768px) {
+  .glossary { --glossary-stop: calc(var(--site-header-h, 0px) + 2.75rem + 2px + 1rem); }
+  .glossary__index { position: sticky; top: var(--site-header-h, 0px); z-index: 5; }
+}
+/* Phone: the index scrolls sideways. */
+@media (max-width: 767px) {
+  .glossary { padding-left: 1rem; padding-right: 1rem; }
+  .glossary__letters { overflow-x: auto; justify-content: flex-start; }
+  .glossary__letters a, .glossary__letters span { min-width: 2.25rem; }
+}
+
+/* ---- /hero-options: the three hero animations, each in a copy of the hero.
+   A label line above each; the heroes themselves are unchanged. ---- */
+.hero-options { padding-top: var(--site-header-h, 0px); }
+.hero-options__label {
+  margin: 0;
+  padding: 1.25rem 1rem;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  scroll-margin-top: var(--site-header-h, 0px);
+}
+.hero-options__label:first-child { border-top: 0; }
+.hero-options__label strong { color: var(--ink); font-weight: 700; }
+.hero-options__step { display: block; font-size: 0.8125rem; }
+.hero-options__label code { margin-left: 0.5em; font-size: 0.875em; color: var(--ink); white-space: nowrap; }
+@media (min-width: 768px) { .hero-options__label { padding-inline: 2.5rem; } }
+
+/* ---- /animations-demo: the four feature visuals, one per screen ---- */
+.fv-demo { padding-top: var(--site-header-h, 0px); }
+.fv-demo__screen {
+  box-sizing: border-box;
+  min-height: calc(100svh - var(--site-header-h, 0px));
+  max-width: 60rem;
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 4.5rem) 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+}
+.fv-demo__screen + .fv-demo__screen { border-top: 1px solid var(--rule); }
+.fv-demo__step { margin: 0 0 0.75rem; color: var(--muted); font-size: 0.875rem; }
+.fv-demo__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--section-title-size);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.fv-demo__copy {
+  margin: 1rem 0 0;
+  max-width: 38rem;
+  color: var(--muted);
+  font-size: clamp(1rem, 0.9rem + 0.3vw, 1.1875rem);
+  line-height: 1.5;
+}
+@media (max-width: 767px) {
+  .fv-demo__screen { padding-left: 1rem; padding-right: 1rem; }
+}
+
+/* ---- Forms (contact/, signup/; components/form-fields.js) ----
+   One centred column (~560px) on the page itself: no panels, no fills.
+   Fields have a 1px --muted outline (>= 3:1 against the page in both
+   themes), 16px+ text so phones don't zoom, and 48px height. Errors use
+   --danger text (AA in both themes). No transitions or animation. */
+.form-page {
+  max-width: 35rem;
+  margin: 0 auto;
+  padding: calc(var(--site-header-h, 0px) + clamp(2.5rem, 6vw, 4.5rem)) 1rem clamp(3rem, 8vw, 6rem);
+  font-size: 1.0625rem;
+  line-height: 1.5;
+}
+.form-page__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--section-title-size);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.form-page__intro { margin: 1rem 0 0; color: var(--muted); }
+.form { margin-top: 2.5rem; display: grid; gap: 1.25rem; }
+.field { display: grid; gap: 0.375rem; }
+.field__label { font-size: 0.9375rem; }
+.field__input {
+  width: 100%;
+  min-height: 48px;
+  margin: 0;
+  padding: 0.625rem 0.75rem;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.field__input--text { min-height: 9rem; resize: vertical; }
+.field__input:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+.field.is-invalid .field__input { border-color: var(--danger); }
+.field.is-invalid .field__input:focus-visible { outline-color: var(--danger); }
+.field__hint { margin: 0; color: var(--muted); font-size: 0.875rem; }
+/* Empty error lines take no space; a message pushes only what is below. */
+.field__error { margin: 0; color: var(--danger); font-size: 0.875rem; }
+.field__error:empty { display: none; }
+.field__meta { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+.field__count { margin: 0 0 0 auto; color: var(--muted); font-size: 0.875rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* Checkbox: a 44px tap row; the box lines up with the first line of text. */
+.field--check {
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.75rem;
+  align-items: start;
+}
+.field__check {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0.15rem 0 0;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+.field__check-label { min-height: 44px; font-size: 0.9375rem; cursor: pointer; }
+.field--check .field__error { grid-column: 2; }
+.field--check.is-invalid .field__check { outline: 2px solid var(--danger); outline-offset: 2px; }
+.form__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem 1.25rem; margin-top: 0.5rem; }
+/* Solid, like the active menu link: the one filled control on the page. */
+button.form__submit {
+  min-height: 48px;
+  padding: 0 1.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  background: var(--selected-bg);
+  color: var(--selected-ink);
+  border: 1px solid var(--selected-bg);
+}
+button.form__submit:hover { background: var(--muted); border-color: var(--muted); }
+button.form__submit[aria-busy="true"] { cursor: progress; background: var(--muted); border-color: var(--muted); }
+.form__status { margin: 0; font-size: 0.9375rem; }
+.form__status:empty { display: none; }
+.form__status.is-error { color: var(--danger); }
+/* Password with a Show/Hide button inside the field. */
+.field__pw { position: relative; }
+.field__pw .field__input { width: 100%; padding-right: 4.5rem; }
+.field__pw-toggle.field__pw-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.25rem;
+  transform: translateY(-50%);
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 0.625rem;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.field__pw-toggle:hover { color: var(--ink); }
+.field__pw-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
+.form__links { margin: 0; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 1rem; font-size: 0.9375rem; }
+.form__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-underline-offset: 0.15em; }
+.form__switch { margin: 1.5rem 0 0; color: var(--muted); font-size: 0.9375rem; }
+.form__switch a { color: var(--ink); text-underline-offset: 0.15em; }
+/* Demo accounts note on the login page: ruled box, no fill. */
+.demo-note { margin-top: 2rem; padding: 1rem 1.25rem; border: 1px dashed var(--rule); border-radius: 6px; font-size: 0.875rem; }
+.demo-note__title { margin: 0; display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.9375rem; }
+.demo-note__tag { padding: 0 0.5rem; border: 1px solid var(--rule); border-radius: 999px; color: var(--muted); font-weight: 400; font-size: 0.6875rem; letter-spacing: 0.06em; text-transform: uppercase; }
+.demo-note p { margin: 0.5rem 0 0; color: var(--muted); }
+.demo-note ul { list-style: none; margin: 0.5rem 0 0; padding: 0; display: grid; gap: 0.125rem; }
+.demo-note li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 1rem; min-height: 44px; align-items: center; }
+.demo-note button { min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-decoration: underline; text-underline-offset: 0.15em; cursor: pointer; overflow-wrap: anywhere; text-align: left; }
+.demo-note code { font: inherit; }
+.form__legal { margin: 0; color: var(--muted); font-size: 0.875rem; }
+.form__legal a { color: inherit; text-underline-offset: 0.15em; }
+
+/* Privacy note under a form's submit button (components/form-privacy-note.html). */
+.form-privacy-note { margin: 0.5rem 0 0; color: var(--muted); font-size: 0.8125rem; }
+.form-privacy-note a { color: inherit; text-underline-offset: 0.15em; }
+
+/* Consent checkbox test page (consent-test/) only. */
+.consent-test { display: grid; gap: 1.5rem; justify-items: start; margin-top: 2rem; }
+.consent-test__result { margin: 0; color: var(--muted); font-size: 0.9375rem; }
+
+/* Report disclaimer block (components/report-disclaimer.html): small, muted,
+   ruled off from the report above. */
+.report-disclaimer {
+  margin-top: 3rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  color: var(--muted);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+.report-disclaimer p { margin: 0.375rem 0 0; }
+.report-disclaimer p:first-child { margin-top: 0; }
+.report-disclaimer a { color: inherit; }
+
+/* Back to top: round, bottom-right, shown once the hero is scrolled past. */
+.back-to-top {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 10;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--rule);
+  background: var(--ground);
+  color: var(--ink);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+}
+.back-to-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease;
+}
+.back-to-top:hover { background: var(--rule); }
+
+button,
+.button {
+  font: inherit;
+  font-size: 0.875rem;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 0.75rem;
+  border-radius: 4px;
+  cursor: pointer;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.themes {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+
+.themes button { color: var(--muted); }
+.themes button:hover { color: var(--ink); }
+
+/* ---- Access (demo auth: components/auth.js, auth-gate.js) ----------------- */
+/* <main> stays hidden until the access check is done, so locked content
+   never flashes. */
+html.auth-checking main { visibility: hidden; }
+
+/* Paywall: shown in place of a dashboard the user's plan doesn't include. */
+.paywall {
+  display: grid;
+  place-items: start center;
+  min-height: 70vh;
+  padding: calc(var(--site-header-h, 0px) + clamp(2.5rem, 8vw, 5rem)) 1rem clamp(3rem, 8vw, 6rem);
+}
+.paywall__box { width: min(100%, 36rem); }
+.paywall__tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  padding: 0.125rem 0.625rem;
+  border-radius: 999px;
+  background: var(--selected-bg);
+  color: var(--selected-ink);
+  font-size: 0.8125rem;
+}
+.paywall__title { margin: 1rem 0 0; font-size: var(--section-title-size); font-weight: 400; line-height: 1.1; }
+.paywall__intro { margin: 1rem 0 0; color: var(--muted); }
+.paywall__list { margin: 1.25rem 0 0; padding-left: 1.25rem; display: grid; gap: 0.5rem; }
+.paywall__actions { display: flex; flex-wrap: wrap; gap: 0.25rem 1.75rem; margin-top: 1.75rem; }
+.paywall .button.button--ghost.paywall__cta { width: auto; padding: 0 0.25rem 0 0; }
+.paywall__back { margin: 1.25rem 0 0; font-size: 0.9375rem; }
+.paywall__back a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-underline-offset: 0.15em; }
+
+/* ---- Production mode (components/site.config.js) ------------------------ */
+/* site-mode.js sets <html data-production>. [data-demo-only] is the demo
+   build (shown only with production mode off); [data-production-only] is
+   its public replacement. */
+html[data-production] [data-demo-only],
+html:not([data-production]) [data-production-only] { display: none !important; }
+.form__status a { color: inherit; text-underline-offset: 0.15em; }
+/* A single link-button on a form-page (reports/, 404.html), sized like the
+   paywall's. */
+.form-page__cta { margin: 1.75rem 0 0; }
+.form-page .button.button--ghost { width: auto; padding: 0 0.25rem 0 0; white-space: nowrap; }

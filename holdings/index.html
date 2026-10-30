@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- STAGING build of f4859d4e2733c62fb4b5ffb55bb222f174c580ab (tools/build-staging.py) -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="ca-staging-build" content="f4859d4e2733c62fb4b5ffb55bb222f174c580ab">
+  <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Company Holdings — Canary Alpha Research</title>
+  <meta name="description" content="The tokens Canary Alpha Research currently holds. We disclose positions, never amounts, and update this page as soon as a report is published.">
+  <!-- Search and link previews. -->
+  <link rel="canonical" href="https://canaryalpha.co/holdings/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Canary Alpha Research">
+  <meta property="og:title" content="Company Holdings — Canary Alpha Research">
+  <meta property="og:description" content="The tokens Canary Alpha Research currently holds. We disclose positions, never amounts, and update this page as soon as a report is published.">
+  <meta property="og:url" content="https://canaryalpha.co/holdings/">
+  <meta property="og:image" content="https://canaryalpha.co/brand/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Canary Alpha Research: institutional-grade crypto research.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="../brand/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="../brand/favicon-512.png">
+  <link rel="apple-touch-icon" href="../brand/apple-touch-icon.png">
+  <!-- Site fonts: Satoshi (headings and logo), Work Sans (body). -->
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&amp;display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="../styles.css?v=66">
+  <link rel="stylesheet" href="../components/holdings/holdings.css?v=1">
+  <link rel="stylesheet" href="../components/site-header.css?v=43">
+  <!-- Site settings and production mode: load first. -->
+  <script src="../components/site.config.js?v=2"></script>
+  <script src="../components/site-mode.js?v=1"></script>
+  <!-- Applies a saved theme before first paint (no flash). -->
+  <script>
+    (function () {
+      try {
+        var r = document.documentElement;
+        var t = localStorage.getItem("ca-demo-theme");
+        // Night mode was removed: a saved "night" becomes "dark".
+        if (t === "night") { t = "dark"; localStorage.setItem("ca-demo-theme", t); }
+        if (t === "light" || t === "dark") r.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+  <!-- Demo login (DEMO ONLY, see components/auth.js). -->
+  <script src="../components/auth.config.js?v=1"></script>
+  <script src="../components/auth.js?v=2"></script>
+</head>
+<body>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build f4859d4 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <header class="site-header" data-site-header data-home="../" data-root="../"></header>
+  <script src="../components/site-links.js?v=8"></script>
+  <script src="../components/site-header.js?v=42"></script>
+  <main>
+    <!-- Filled from data/holdings.json (components/holdings/). Positions
+         only, never amounts. -->
+    <article class="legal" data-holdings aria-labelledby="legal-title">
+      <header class="legal__intro">
+        <h1 id="legal-title" class="legal__title">Company holdings</h1>
+        <p class="legal__updated" data-holdings-updated></p>
+        <p>Tokens Canary Alpha Research currently holds. We disclose positions, never amounts, and update this page as soon as a report is published.</p>
+      </header>
+      <section class="legal__section" aria-labelledby="h-positions">
+        <h2 id="h-positions">Positions</h2>
+        <div data-holdings-table></div>
+      </section>
+      <section class="legal__section" aria-labelledby="h-changes">
+        <h2 id="h-changes">Changes</h2>
+        <div data-holdings-changes></div>
+      </section>
+      <p class="holdings-note">Holding a token is not a recommendation to buy it. Our research is for education only, not investment advice. <a href="../disclaimer/">Read our disclaimer</a>, including how we handle holdings and conflicts of interest.</p>
+    </article>
+  </main>
+
+  <footer class="site-footer" data-site-footer data-root="../">
+    <p class="site-footer__disclaimer">Canary Alpha Research LLC provides research for informational purposes only, not investment advice. Crypto assets are high risk. <a href="../disclaimer/">Read our disclaimer.</a></p>
+  </footer>
+  <script src="../components/site-footer.js?v=1"></script>
+
+  <script src="../components/holdings/holdings-data.js?v=1"></script>
+  <script src="../components/holdings/holdings-page.js?v=1"></script>
+  <script src="../script.js?v=40"></script>
+</body>
+</html>

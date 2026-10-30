@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- STAGING build of f4859d4e2733c62fb4b5ffb55bb222f174c580ab (tools/build-staging.py) -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="ca-staging-build" content="f4859d4e2733c62fb4b5ffb55bb222f174c580ab">
+  <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canary Alpha Research — Institutional-grade crypto research</title>
+  <meta name="description" content="Independent crypto research. We read the code, trace the wallets, and score every token against the same standard.">
+  <!-- Search and link previews. -->
+  <link rel="canonical" href="https://canaryalpha.co/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Canary Alpha Research">
+  <meta property="og:title" content="Canary Alpha Research — Institutional-grade crypto research">
+  <meta property="og:description" content="Independent crypto research. We read the code, trace the wallets, and score every token against the same standard.">
+  <meta property="og:url" content="https://canaryalpha.co/">
+  <meta property="og:image" content="https://canaryalpha.co/brand/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Canary Alpha Research: institutional-grade crypto research.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="brand/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="brand/favicon-512.png">
+  <link rel="apple-touch-icon" href="brand/apple-touch-icon.png">
+  <!-- Site fonts: Satoshi (headings and logo), Work Sans (body). -->
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&amp;display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="styles.css?v=66">
+  <link rel="stylesheet" href="components/site-header.css?v=43">
+  <!-- Old hero globe, unused; to bring it back, restore these two tags and the
+       globe markup and scripts below, and remove the hero-visuals ones.
+  <link rel="stylesheet" href="components/dotted-globe.css?v=34"> -->
+  <link rel="stylesheet" href="components/hero-visuals.css?v=4">
+  <link rel="stylesheet" href="components/feature-visuals.css?v=12">
+  <link rel="stylesheet" href="components/learn/learn.css?v=2">
+  <!-- Site settings and production mode: load first. -->
+  <script src="components/site.config.js?v=2"></script>
+  <script src="components/site-mode.js?v=1"></script>
+  <!-- Applies a saved theme before first paint (no flash). -->
+  <script>
+    (function () {
+      try {
+        var r = document.documentElement;
+        var t = localStorage.getItem("ca-demo-theme");
+        // Night mode was removed: a saved "night" becomes "dark".
+        if (t === "night") { t = "dark"; localStorage.setItem("ca-demo-theme", t); }
+        if (t === "light" || t === "dark") r.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What makes Canary Alpha Research different?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We bring institutional-grade research to everyday investors. Our reports are easy to read, free to start, and built for retail investors who want depth without the jargon or the price tag."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How does the 80-point scoring framework work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each report pulls together multiple data points, from fundamentals to on-chain activity, and scores them using our proprietary 80-point framework. The result is a clear, consistent verdict you can compare across tokens."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is whale-wallet forensics?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We analyze wallets holding at least 0.01% of a token’s supply and follow where their money moves. It shows you what the largest holders are doing, often before it shows up in the price."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which tokens do you cover?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "We research tokens ranked in the top 1,000 by market cap, and sometimes lower. We also use multiple sources to find promising tokens before they’re ranked at all."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How often are reports updated?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Reports are updated quarterly. Monthly updates are planned for the future."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What do I get for free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Our full Bitcoin and Ethereum reports, free forever. No credit card required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I cancel Pro anytime?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Cancel anytime and you keep access until the end of the period you’ve paid for. Monthly plans aren’t refundable. On a yearly plan, you can get a refund for the full months you haven’t used if you ask within 30 days of purchase or renewal. See our Terms of Service."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do custom reports work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Custom reports are a one-time payment. Your report is delivered in 2–3 business days, it’s yours to keep, and it includes one month of full platform access."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is this financial advice?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Our reports are research and education only, not financial advice. Always do your own research before investing. See our full disclaimers."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you hold the tokens you research?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Sometimes. Canary Alpha Research and its founder may hold tokens we research. We disclose whether we hold a token, never how much, right after the report on it is published, on the report and on our Company Holdings page. We don't buy or sell a token for 48 hours after publishing a report on it, so readers can act on the research first. Holding a token is not a recommendation to buy it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who is behind Canary Alpha Research?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Canary Alpha Research is run by an independent crypto researcher specializing in on-chain forensics. Follow along on X: @nameredacted404."
+      }
+    }
+  ]
+}
+  </script>
+  <!-- Demo login (DEMO ONLY, see components/auth.js). -->
+  <script src="components/auth.config.js?v=1"></script>
+  <script src="components/auth.js?v=2"></script>
+</head>
+<body>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build f4859d4 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <header class="site-header" data-site-header data-home="#top" data-root=""></header>
+  <script src="components/site-links.js?v=8"></script>
+  <script src="components/site-header.js?v=42"></script>
+  <main>
+    <!-- Section 1: one screen. The hero visual (components/hero-visuals.*;
+         which option shows is heroVariant in hero-visuals.config.js) is
+         centred in the area under the menu bar; the slogan (top-left) and supporting text (lower-left, on
+         the slogan's left edge) are separate overlay layers, so they never move it. -->
+    <section class="hero" aria-labelledby="hero-title">
+      <h1 id="hero-title" class="hero__title">Crypto research built to institutional standards.</h1>
+      <p class="hero__text">Deep-dive token reports scored on an 80-point framework and backed by on-chain forensics. Know what you hold before the market tells you.</p>
+      <div class="hero__stage">
+        <div data-hero-visual></div>
+        <!-- Old globe, unused:
+        <div class="dotted-globe" data-dotted-globe role="img"
+             aria-label="A slowly rotating globe made of dots that outline the world's continents. Drag to spin it.">
+          <canvas></canvas>
+        </div> -->
+      </div>
+      <a class="scroll-hint" href="#our-process" aria-label="Scroll to content">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true" focusable="false"><path d="m6 9 6 6 6-6"/></svg>
+      </a>
+    </section>
+
+    <!-- Section 3: bento grid. Each tile has an animated visual
+         (components/feature-visuals.*); their labels and numbers are in
+         components/feature-visuals.config.js. -->
+    <section class="bento" id="our-process" aria-labelledby="bento-intro-title">
+      <!-- Intro above the grid. Type sizes: --intro-* in styles.css. -->
+      <header class="bento__intro">
+        <h2 id="bento-intro-title" class="bento__intro-title">Conviction, Evidence, and Rigor</h2>
+        <p class="bento__intro-text">All reports follow a disciplined process, so you can compare tokens on equal terms and act with confidence instead of guesswork.</p>
+      </header>
+
+      <!-- Tile 1: full width, text centred above the visual -->
+      <article class="bento__tile bento__tile--feature">
+        <div class="bento__body bento__body--center">
+          <h2 class="bento__title">80-point scoring framework<span class="explain-slot" data-explain="canary-score"></span></h2>
+          <p class="bento__text">Each token is scored across six weighted categories, ending in a clear verdict.</p>
+        </div>
+        <div class="bento__visual"><div data-feature-visual="scoring"></div></div>
+      </article>
+
+      <!-- Tile 2: half width, text above the visual -->
+      <article class="bento__tile bento__tile--forensics">
+        <div class="bento__body">
+          <h2 class="bento__title">On-chain forensics<span class="explain-slot" data-explain="on-chain-forensics"></span></h2>
+          <p class="bento__text">We trace whale wallets, treasury movements, and token flows to see what insiders are doing, not just what they're saying.</p>
+        </div>
+        <div class="bento__visual"><div data-feature-visual="forensics"></div></div>
+      </article>
+
+      <!-- Tile 3: half width, text above the visual -->
+      <article class="bento__tile bento__tile--screening">
+        <div class="bento__body">
+          <h2 class="bento__title">Scam screening<span class="explain-slot" data-explain="scam-screening"></span></h2>
+          <p class="bento__text">A six-point red-flag check catches warning signs early: inactive developers, silent teams, and sell pressure hidden behind rising prices.</p>
+        </div>
+        <div class="bento__visual"><div data-feature-visual="screening"></div></div>
+      </article>
+
+      <!-- Tile 4: full width, text left 40%, visual right -->
+      <article class="bento__tile bento__tile--split">
+        <div class="bento__body bento__body--split">
+          <h2 class="bento__title">Built to revisit<span class="explain-slot" data-explain="quarterly-updates"></span></h2>
+          <p class="bento__text">Quarterly updates track what changed since the last report, so your thesis stays current.</p>
+        </div>
+        <div class="bento__visual"><div data-feature-visual="revisit"></div></div>
+      </article>
+    </section>
+
+    <!-- Section 4: how it works. The numbers blink 1, 2, 3 in turn
+         (styles.css; steps-blink.js pauses it off screen).
+         Button link: the "Sign up" href below. -->
+    <section class="steps" id="how-it-works" aria-labelledby="steps-title">
+      <h2 id="steps-title" class="steps__title">From signup to signal<br class="steps__title-break"> in three steps.</h2>
+      <div class="steps__main">
+        <div class="steps__track">
+          <ol class="steps__list">
+            <li class="steps__item">
+              <span class="steps__num" aria-hidden="true">1</span>
+              <div>
+                <h3 class="steps__step-title">Sign up for a free account</h3>
+                <p class="steps__text">Sign up in under a minute. No credit card required.</p>
+              </div>
+            </li>
+            <li class="steps__item">
+              <span class="steps__num" aria-hidden="true">2</span>
+              <div>
+                <h3 class="steps__step-title">Read BTC and ETH free</h3>
+                <p class="steps__text">Get our full Bitcoin and Ethereum reports at no cost and see the depth of the research for yourself.</p>
+              </div>
+            </li>
+            <li class="steps__item">
+              <span class="steps__num" aria-hidden="true">3</span>
+              <div>
+                <h3 class="steps__step-title">Unlock everything with Pro</h3>
+                <p class="steps__text">Upgrade for the full coverage list, whale-wallet forensics, and quarterly updates as they publish.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+        <a class="button button--ghost steps__cta" href="signup/">Sign up <svg class="button__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+      </div>
+    </section>
+
+    <!-- Section 5: why Canary Alpha Research. Further content goes below
+         the intro, inside this section. -->
+    <section class="why" id="why-us" aria-labelledby="why-title">
+      <header class="why__intro">
+        <h2 id="why-title" class="why__title">Why Canary Alpha Research?</h2>
+        <p class="why__text">Crypto research tends to be hype or surface-level data. We read the code, trace the wallets, and score every token against the same standard.</p>
+      </header>
+
+      <!-- Four value pillars: one row on desktop, 2×2 on tablet, stacked on
+           phones. -->
+      <ul class="pillars">
+        <li class="pillar">
+          <svg class="pillar-shape pillar-shape--circle" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path class="pillar-shape__path" data-shape="0" d="M50 10A40 40 0 1 1 50 90A40 40 0 1 1 50 10Z"/></svg>
+          <h3 class="pillar__title">Independent</h3>
+          <p class="pillar__text">No paid placements and no sponsored coverage. Ratings reflect the evidence only.</p>
+        </li>
+        <li class="pillar">
+          <svg class="pillar-shape pillar-shape--triangle" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path class="pillar-shape__path" data-shape="3" d="M50.00 12.00L89.84 81.00L10.16 81.00Z"/></svg>
+          <h3 class="pillar__title">Consistent</h3>
+          <p class="pillar__text">Every token goes through the same framework, so a 7.2 means the same thing every time.</p>
+        </li>
+        <li class="pillar">
+          <svg class="pillar-shape pillar-shape--square" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path class="pillar-shape__path" data-shape="4" d="M17.47 17.47L82.53 17.47L82.53 82.53L17.47 82.53Z"/></svg>
+          <h3 class="pillar__title">Evidence-first</h3>
+          <p class="pillar__text">Every claim traces back to on-chain data, code activity, or primary sources.</p>
+        </li>
+        <li class="pillar">
+          <svg class="pillar-shape pillar-shape--pentagon" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><path class="pillar-shape__path" data-shape="5" d="M50.00 9.00L91.85 39.40L75.86 88.60L24.14 88.60L8.15 39.40Z"/></svg>
+          <h3 class="pillar__title">Built for decisions</h3>
+          <p class="pillar__text">Each report ends in a clear verdict, not a pile of charts to interpret yourself.</p>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Section 6: pricing. Free and Pro on one shared 50/50 grid (features
+         start at the page centre). Button links: the href on each plan (Go Pro is still "#"). -->
+    <section class="pricing" id="pricing" aria-labelledby="pricing-title">
+      <header class="pricing__intro">
+        <h2 id="pricing-title" class="pricing__title">Serious research, simple pricing.</h2>
+        <p class="pricing__text">Sign up free; upgrade when you want the full picture.</p>
+      </header>
+
+      <div class="pricing__plans">
+        <article class="plan plan--free" aria-labelledby="plan-free">
+          <div class="plan__info">
+            <h3 id="plan-free" class="plan__name">Free</h3>
+            <p class="plan__price">$0<span class="plan__period">/month</span></p>
+            <p class="plan__desc">Our quarterly Bitcoin and Ethereum reports, free forever. The best way to see how we work before you subscribe.</p>
+          </div>
+          <div class="plan__body">
+            <p class="plan__label">Features</p>
+            <ul class="plan__features">
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M10 11.5h2.75a1.5 1.5 0 0 1 0 3H10z"/><path d="M10 14.5h3.25a1.5 1.5 0 0 1 0 3H10z"/><path d="M10 11.5v6"/><path d="M11.25 10.25v1.25"/><path d="M11.25 17.5v1.25"/></svg>
+                <span>Quarterly Bitcoin report</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 10l-3 4.25L12 18.5l3-4.25z"/><path d="M9 14.25l3 1.5 3-1.5"/></svg>
+                <span>Quarterly Ethereum report</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M4 17a8 8 0 1 1 16 0"/><path d="M12 17l4-4.5"/><path d="M12 9v1.5"/><path d="M6.4 11.4l1.05 1.05"/><path d="M17.6 11.4l-1.05 1.05"/><circle cx="12" cy="17" r="1"/></svg>
+                <span>80-point scored verdicts</span>
+              </li>
+            </ul>
+          </div>
+          <a class="button button--ghost plan__cta" href="signup/">Sign up <svg class="button__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+        </article>
+
+        <article class="plan plan--pro" aria-labelledby="plan-pro">
+          <div class="plan__info">
+            <h3 id="plan-pro" class="plan__name">Pro</h3>
+            <p class="plan__price">$30<span class="plan__period">/month</span><span class="plan__sep">or</span><span class="plan__yearly"><span>$288<span class="plan__period">/year</span></span><span class="plan__save">Save 20%</span></span></p>
+            <p class="plan__desc">For serious investors overwhelmed by thousands of tokens. We do the deep work so you can make faster, better-informed decisions.</p>
+          </div>
+          <div class="plan__body">
+            <p class="plan__label">Features</p>
+            <ul class="plan__features">
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 12.25l2.75 2.75L16 9.5"/></svg>
+                <span>Everything in Free</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3.5" y="4" width="4" height="16" rx="0.75"/><rect x="8.5" y="4" width="4" height="16" rx="0.75"/><path d="M14.5 5.6l3.6-1 4.1 14.9-3.6 1z"/><path d="M3.5 8h4"/><path d="M8.5 8h4"/></svg>
+                <span>Full report library</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18"/><path d="M8 3v4"/><path d="M16 3v4"/><path d="M12 13v5"/><path d="M9.5 15.5h5"/></svg>
+                <span>New token reports every month</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 18H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v2"/><path d="M3 9h11"/><circle cx="16.5" cy="15" r="3.5"/><path d="M19 17.5l2.5 2.5"/></svg>
+                <span>Whale-wallet forensics</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M19.5 10A8 8 0 0 0 5.2 7.5"/><path d="M5 3.5v4h4"/><path d="M4.5 14a8 8 0 0 0 14.3 2.5"/><path d="M19 20.5v-4h-4"/></svg>
+                <span>Quarterly report updates</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M13 13.5H8.5L5 16.5v-3H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v4"/><rect x="14" y="15" width="8" height="6" rx="1"/><path d="M16 15v-1.5a2 2 0 0 1 4 0V15"/></svg>
+                <span>Private subscriber Discord</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><path d="M5.6 5.6l3.6 3.6"/><path d="M14.8 14.8l3.6 3.6"/><path d="M14.8 9.2l3.6-3.6"/><path d="M5.6 18.4l3.6-3.6"/></svg>
+                <span>Priority Support</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 2.5c3 2 4.5 5.25 4.5 9.25L15 16H9l-1.5-4.25C7.5 7.75 9 4.5 12 2.5z"/><circle cx="12" cy="9.5" r="1.5"/><path d="M7.5 11.75L5 15l3 1"/><path d="M16.5 11.75L19 15l-3 1"/><path d="M10.5 19l1.5 2.5 1.5-2.5"/></svg>
+                <span>Early access to new features</span>
+              </li>
+            </ul>
+          </div>
+          <a class="button button--ghost plan__cta" href="signup/">Go Pro <svg class="button__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+        </article>
+
+        <article class="plan plan--enterprise" aria-labelledby="plan-enterprise">
+          <div class="plan__info">
+            <h3 id="plan-enterprise" class="plan__name">Enterprise</h3>
+            <p class="plan__alt">Custom reports</p>
+            <p class="plan__price">$300<span class="plan__period">/report</span></p>
+            <p class="plan__alt">One-time payment. Includes 1 month of full platform access.</p>
+            <p class="plan__desc">For funds, teams, and serious investors who need research on a specific token, delivered privately.</p>
+          </div>
+          <div class="plan__body">
+            <p class="plan__label">Features</p>
+            <ul class="plan__features">
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/></svg>
+                <span>Choose any token or project</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="13.5" r="7.5"/><path d="M12 13.5V9.5"/><path d="M10 2.5h4"/><path d="M12 2.5V6"/><path d="M18 7.5l1.5-1.5"/></svg>
+                <span>Priority report completion</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/><path d="M12 13.5v4.5"/><path d="M9.75 15.75 12 18l2.25-2.25"/></svg>
+                <span>Private report delivery &amp; downloadables</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14.5l2 2 4-4"/></svg>
+                <span>Your report is yours to keep</span>
+              </li>
+            </ul>
+            <ul class="plan__fine">
+              <li>Multiple reports extend your access by 1 month each. Access ends after that, with no automatic renewal.</li>
+              <li>Already a Pro subscriber? You&rsquo;ll receive the custom report; your subscription continues as normal.</li>
+            </ul>
+          </div>
+          <a class="button button--ghost plan__cta" href="contact/">Contact Us <svg class="button__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+        </article>
+      </div>
+    </section>
+
+    <!-- Section 7: FAQ. One question open at a time (script.js);
+         questions and answers also appear in the FAQPage JSON-LD in <head>. -->
+    <section class="faq" id="faq" aria-labelledby="faq-title">
+      <header class="faq__intro">
+        <h2 id="faq-title" class="faq__title">Frequently asked questions.</h2>
+        <p class="faq__text">Everything you need to know before you start.</p>
+      </header>
+      <div class="faq__list">
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>What makes Canary Alpha Research different?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>We bring institutional-grade research to everyday investors. Our reports are easy to read, free to start, and built for retail investors who want depth without the jargon or the price tag.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>How does the 80-point scoring framework work?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>Each report pulls together multiple data points, from fundamentals to on-chain activity, and scores them using our proprietary 80-point framework. The result is a clear, consistent verdict you can compare across tokens.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>What is whale-wallet forensics?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>We analyze wallets holding at least 0.01% of a token’s supply and follow where their money moves. It shows you what the largest holders are doing, often before it shows up in the price.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>Which tokens do you cover?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>We research tokens ranked in the top 1,000 by market cap, and sometimes lower. We also use multiple sources to find promising tokens before they’re ranked at all.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>How often are reports updated?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>Reports are updated quarterly. Monthly updates are planned for the future.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>What do I get for free?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>Our full Bitcoin and Ethereum reports, free forever. No credit card required.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>Can I cancel Pro anytime?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>Yes. Cancel anytime and you keep access until the end of the period you’ve paid for. Monthly plans aren’t refundable. On a yearly plan, you can get a refund for the full months you haven’t used if you ask within 30 days of purchase or renewal. <a class="faq__link" href="terms/#s6">See our Terms of Service</a>.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>How do custom reports work?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>Custom reports are a one-time payment. Your report is delivered in 2–3 business days, it’s yours to keep, and it includes one month of full platform access.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>Is this financial advice?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>No. Our reports are research and education only, not financial advice. Always do your own research before investing. <a class="faq__link" href="disclaimer/">See our full disclaimers</a>.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>Do you hold the tokens you research?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>Sometimes. Canary Alpha Research and its founder may hold tokens we research. We disclose whether we hold a token, never how much, right after the report on it is published, on the report and on our <a class="faq__link" href="holdings/">Company Holdings page</a>. We don&rsquo;t buy or sell a token for 48 hours after publishing a report on it, so readers can act on the research first. Holding a token is not a recommendation to buy it.</p></div>
+          </details>
+          <details class="faq__item" name="faq">
+            <summary class="faq__q"><span>Who is behind Canary Alpha Research?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>Canary Alpha Research is run by an independent crypto researcher specializing in on-chain forensics. Follow along on X: <a class="faq__link" href="https://x.com/nameredacted404" target="_blank" rel="noopener noreferrer">@nameredacted404</a>.</p></div>
+          </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer" data-site-footer data-root="">
+    <p class="site-footer__disclaimer">Canary Alpha Research LLC provides research for informational purposes only, not investment advice. Crypto assets are high risk. <a href="disclaimer/">Read our disclaimer.</a></p>
+  </footer>
+  <script src="components/site-footer.js?v=1"></script>
+
+  <button type="button" class="back-to-top" aria-label="Back to top" hidden>
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+         aria-hidden="true" focusable="false"><path d="m5 12 7-7 7 7"/><path d="M12 19V5"/></svg>
+  </button>
+
+  <!-- Old globe, unused:
+  <script src="vendor/cobe-2.0.1.js?v=30"></script>
+  <script src="components/dotted-globe.js?v=30"></script> -->
+  <script src="steps-blink.js?v=32"></script>
+  <script src="pillar-shapes.js?v=32"></script>
+  <!-- Education layer: "Explain this" icons on the feature tiles and visuals. -->
+  <script src="components/learn/access.config.js?v=1"></script>
+  <script src="components/learn/learn.config.js?v=1"></script>
+  <script src="learn/data/explainers.js?v=1"></script>
+  <script src="learn/data/summaries.js?v=1"></script>
+  <script src="learn/data/videos.js?v=2"></script>
+  <script src="learn/data/articles.js?v=2"></script>
+  <script src="learn/data/reading.js?v=1"></script>
+  <script src="learn/data/assets.js?v=2"></script>
+  <script src="components/learn/learn-core.js?v=2"></script>
+  <script src="components/learn/explain.js?v=2"></script>
+  <script src="components/feature-visuals.config.js?v=9"></script>
+  <script src="components/feature-visuals.js?v=8"></script>
+  <script src="components/hero-visuals.config.js?v=1"></script>
+  <script src="components/hero-early-warning.js?v=1"></script>
+  <script src="components/hero-verdict.js?v=1"></script>
+  <script src="components/hero-noise.js?v=1"></script>
+  <script src="components/hero-visuals.js?v=2"></script>
+  <script src="script.js?v=40"></script>
+
+  <!-- DEV FONT PANEL START ====================================================
+       Temporary: live font controls for Section 1 (the hero). Shows only
+       when the URL has ?fontpanel (e.g. index.html?fontpanel); otherwise
+       it adds nothing to the page. Changes are a live preview only (inline
+       styles on the two hero elements, remembered in localStorage); it never
+       edits styles.css. "Copy CSS" gives the values to paste back.
+       To remove: delete everything from DEV FONT PANEL START to
+       DEV FONT PANEL END. -->
+  <style>
+    /* DEV FONT PANEL: CSS */
+    .dev-font-panel {
+      position: fixed;
+      left: 0.75rem;
+      bottom: 0.75rem;
+      z-index: 100;
+      width: min(24rem, calc(100vw - 1.5rem));
+      max-height: calc(100vh - 1.5rem);
+      overflow: auto;
+      border: 1px solid var(--rule);
+      border-radius: 6px;
+      background: color-mix(in srgb, var(--ground) 90%, transparent);
+      color: var(--ink);
+      font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+    .dev-font-panel.is-collapsed { width: auto; }
+    .dev-font-panel.is-collapsed .dev-font-panel__body { display: none; }
+    .dev-font-panel button {
+      font: inherit;
+      min-height: 32px;
+      padding: 0 0.6rem;
+      border: 1px solid var(--rule);
+      border-radius: 4px;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .dev-font-panel__bar { display: flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.25rem 0.25rem 0.6rem; }
+    .dev-font-panel__bar strong { flex: 1; font-weight: 700; }
+    .dev-font-panel__bar button { border: 0; min-width: 32px; }
+    .dev-font-panel__body { padding: 0 0.6rem 0.6rem; border-top: 1px solid var(--rule); }
+    .dev-font-panel fieldset { margin: 0; padding: 0.5rem 0; border: 0; border-bottom: 1px solid var(--rule); }
+    .dev-font-panel legend { padding: 0; font-weight: 700; }
+    .dev-font-panel__row { display: grid; grid-template-columns: 6.5rem 1fr 4.5rem; align-items: center; gap: 0.5rem; margin-top: 0.25rem; }
+    .dev-font-panel__row input[type="range"] { width: 100%; margin: 0; accent-color: var(--ink); }
+    .dev-font-panel__row input[type="number"] {
+      width: 100%; font: inherit; padding: 0.15rem 0.25rem;
+      border: 1px solid var(--rule); border-radius: 3px; background: var(--ground); color: var(--ink);
+    }
+    .dev-font-panel__read { margin: 0.35rem 0 0; color: var(--muted); white-space: pre; }
+    .dev-font-panel__actions { display: flex; align-items: center; gap: 0.5rem; padding-top: 0.6rem; }
+    .dev-font-panel__status { color: var(--muted); }
+  </style>
+  <script>
+    /* DEV FONT PANEL: JS */
+    (function () {
+      if (!/[?&]fontpanel(?:[=&]|$)/.test(location.search)) return;
+      if (window.CA_SITE && window.CA_SITE.productionMode) return; // not on the public site
+      var title = document.querySelector(".hero__title");
+      var text = document.querySelector(".hero__text");
+      if (!title || !text) return;
+
+      var KEY = "ca-dev-font-panel";
+      function load() { try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) { return {}; } }
+      function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+      function clear() { try { localStorage.removeItem(KEY); } catch (e) {} }
+      var state = load(); // only the values I've changed: titleSize, textSize, textMax, textLh, collapsed
+
+      function rootPx() { return parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; }
+      function rem(px) { return +(px / rootPx()).toFixed(4); }
+      function r1(v) { return +(+v).toFixed(1); }
+
+      // Apply overrides as inline styles (preview only). The max-width keeps
+      // the page's phone cap so the text never runs off a narrow screen.
+      function apply() {
+        title.style.fontSize = state.titleSize ? state.titleSize + "px" : "";
+        text.style.fontSize = state.textSize ? state.textSize + "px" : "";
+        text.style.maxWidth = state.textMax ? "min(" + state.textMax + "px, calc(100% - 2 * var(--pad)))" : "";
+        text.style.lineHeight = state.textLh ? String(state.textLh) : "";
+      }
+
+      function measure(el) {
+        var cs = getComputedStyle(el);
+        var size = parseFloat(cs.fontSize);
+        var lh = parseFloat(cs.lineHeight);
+        if (isNaN(lh)) lh = size * 1.2;
+        var box = el.getBoundingClientRect();
+        return { size: size, lh: lh, lines: Math.round(box.height / lh), width: box.width,
+                 maxWidth: parseFloat(cs.maxWidth) };
+      }
+
+      // ---- Build the panel ---------------------------------------------------
+      var panel = document.createElement("section");
+      panel.className = "dev-font-panel";
+      panel.setAttribute("aria-label", "Dev font panel (Section 1)");
+      panel.innerHTML =
+        '<div class="dev-font-panel__bar"><strong>Fonts · Section 1 (dev)</strong>' +
+        '<button type="button" data-act="toggle" aria-expanded="true" aria-label="Collapse panel">–</button></div>' +
+        '<div class="dev-font-panel__body">' +
+          '<fieldset><legend>Heading</legend>' +
+            row("titleSize", "Size px", 24, 160, 1) +
+            '<p class="dev-font-panel__read" data-read="title"></p></fieldset>' +
+          '<fieldset><legend>Subtitle</legend>' +
+            row("textSize", "Size px", 12, 40, 1) +
+            row("textMax", "Max-width px", 300, 1000, 4) +
+            row("textLh", "Line-height", 1, 2, 0.05) +
+            '<p class="dev-font-panel__read" data-read="text"></p></fieldset>' +
+          '<p class="dev-font-panel__read" data-read="vp"></p>' +
+          '<div class="dev-font-panel__actions"><button type="button" data-act="reset">Reset</button>' +
+          '<button type="button" data-act="copy">Copy CSS</button>' +
+          '<span class="dev-font-panel__status" aria-live="polite"></span></div>' +
+        '</div>';
+      document.body.appendChild(panel);
+
+      function row(key, label, min, max, step) {
+        var id = "dev-font-" + key;
+        return '<div class="dev-font-panel__row"><label for="' + id + '">' + label + '</label>' +
+          '<input type="range" id="' + id + '" data-key="' + key + '" min="' + min + '" max="' + max + '" step="' + step + '">' +
+          '<input type="number" data-key="' + key + '" min="' + min + '" max="' + max + '" step="' + step + '" aria-label="' + label + '"></div>';
+      }
+
+      var inputs = Array.prototype.slice.call(panel.querySelectorAll("input[data-key]"));
+      var status = panel.querySelector(".dev-font-panel__status");
+      var toggle = panel.querySelector('[data-act="toggle"]');
+
+      // Current value of each control: my override, else what the page renders.
+      function current() {
+        var t = measure(title), p = measure(text);
+        return {
+          titleSize: state.titleSize || Math.round(t.size),
+          textSize: state.textSize || Math.round(p.size),
+          // max-width is a min() expression, so read the rendered width
+          // when it isn't a plain length.
+          textMax: state.textMax || Math.round(isNaN(p.maxWidth) ? p.width : p.maxWidth),
+          textLh: state.textLh || +(p.lh / p.size).toFixed(2)
+        };
+      }
+
+      function render() {
+        var t = measure(title), p = measure(text), v = current();
+        inputs.forEach(function (i) { if (document.activeElement !== i) i.value = v[i.dataset.key]; });
+        panel.querySelector('[data-read="title"]').textContent =
+          r1(t.size) + "px (" + rem(t.size) + "rem), " + t.lines + " lines";
+        panel.querySelector('[data-read="text"]').textContent =
+          r1(p.size) + "px (" + rem(p.size) + "rem), " + p.lines + " lines\n" +
+          "width " + r1(p.width) + "px (" + rem(p.width) + "rem)";
+        panel.querySelector('[data-read="vp"]').textContent = "Viewport: " + innerWidth + " × " + innerHeight;
+      }
+
+      inputs.forEach(function (i) {
+        i.addEventListener("input", function () {
+          var n = parseFloat(i.value);
+          if (isNaN(n)) return;
+          n = Math.min(parseFloat(i.max), Math.max(parseFloat(i.min), n));
+          state[i.dataset.key] = n;
+          inputs.forEach(function (o) { if (o !== i && o.dataset.key === i.dataset.key) o.value = n; });
+          apply(); save(); render();
+        });
+      });
+
+      panel.querySelector('[data-act="reset"]').addEventListener("click", function () {
+        var collapsed = state.collapsed;
+        state = collapsed ? { collapsed: true } : {};
+        if (collapsed) save(); else clear();
+        apply(); render();
+        status.textContent = "Reset to styles.css";
+      });
+
+      panel.querySelector('[data-act="copy"]').addEventListener("click", function () {
+        var v = current();
+        var css =
+          "/* Section 1 values from the dev font panel at " + innerWidth + "x" + innerHeight + ". */\n" +
+          ".hero__title {\n" +
+          "  font-size: " + rem(v.titleSize) + "rem; /* " + v.titleSize + "px */\n" +
+          "}\n" +
+          ".hero__text {\n" +
+          "  font-size: " + rem(v.textSize) + "rem; /* " + v.textSize + "px */\n" +
+          "  max-width: min(" + rem(v.textMax) + "rem, calc(100% - 2 * var(--pad))); /* " + v.textMax + "px */\n" +
+          "  line-height: " + v.textLh + ";\n" +
+          "}\n";
+        function done(ok) { status.textContent = ok ? "Copied" : "Copy failed"; }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(css).then(function () { done(true); }, function () { done(fallback(css)); });
+        } else {
+          done(fallback(css));
+        }
+      });
+      function fallback(str) {
+        var ta = document.createElement("textarea");
+        ta.value = str; ta.style.position = "fixed"; ta.style.opacity = "0";
+        document.body.appendChild(ta); ta.select();
+        var ok = false;
+        try { ok = document.execCommand("copy"); } catch (e) {}
+        ta.remove();
+        return ok;
+      }
+
+      function setCollapsed(c) {
+        panel.classList.toggle("is-collapsed", c);
+        toggle.textContent = c ? "+" : "–";
+        toggle.setAttribute("aria-expanded", String(!c));
+        toggle.setAttribute("aria-label", c ? "Expand panel" : "Collapse panel");
+      }
+      toggle.addEventListener("click", function () {
+        state.collapsed = !panel.classList.contains("is-collapsed");
+        if (!state.collapsed) delete state.collapsed;
+        setCollapsed(!!state.collapsed); save();
+      });
+
+      setCollapsed(!!state.collapsed);
+      apply();
+      render();
+      addEventListener("resize", render);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(render);
+    })();
+  </script>
+  <!-- DEV FONT PANEL END ====================================================== -->
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+  "name": "canaryalpha-site",
+  "private": true,
+  "description": "canaryalpha.co. Plain HTML, CSS and JavaScript: no dependencies, no build for production. These scripts only deploy; see STAGING.md.",
+  "scripts": {
+    "deploy:staging": "bash tools/deploy.sh staging",
+    "deploy:production": "bash tools/deploy.sh production"
+  }
+}

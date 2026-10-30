@@ -1,0 +1,29 @@
+/*
+ * Signup consent checkbox (consent-checkbox.js). Theme tokens only, so it
+ * follows Light and Dark.
+ */
+.consent {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.25rem 0.75rem;
+  align-items: start;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--ink);
+}
+.consent__box {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0.125rem 0 0;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+.consent__label { cursor: pointer; }
+.consent__label a { color: var(--ink); text-underline-offset: 0.15em; }
+.consent__error {
+  grid-column: 2;
+  margin: 0;
+  color: var(--ink);
+  font-size: 0.875rem;
+  font-weight: 700;
+}

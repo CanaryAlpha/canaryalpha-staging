@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- STAGING build of f4859d4e2733c62fb4b5ffb55bb222f174c580ab (tools/build-staging.py) -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="ca-staging-build" content="f4859d4e2733c62fb4b5ffb55bb222f174c580ab">
+  <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact Us — Canary Alpha Research</title>
+  <meta name="description" content="Questions about our research, Pro, or a custom report? Contact Canary Alpha Research.">
+  <!-- Search and link previews. -->
+  <link rel="canonical" href="https://canaryalpha.co/contact/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Canary Alpha Research">
+  <meta property="og:title" content="Contact Us — Canary Alpha Research">
+  <meta property="og:description" content="Questions about our research, Pro, or a custom report? Contact Canary Alpha Research.">
+  <meta property="og:url" content="https://canaryalpha.co/contact/">
+  <meta property="og:image" content="https://canaryalpha.co/brand/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Canary Alpha Research: institutional-grade crypto research.">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/svg+xml" href="../brand/favicon.svg">
+  <link rel="icon" type="image/png" sizes="512x512" href="../brand/favicon-512.png">
+  <link rel="apple-touch-icon" href="../brand/apple-touch-icon.png">
+  <!-- Site fonts: Satoshi (headings and logo), Work Sans (body). -->
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&amp;display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="../styles.css?v=66">
+  <link rel="stylesheet" href="../components/site-header.css?v=43">
+  <!-- Site settings and production mode: load first. -->
+  <script src="../components/site.config.js?v=2"></script>
+  <script src="../components/site-mode.js?v=1"></script>
+  <!-- Applies a saved theme before first paint (no flash). -->
+  <script>
+    (function () {
+      try {
+        var r = document.documentElement;
+        var t = localStorage.getItem("ca-demo-theme");
+        // Night mode was removed: a saved "night" becomes "dark".
+        if (t === "night") { t = "dark"; localStorage.setItem("ca-demo-theme", t); }
+        if (t === "light" || t === "dark") r.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+  <!-- Demo login (DEMO ONLY, see components/auth.js). -->
+  <script src="../components/auth.config.js?v=1"></script>
+  <script src="../components/auth.js?v=2"></script>
+</head>
+<body>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build f4859d4 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <header class="site-header" data-site-header data-home="../" data-root="../"></header>
+  <script src="../components/site-links.js?v=8"></script>
+  <script src="../components/site-header.js?v=42"></script>
+  <main>
+    <!-- Sends to the "contact" Formspree endpoint in components/site.config.js
+         (contact.js); until it is set, the form asks visitors to email us. -->
+    <article class="form-page" aria-labelledby="form-title">
+      <h1 id="form-title" class="form-page__title">Contact us</h1>
+      <p class="form-page__intro">Questions about reports, Pro, or a custom report? Send us a message and we&rsquo;ll reply as soon as possible.</p>
+      <form class="form" id="contact-form" data-mail-subject="Website enquiry" novalidate>
+        <div class="field">
+          <label class="field__label" for="contact-name">Name</label>
+          <input class="field__input" id="contact-name" name="name" type="text" autocomplete="name" required maxlength="100" aria-describedby="contact-name-error">
+          <p class="field__error" id="contact-name-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="contact-email">Email</label>
+          <input class="field__input" id="contact-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="254" aria-describedby="contact-email-error">
+          <p class="field__error" id="contact-email-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="contact-phone">Phone (optional)</label>
+          <input class="field__input" id="contact-phone" name="phone" type="tel" autocomplete="tel" maxlength="30" aria-describedby="contact-phone-error">
+          <p class="field__error" id="contact-phone-error" aria-live="polite"></p>
+        </div>
+        <div class="field">
+          <label class="field__label" for="contact-message">Message</label>
+          <textarea class="field__input field__input--text" id="contact-message" name="message" rows="6" required minlength="10" maxlength="2000" data-counter="contact-message-count" aria-describedby="contact-message-error contact-message-count"></textarea>
+          <div class="field__meta">
+            <p class="field__error" id="contact-message-error" aria-live="polite"></p>
+            <p class="field__count" id="contact-message-count">0 / 2000</p>
+          </div>
+        </div>
+        <div class="form__actions">
+          <button type="submit" class="form__submit" data-busy="Sending&hellip;">Send message</button>
+          <p class="form__status" data-form-status data-success="Thanks! We&rsquo;ll be in touch soon." role="status" aria-live="polite"></p>
+        </div>
+      </form>
+    </article>
+  </main>
+
+  <footer class="site-footer" data-site-footer data-root="../">
+    <p class="site-footer__disclaimer">Canary Alpha Research LLC provides research for informational purposes only, not investment advice. Crypto assets are high risk. <a href="../disclaimer/">Read our disclaimer.</a></p>
+  </footer>
+  <script src="../components/site-footer.js?v=1"></script>
+
+  <script src="../components/form-fields.js?v=4"></script>
+  <script src="contact.js?v=3"></script>
+  <script src="../script.js?v=40"></script>
+</body>
+</html>

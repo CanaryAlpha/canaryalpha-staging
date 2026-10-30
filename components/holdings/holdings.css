@@ -1,0 +1,64 @@
+/*
+ * Company Holdings page (holdings/) and the Disclosure line (disclosure.js).
+ * The page uses the Legal layout and table from styles.css; this adds the
+ * token cell, the status label, the changes log and the phone layout.
+ * Theme tokens only, so Light and Dark both work.
+ */
+.holdings-num,
+.holdings-table time,
+.holdings-change__date { font-variant-numeric: tabular-nums; }
+
+.holdings-sr {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap;
+}
+
+.holdings-table { margin-top: 1.25rem; background: transparent; }
+.holdings-table th { color: var(--muted); font-weight: 500; font-size: 0.875rem; }
+.holdings-table td { vertical-align: middle; padding-top: 0.75rem; padding-bottom: 0.75rem; }
+
+.holdings-token { display: inline-flex; align-items: center; gap: 0.75rem; }
+.holdings-token__name { font-weight: 600; }
+.holdings-token__ticker { color: var(--muted); }
+/* Ticker stand-in when a token has no logo files. */
+.holdings-logo {
+  flex: none; display: inline-grid; place-items: center;
+  width: 2rem; height: 2rem; border: 1px solid var(--rule); border-radius: 50%;
+  font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.02em; color: var(--ink);
+}
+.holdings-logo--img { border: 0; object-fit: contain; }
+
+.holdings-status {
+  display: inline-block; padding: 0.125rem 0.5rem; border: 1px solid var(--rule);
+  border-radius: 999px; color: var(--muted); font-size: 0.875rem; white-space: nowrap;
+}
+.holdings-status--held { border-color: var(--ink); color: var(--ink); font-weight: 600; }
+
+.holdings-empty { color: var(--muted); }
+
+.holdings-changes { list-style: none; margin: 1rem 0 0; padding: 0; }
+.holdings-change {
+  display: grid; grid-template-columns: 10rem 1fr; gap: 0.25rem 1rem;
+  padding: 0.625rem 0; border-bottom: 1px solid var(--rule); font-size: 0.9375rem;
+}
+.holdings-change__date { color: var(--muted); }
+.holdings-change__note { color: var(--muted); }
+
+.holdings-note { margin-top: 3rem !important; padding-top: 1.5rem; border-top: 1px solid var(--rule); color: var(--muted); font-size: 0.9375rem; }
+
+/* Phones: each holding becomes a small labelled block. */
+@media (max-width: 599px) {
+  .holdings-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .holdings-table, .holdings-table tbody, .holdings-table tr, .holdings-table td { display: block; width: 100%; }
+  .holdings-table tr { padding: 0.75rem 0; border-bottom: 1px solid var(--rule); }
+  .holdings-table td { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 0.25rem 0; border: 0; text-align: right; }
+  .holdings-table td::before { content: attr(data-label); color: var(--muted); font-size: 0.875rem; text-align: left; }
+  .holdings-table td[data-label="Token"] { justify-content: flex-start; text-align: left; padding-bottom: 0.5rem; }
+  .holdings-table td[data-label="Token"]::before { content: none; }
+  .holdings-change { grid-template-columns: 1fr; }
+}
+
+/* Disclosure line on report pages (disclosure.js). */
+.disclosure { color: var(--muted); font-size: 0.9375rem; }
+.disclosure strong { color: var(--ink); font-weight: 600; }
+.disclosure a { color: var(--ink); text-underline-offset: 0.15em; }
