@@ -6,7 +6,7 @@
  */
 .mcc {
   /* About one screen with the hero's slogan and text around it. */
-  --mcc-h: clamp(220px, 100svh - 36rem, 520px);
+  --mcc-h: clamp(240px, 100svh - 33rem, 540px);
   position: relative;
   width: 100%;
   max-width: 72rem;
@@ -17,7 +17,7 @@
   text-align: left;
 }
 @media (min-width: 768px) {
-  .mcc { --mcc-h: clamp(260px, 100svh - 34rem, 560px); }
+  .mcc { --mcc-h: clamp(280px, 100svh - 31rem, 600px); }
 }
 .mcc p { margin: 0; }
 .mcc--error { padding: 2rem 0; color: var(--muted); }
@@ -114,62 +114,14 @@
 .mcc-tip__change.is-down::before { content: "\25BC\00A0"; color: var(--danger); font-size: 0.7em; }
 .mcc-tip__era { color: var(--muted); font-size: 0.75rem; }
 
-/* ---- Controls ------------------------------------------------------------ */
-.mcc__controls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.25rem 1rem;
-  margin-top: 0.25rem;
-}
-.mcc__playback,
-.mcc__tools {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.25rem 0.5rem;
-}
-.mcc__playback { flex: 1 1 22rem; }
-.mcc__scrub {
-  flex: 1 1 8rem;
-  min-width: 6rem;
-  height: 44px;
-  margin: 0;
-  accent-color: var(--ink);
-  cursor: pointer;
-}
+/* ---- Card close button --------------------------------------------------- */
 .mcc-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.35rem;
-  padding: 0 0.7rem;
-  border: 1px solid var(--rule);
   color: var(--ink);
 }
-.mcc-btn:hover { border-color: var(--ink); }
-.mcc-btn:disabled { color: var(--muted); border-color: var(--rule); cursor: default; opacity: 0.6; }
-.mcc-btn[hidden] { display: none; }
-.mcc-btn--play { min-width: 6.25rem; }
 .mcc-icon { flex: none; }
-.mcc-seg { display: inline-flex; }
-.mcc-seg[hidden] { display: none; }
-.mcc-seg .mcc-btn { border-radius: 0; margin-left: -1px; }
-.mcc-seg .mcc-btn:first-child { border-radius: 4px 0 0 4px; margin-left: 0; }
-.mcc-seg .mcc-btn:last-child { border-radius: 0 4px 4px 0; }
-.mcc-seg .mcc-btn:focus-visible { position: relative; z-index: 1; }
-.mcc-btn[aria-pressed="true"] {
-  background: var(--selected-bg);
-  color: var(--selected-ink);
-  border-color: var(--selected-bg);
-}
-@media (max-width: 599px) {
-  .mcc__playback { flex-basis: 100%; }
-  .mcc__scrub { order: -1; flex-basis: 100%; }
-  .mcc__tools { flex-basis: 100%; justify-content: space-between; }
-  .mcc-btn__text { font-size: 0.8125rem; }
-}
 
 /* Legend. */
 .mcc__legend {
@@ -188,6 +140,7 @@
 /* Legend and the data view share a row; the data view takes the full
    width when open. */
 .mcc__foot {
+  margin-top: 0.25rem;
   display: flex;
   flex-wrap: wrap;
   align-items: center;

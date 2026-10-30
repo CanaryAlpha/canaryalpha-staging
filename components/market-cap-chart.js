@@ -13,13 +13,16 @@
  * here estimates or fills a missing month. data/crypto-events.json holds the
  * events, each with its source.
  *
- * On load the line draws left to right (about 30 s at 1x), pausing as it
- * enters each era. With "reduce motion" on, the whole chart shows at once
- * and the playback controls are hidden.
+ * It plays by itself, with no controls: once on screen the line draws left
+ * to right (about 30 s), pausing as it enters each era, holds the finished
+ * chart for a few seconds, then starts again. Linear scale from $0.
+ * Playback holds while the pointer is over the chart, while it or an event
+ * card has keyboard focus, and while a card is open, so tooltips and cards
+ * can be read; it carries on when they are gone. With "reduce motion" on,
+ * the whole chart shows at once and never animates.
  *
- * Keyboard, with the chart focused: Space or K plays and pauses, Left and
- * Right step between events, Home restarts, End shows everything, L
- * switches linear/log, Escape closes an event card.
+ * Keyboard, with the chart focused: Left and Right open the previous and
+ * next event, Escape closes the card.
  */
 (function () {
   var roots = document.querySelectorAll("[data-market-cap-chart]");
@@ -30,11 +33,11 @@
     window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   var sheetQuery = window.matchMedia ? window.matchMedia("(max-width: 599px)") : null;
 
-  // Timing: ~214 months x 115 ms + 3 era pauses x 1.6 s ≈ 29.4 s at 1x.
+  // Timing: ~214 months x 115 ms + 3 era pauses x 1.6 s ≈ 29.4 s a run,
+  // then the finished chart holds for END_HOLD_MS before the next run.
   var MONTH_MS = 115;
   var ERA_PAUSE_MS = 1600;
-  var SPEEDS = [1, 2, 4];
-  var LOG_FLOOR = 1e5;
+  var END_HOLD_MS = 5000;
 
   var ERA_LABELS = {
     "infancy": "Bitcoin’s infancy: no public market price",
@@ -120,28 +123,15 @@
     svg("path", { d: shapePath(type, 6, 6, 5), "class": "mcc-shape mcc-shape--" + type }, icon);
     return icon;
   }
-  var ICONS = {
-    play: "M7 4.5v15l12-7.5z",
-    pause: "M7 4.5h3.5v15H7zM13.5 4.5H17v15h-3.5z",
-    restart: "M5 12a7 7 0 1 0 2.05-4.95M5 4.5v4h4",
-    prev: "M15 5l-7 7 7 7",
-    next: "M9 5l7 7-7 7",
-    close: "M6 6l12 12M18 6L6 18"
-  };
-  function icon(name) {
-    var i = svg("svg", { width: 18, height: 18, viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false",
-      "class": "mcc-icon" });
-    var filled = name === "play" || name === "pause";
-    svg("path", { d: ICONS[name], fill: filled ? "currentColor" : "none", stroke: filled ? "none" : "currentColor",
-      "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" }, i);
-    return i;
-  }
-  function button(className, label, iconName, text) {
-    var b = el("button", "mcc-btn " + (className || ""));
+  // The event card's close button, the chart's only button.
+  function closeButton() {
+    var b = el("button", "mcc-btn mcc-card__close");
     b.type = "button";
-    if (iconName) b.appendChild(icon(iconName));
-    if (text) b.appendChild(el("span", "mcc-btn__text", text));
-    b.setAttribute("aria-label", label);
+    b.setAttribute("aria-label", "Close event");
+    var i = svg("svg", { width: 18, height: 18, viewBox: "0 0 24 24", "aria-hidden": "true", focusable: "false",
+      "class": "mcc-icon" }, b);
+    svg("path", { d: "M6 6l12 12M18 6L6 18", fill: "none", stroke: "currentColor", "stroke-width": 2,
+      "stroke-linecap": "round" }, i);
     return b;
   }
 
@@ -175,14 +165,14 @@
     this.max = 0;
     this.months.forEach(function (m) { if (m.marketCapUsd != null && m.marketCapUsd > self.max) self.max = m.marketCapUsd; });
 
-    this.log = false;
-    this.speed = 1;
     this.p = reduceMotion ? this.N - 1 : 0;
-    this.playing = false;
-    this.pauseLeft = 0;
+    this.playing = false;   // the clock is running (stays true through holds)
+    this.pauseLeft = 0;     // an era pause, ms left
+    this.endLeft = 0;       // the hold on the finished chart, ms left
     this.started = reduceMotion;
+    this.pointerIn = false;
+    this.focusIn = false;
     this.card = null;       // { i, pinned }
-    this.hoverIdx = null;
     this.lastEra = null;
 
     this.buildDom();
@@ -213,7 +203,7 @@
     head.appendChild(titles);
     head.appendChild(read);
 
-    // The plot: focusable, so the keyboard shortcuts work on it.
+    // The plot: focusable, so keyboard users can open the events.
     this.plot = el("div", "mcc__plot");
     this.plot.tabIndex = 0;
     this.plot.setAttribute("role", "group");
@@ -228,56 +218,6 @@
     this.tip.setAttribute("aria-hidden", "true");
     this.tip.hidden = true;
     this.plot.appendChild(this.tip);
-
-    // Controls.
-    var controls = el("div", "mcc__controls");
-    this.playBtn = button("mcc-btn--play", "Play", "play", "Play");
-    this.restartBtn = button("", "Restart", "restart");
-    this.scrub = el("input", "mcc__scrub");
-    this.scrub.type = "range";
-    this.scrub.min = 0;
-    this.scrub.max = this.N - 1;
-    this.scrub.step = 1;
-    this.scrub.setAttribute("aria-label", "Timeline");
-    var speedGroup = el("div", "mcc-seg");
-    speedGroup.setAttribute("role", "group");
-    speedGroup.setAttribute("aria-label", "Playback speed");
-    this.speedBtns = SPEEDS.map(function (s) {
-      var b = button("mcc-btn--seg", "Speed " + s + "x", null, s + "x");
-      b.addEventListener("click", function () { self.setSpeed(s); });
-      speedGroup.appendChild(b);
-      return b;
-    });
-    this.prevBtn = button("", "Previous event", "prev", "Prev");
-    this.nextBtn = button("", "Next event", "next", "Next");
-    var eventGroup = el("div", "mcc-seg mcc-seg--plain");
-    eventGroup.setAttribute("role", "group");
-    eventGroup.setAttribute("aria-label", "Events");
-    eventGroup.appendChild(this.prevBtn);
-    eventGroup.appendChild(this.nextBtn);
-    var scaleGroup = el("div", "mcc-seg");
-    scaleGroup.setAttribute("role", "group");
-    scaleGroup.setAttribute("aria-label", "Y-axis scale");
-    this.linBtn = button("mcc-btn--seg", "Linear scale", null, "Linear");
-    this.logBtn = button("mcc-btn--seg", "Log scale", null, "Log");
-    scaleGroup.appendChild(this.linBtn);
-    scaleGroup.appendChild(this.logBtn);
-
-    var playback = el("div", "mcc__playback");
-    playback.appendChild(this.playBtn);
-    playback.appendChild(this.restartBtn);
-    playback.appendChild(this.scrub);
-    playback.appendChild(speedGroup);
-    if (reduceMotion) {
-      this.playBtn.hidden = true;
-      this.restartBtn.hidden = true;
-      speedGroup.hidden = true;
-    }
-    controls.appendChild(playback);
-    var tools = el("div", "mcc__tools");
-    tools.appendChild(eventGroup);
-    tools.appendChild(scaleGroup);
-    controls.appendChild(tools);
 
     // Legend: line colours, the infancy style and the three marker shapes.
     var legend = el("ul", "mcc__legend");
@@ -301,7 +241,7 @@
     item(shapeIcon("milestone"), "Milestone");
 
     var keys = el("p", "mcc__keys",
-      "Keyboard: Space plays or pauses, Left and Right arrows step between events, L switches the scale.");
+      "The chart plays by itself and pauses while focused. Left and Right arrows open the previous and next event.");
     keys.id = hintId;
 
     this.live = el("p", "mcc__live");
@@ -313,7 +253,7 @@
     this.cardEl.setAttribute("aria-modal", "false");
     this.cardEl.tabIndex = -1;
     this.cardEl.hidden = true;
-    this.cardClose = button("mcc-card__close", "Close event", "close");
+    this.cardClose = closeButton();
     this.cardType = el("p", "mcc-card__type");
     this.cardTitle = el("h3", "mcc-card__title");
     this.cardTitle.id = hintId + "-card";
@@ -340,7 +280,6 @@
 
     root.appendChild(head);
     root.appendChild(this.plot);
-    root.appendChild(controls);
     var foot = el("div", "mcc__foot");
     foot.appendChild(legend);
     foot.appendChild(details);
@@ -348,20 +287,6 @@
     root.appendChild(keys);
     root.appendChild(this.live);
 
-    // Events.
-    this.playBtn.addEventListener("click", function () { self.togglePlay(); });
-    this.restartBtn.addEventListener("click", function () { self.restart(); });
-    this.scrub.addEventListener("input", function () {
-      self.pause();
-      self.closeCard();
-      self.p = +self.scrub.value;
-      self.started = true;
-      self.render();
-    });
-    this.prevBtn.addEventListener("click", function () { self.stepEvent(-1); });
-    this.nextBtn.addEventListener("click", function () { self.stepEvent(1); });
-    this.linBtn.addEventListener("click", function () { self.setLog(false); });
-    this.logBtn.addEventListener("click", function () { self.setLog(true); });
     this.cardClose.addEventListener("click", function () { self.closeCard(true); });
     this.plot.addEventListener("keydown", function (e) { self.onKey(e); });
     root.addEventListener("keydown", function (e) {
@@ -370,10 +295,20 @@
     this.svg.addEventListener("pointermove", function (e) { self.onPointer(e); });
     this.svg.addEventListener("pointerdown", function (e) { self.onPointer(e); });
     this.svg.addEventListener("pointerleave", function () { self.onLeave(); });
+    // Hold playback while someone is looking closely; carry on after.
+    this.plot.addEventListener("pointerenter", function (e) {
+      if (e.pointerType === "mouse") { self.pointerIn = true; self.updateHold(); }
+    });
+    this.plot.addEventListener("pointerleave", function () { self.pointerIn = false; self.updateHold(); });
+    root.addEventListener("focusin", function () { self.focusIn = true; self.updateHold(); });
+    root.addEventListener("focusout", function () {
+      setTimeout(function () { self.focusIn = root.contains(document.activeElement); self.updateHold(); }, 0);
+    });
     this.svg.addEventListener("click", function (e) { self.onClick(e); });
     document.addEventListener("pointerdown", function (e) {
-      if (self.card && self.card.pinned && !self.cardEl.contains(e.target) && !self.plot.contains(e.target) &&
-          !self.root.querySelector(".mcc__controls").contains(e.target)) self.closeCard();
+      if (self.card && self.card.pinned && !self.cardEl.contains(e.target) && !self.plot.contains(e.target)) {
+        self.closeCard();
+      }
     });
     if ("ResizeObserver" in window) {
       new ResizeObserver(function () { self.layout(); self.render(); }).observe(this.plot);
@@ -383,8 +318,6 @@
     if (sheetQuery && sheetQuery.addEventListener) {
       sheetQuery.addEventListener("change", function () { if (self.card) self.placeCard(); });
     }
-    this.setSpeed(1);
-    this.setLog(false, true);
   };
 
   /* ---- Scales and drawing ----------------------------------------------- */
@@ -412,21 +345,11 @@
   Chart.prototype.x = function (i) {
     return this.x0 + (this.x1 - this.x0) * (i / (this.N - 1));
   };
+  // Linear from $0.
   Chart.prototype.y = function (v) {
-    var h = this.y0 - this.y1;
-    if (this.log) {
-      var lo = Math.log10(LOG_FLOOR), hi = Math.log10(this.yMax);
-      return this.y0 - h * (Math.log10(Math.max(v, LOG_FLOOR)) - lo) / (hi - lo);
-    }
-    return this.y0 - h * (v / this.yMax);
+    return this.y0 - (this.y0 - this.y1) * (v / this.yMax);
   };
   Chart.prototype.ticks = function () {
-    if (this.log) {
-      this.yMax = Math.pow(10, Math.ceil(Math.log10(this.max)));
-      var out = [];
-      for (var v = LOG_FLOOR; v <= this.yMax * 1.001; v *= 10) out.push(v);
-      return out;
-    }
     // A "nice" step giving about 5 ticks from $0.
     var raw = this.max / 5, mag = Math.pow(10, Math.floor(Math.log10(raw))), step = mag;
     [1, 2, 2.5, 5, 10].some(function (f) { step = f * mag; return step >= raw; });
@@ -436,7 +359,7 @@
     return t;
   };
 
-  // Builds every static piece for the current size and scale. The reveal
+  // Builds every static piece for the current size. The reveal
   // (how far the line has drawn) is a clip rectangle set in render().
   Chart.prototype.build = function () {
     var self = this, s = this.svg;
@@ -553,7 +476,7 @@
     var p = this.p, i = Math.floor(p + 1e-9), xp = this.x(p);
     this.clipRect.setAttribute("width", xp + 2);
     var hy = this.headY(p);
-    var showHead = this.started && hy != null && !(p >= this.N - 1 && !this.playing);
+    var showHead = this.started && hy != null && p < this.N - 1;
     this.head.style.display = showHead ? "" : "none";
     if (showHead) { this.head.setAttribute("cx", xp); this.head.setAttribute("cy", hy); }
     this.events.forEach(function (ev) { ev.node.style.display = ev.idx <= i ? "" : "none"; });
@@ -563,22 +486,15 @@
     this.readEra.classList.toggle("is-entering", this.pauseLeft > 0);
     this.readValue.textContent = monthShort(m.date) + (isPartial(m) ? " (to date)" : "") + " · " +
       (m.marketCapUsd != null ? money(m.marketCapUsd) : m.era === "infancy" ? "No market price" : "No price record");
-    if (+this.scrub.value !== i) this.scrub.value = i;
-    this.scrub.setAttribute("aria-valuetext", monthLong(m.date) + ", " +
-      (m.marketCapUsd != null ? money(m.marketCapUsd) : "no market price"));
     if (this.lastEra !== m.era) {
       if (this.lastEra !== null) this.announce(ERA_LABELS[m.era] + ", from " + monthLong(m.date) + ".");
       this.lastEra = m.era;
     }
-    this.playBtn.setAttribute("aria-label", this.playing ? "Pause" : p >= this.N - 1 ? "Replay" : "Play");
-    this.playBtn.querySelector(".mcc-btn__text").textContent = this.playing ? "Pause" : p >= this.N - 1 ? "Replay" : "Play";
-    this.playBtn.replaceChild(icon(this.playing ? "pause" : "play"), this.playBtn.querySelector("svg"));
 
     var c = this.card ? this.events[this.card.i] : null;
     this.guide.style.display = c ? "" : "none";
     if (c) { this.guide.setAttribute("x1", c.x); this.guide.setAttribute("x2", c.x); }
     this.events.forEach(function (ev) { ev.node.classList.toggle("is-active", ev === c); });
-    this.updateEventButtons();
   };
 
   Chart.prototype.announce = function (text) {
@@ -600,7 +516,7 @@
     if ("IntersectionObserver" in window) {
       new IntersectionObserver(function (entries) {
         self.onScreen = entries[0].isIntersecting;
-        if (self.onScreen) start();
+        if (self.onScreen) { start(); self.kick(); }
       }, { threshold: 0.25 }).observe(this.plot);
     } else {
       this.onScreen = true;
@@ -610,58 +526,48 @@
   };
 
   Chart.prototype.play = function () {
-    if (this.p >= this.N - 1) { this.p = 0; this.pauseLeft = ERA_PAUSE_MS; this.lastEra = null; }
-    this.closeCard();
     this.playing = true;
     this.started = true;
     this.render();
     this.kick();
   };
-  Chart.prototype.pause = function () {
-    if (!this.playing) return;
-    this.playing = false;
-    this.render();
-  };
-  Chart.prototype.togglePlay = function () {
-    if (reduceMotion) return;
-    if (this.playing) this.pause(); else this.play();
-  };
+  // From the start: the first era's pause, then the line.
   Chart.prototype.restart = function () {
     this.hideTip();
     this.closeCard();
     this.p = 0;
     this.lastEra = null;
     this.pauseLeft = ERA_PAUSE_MS;
-    if (reduceMotion) { this.p = this.N - 1; this.render(); return; }
-    this.play();
-  };
-  Chart.prototype.setSpeed = function (s) {
-    this.speed = s;
-    var self = this;
-    this.speedBtns.forEach(function (b, k) { b.setAttribute("aria-pressed", String(SPEEDS[k] === self.speed)); });
-  };
-  Chart.prototype.setLog = function (on, quiet) {
-    this.log = on;
-    this.linBtn.setAttribute("aria-pressed", String(!on));
-    this.logBtn.setAttribute("aria-pressed", String(on));
-    if (quiet) return;
-    this.layout();
+    this.endLeft = 0;
     this.render();
-    if (this.card) this.placeCard();
-    this.announce(on ? "Log scale." : "Linear scale from $0.");
+  };
+  // Held while the pointer is over the chart, it or a card has focus, or a
+  // card is open; the clock stops and carries on when released.
+  Chart.prototype.held = function () {
+    return this.pointerIn || this.focusIn || !!this.card;
+  };
+  Chart.prototype.updateHold = function () {
+    if (!this.held()) this.kick();
   };
 
-  // The clock: runs only while playing, on screen and the tab is visible.
+  // The clock: runs only on screen with the tab visible, and loops.
   Chart.prototype.kick = function () {
-    if (this.ticking || !this.playing) return;
+    if (this.ticking || !this.playing || reduceMotion) return;
     var self = this, last = null;
     this.ticking = true;
     function tick(now) {
-      if (!self.playing || document.hidden || self.onScreen === false) { self.ticking = false; return; }
-      var dt = last === null ? 0 : Math.min(now - last, 100) * self.speed;
+      if (!self.playing || document.hidden || self.onScreen === false || self.held()) {
+        self.ticking = false;
+        return;
+      }
+      var dt = last === null ? 0 : Math.min(now - last, 100);
       last = now;
       if (self.pauseLeft > 0) {
         self.pauseLeft = Math.max(0, self.pauseLeft - dt);
+      } else if (self.p >= self.N - 1) {
+        // The finished chart holds, then the next run starts.
+        self.endLeft -= dt;
+        if (self.endLeft <= 0) self.restart();
       } else {
         var before = self.p;
         self.p = Math.min(self.N - 1, self.p + dt / MONTH_MS);
@@ -670,10 +576,10 @@
           var e = self.eraStarts[k];
           if (e > 0 && before < e && self.p >= e) { self.p = e; self.pauseLeft = ERA_PAUSE_MS; break; }
         }
-        if (self.p >= self.N - 1) self.playing = false;
+        if (self.p >= self.N - 1) self.endLeft = END_HOLD_MS;
       }
       self.render();
-      if (self.playing) requestAnimationFrame(tick); else self.ticking = false;
+      requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
   };
@@ -699,22 +605,12 @@
       }
     }
     if (target < 0 || target >= n) return;
-    this.pause();
-    // The line draws up to the event's month.
+    // The line draws up to the event's month (playback is held meanwhile).
     this.p = this.events[target].idx;
+    this.pauseLeft = 0;
+    this.endLeft = this.p >= this.N - 1 ? END_HOLD_MS : 0;
     this.started = true;
     this.openCard(target, true, false);
-  };
-
-  Chart.prototype.updateEventButtons = function () {
-    var n = this.events.length;
-    if (this.card) {
-      this.prevBtn.disabled = this.card.i <= 0;
-      this.nextBtn.disabled = this.card.i >= n - 1;
-    } else {
-      this.prevBtn.disabled = !n;
-      this.nextBtn.disabled = !n;
-    }
   };
 
   Chart.prototype.openCard = function (i, pinned, fromHover) {
@@ -776,6 +672,7 @@
     document.documentElement.classList.remove("mcc-sheet-open");
     if (restoreFocus || hadFocus) this.plot.focus({ preventScroll: true });
     this.render();
+    this.updateHold();
   };
 
   /* ---- Pointer and keyboard -------------------------------------------------- */
@@ -799,7 +696,6 @@
     var onRail = pt.y > this.y0 + 4 && pt.y < this.railY + this.rowH * this.railRows;
     if (onRail) {
       this.hideTip();
-      if (this.playing) return;
       var k = this.nearestEvent(pt);
       if (k >= 0 && (!this.card || (!this.card.pinned && this.card.i !== k))) this.openCard(k, false, true);
       this.svg.style.cursor = k >= 0 ? "pointer" : "";
@@ -863,19 +759,14 @@
     if (pt.y <= this.y0 + 4) return;
     var k = this.nearestEvent(pt);
     if (k < 0) return;
-    this.pause();
     this.openCard(k, true, false);
   };
 
   Chart.prototype.onKey = function (e) {
     if (e.target !== this.plot) return;
     var k = e.key;
-    if (k === " " || k === "k" || k === "K" || k === "Enter") { this.togglePlay(); }
-    else if (k === "ArrowRight") { this.stepEvent(1); }
+    if (k === "ArrowRight") { this.stepEvent(1); }
     else if (k === "ArrowLeft") { this.stepEvent(-1); }
-    else if (k === "Home") { this.restart(); }
-    else if (k === "End") { this.pause(); this.closeCard(); this.p = this.N - 1; this.render(); }
-    else if (k === "l" || k === "L") { this.setLog(!this.log); }
     else return;
     e.preventDefault();
   };
