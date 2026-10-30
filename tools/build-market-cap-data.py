@@ -26,10 +26,16 @@ date. Method (also written into the file's "meta"):
 The current month has not closed: its value is the latest snapshot, and its
 note says so.
 
-Cross-checks, printed and stored in meta.crossChecks: Bitcoin market cap from
-blockchain.com's chart API against Coin Metrics, and CoinMarketCap's implied
-Bitcoin market cap (total x dominance) against Coin Metrics. Any difference
-over 10% is flagged.
+Cross-checks, printed and stored in the file's meta, each flagged when the
+difference is over 10%:
+  meta.crossChecks     Bitcoin market cap from blockchain.com's chart API
+                       against Coin Metrics, and CoinMarketCap's implied
+                       Bitcoin market cap (total x dominance) against Coin
+                       Metrics.
+  meta.externalChecks  CoinMarketCap's total against independently published
+                       totals (CoinGecko reports, CoinCodex, TradingView via
+                       CoinDesk), listed with their sources in
+                       data/market-cap-crosscheck-points.json.
 """
 import csv
 import datetime as dt
@@ -42,6 +48,7 @@ import urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "data", "total-market-cap-monthly.json")
+POINTS = os.path.join(ROOT, "data", "market-cap-crosscheck-points.json")
 
 COINMETRICS_URL = "https://raw.githubusercontent.com/coinmetrics/data/master/csv/btc.csv"
 BLOCKCHAIN_URL = "https://api.blockchain.info/charts/market-cap?timespan=all&format=json&sampled=false"
@@ -147,6 +154,20 @@ def main():
                       "otherUsd": round(b), "other": other, "diffPct": round(diff * 100, 2),
                       "flagged": abs(diff) > FLAG})
 
+    # Independent totals: compared with CoinMarketCap's close of that day.
+    external = []
+    for pt in json.load(open(POINTS)):
+        day = dt.date.fromisoformat(pt["date"])
+        snap = (day + dt.timedelta(days=1)).isoformat()
+        if snap not in total:
+            continue
+        ours = total[snap][0]
+        diff = (ours - pt["totalMarketCapUsd"]) / pt["totalMarketCapUsd"]
+        external.append({"date": pt["date"], "coinMarketCapUsd": round(ours),
+                         "otherUsd": pt["totalMarketCapUsd"], "other": pt["dataProvider"],
+                         "basis": pt["basis"], "sourceUrl": pt["sourceUrl"],
+                         "diffPct": round(diff * 100, 2), "flagged": abs(diff) > FLAG})
+
     meta = {
         "title": "Total crypto market cap, monthly",
         "generated": today.isoformat(),
@@ -160,7 +181,8 @@ def main():
             "total-market": "Apr 2013 onward: total crypto market cap."
         },
         "sources": [SRC_COINMETRICS, SRC_CMC, SRC_BLOCKCHAIN + " (cross-check only)"],
-        "crossChecks": cross
+        "crossChecks": cross,
+        "externalChecks": external
     }
     with open(OUT, "w") as f:
         json.dump({"meta": meta, "months": records}, f, indent=1)
@@ -172,6 +194,12 @@ def main():
     print("cross-checks: %d, flagged over %d%%: %d" % (len(cross), FLAG * 100, len(flagged)))
     for c in flagged:
         print("  FLAG", c)
+    print("external checks: %d, flagged over %d%%: %d" % (len(external), FLAG * 100,
+          sum(c["flagged"] for c in external)))
+    for c in external:
+        print("  %s %-38s CMC %8.1fB  other %8.1fB  %+6.1f%%%s" % (
+            c["date"], c["other"][:38], c["coinMarketCapUsd"] / 1e9, c["otherUsd"] / 1e9,
+            c["diffPct"], "  FLAG" if c["flagged"] else ""))
     return 0
 
 

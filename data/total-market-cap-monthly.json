@@ -1715,6 +1715,328 @@
     "diffPct": 0.01,
     "flagged": false
    }
+  ],
+  "externalChecks": [
+   {
+    "date": "2013-12-31",
+    "coinMarketCapUsd": 10553499648,
+    "otherUsd": 10240000000,
+    "other": "CoinCodex",
+    "basis": "year-end (CoinCodex table, exact time-of-day not stated)",
+    "sourceUrl": "https://www.coincodex.com/market-cap/",
+    "diffPct": 3.06,
+    "flagged": false
+   },
+   {
+    "date": "2014-04-08",
+    "coinMarketCapUsd": 6340639744,
+    "otherUsd": 7000000000,
+    "other": "CoinGecko",
+    "basis": "about; CoinGecko launch date, rounded retrospective figure",
+    "sourceUrl": "https://assets.coingecko.com/reports/2024/CoinGecko-2024-Q1-Report.pdf",
+    "diffPct": -9.42,
+    "flagged": false
+   },
+   {
+    "date": "2017-12-31",
+    "coinMarketCapUsd": 612924653568,
+    "otherUsd": 535190000000,
+    "other": "CoinCodex",
+    "basis": "year-end (CoinCodex table)",
+    "sourceUrl": "https://www.coincodex.com/market-cap/",
+    "diffPct": 14.52,
+    "flagged": true
+   },
+   {
+    "date": "2018-12-31",
+    "coinMarketCapUsd": 125708389364,
+    "otherUsd": 122340000000,
+    "other": "CoinCodex",
+    "basis": "year-end (CoinCodex table)",
+    "sourceUrl": "https://www.coincodex.com/market-cap/",
+    "diffPct": 2.75,
+    "flagged": false
+   },
+   {
+    "date": "2019-12-31",
+    "coinMarketCapUsd": 190906009353,
+    "otherUsd": 186970000000,
+    "other": "CoinCodex",
+    "basis": "year-end (CoinCodex table)",
+    "sourceUrl": "https://www.coincodex.com/market-cap/",
+    "diffPct": 2.11,
+    "flagged": false
+   },
+   {
+    "date": "2020-12-31",
+    "coinMarketCapUsd": 765312965840,
+    "otherUsd": 736150000000,
+    "other": "CoinCodex",
+    "basis": "year-end (CoinCodex table)",
+    "sourceUrl": "https://www.coincodex.com/market-cap/",
+    "diffPct": 3.96,
+    "flagged": false
+   },
+   {
+    "date": "2021-01-06",
+    "coinMarketCapUsd": 1000232390770,
+    "otherUsd": 1003000000000,
+    "other": "CoinGecko (via The Block)",
+    "basis": "intraday snapshot (article 6:45PM EST)",
+    "sourceUrl": "https://www.theblock.co/news/markets/2021-01-06-global-cryptocurrency-market-cap-hits-1-trillion-90336",
+    "diffPct": -0.28,
+    "flagged": false
+   },
+   {
+    "date": "2021-11-08",
+    "coinMarketCapUsd": 2919712061567,
+    "otherUsd": 3300000000000,
+    "other": "CoinGecko (via Bloomberg/Al Jazeera)",
+    "basis": "intraday snapshot, 9:54 a.m. New York; about (rounded) - conflicts with The Block's first-$3T-crossing on Nov 9",
+    "sourceUrl": "https://www.aljazeera.com/economy/2021/11/8/milestone-cryptocurrency-market-value-blows-past-3-trillion",
+    "diffPct": -11.52,
+    "flagged": true
+   },
+   {
+    "date": "2021-11-09",
+    "coinMarketCapUsd": 2904441786523,
+    "otherUsd": 3000000000000,
+    "other": "CoinGecko (via The Block)",
+    "basis": "intraday threshold crossing (about $3T)",
+    "sourceUrl": "https://www.theblock.co/news/markets/2021-11-09-crypto-market-cap-3-trillion-bitcoin-ether-reach-record-highs-123762",
+    "diffPct": -3.19,
+    "flagged": false
+   },
+   {
+    "date": "2021-12-31",
+    "coinMarketCapUsd": 2188927499016,
+    "otherUsd": 2400000000000,
+    "other": "CoinGecko",
+    "basis": "about; year-end (founders' note; the report's $2.0T headline is a top-30-only measure)",
+    "sourceUrl": "https://assets.coingecko.com/reports/2021-Year-End-Report/CoinGecko-2021-Report.pdf",
+    "diffPct": -8.79,
+    "flagged": false
+   },
+   {
+    "date": "2021-12-31",
+    "coinMarketCapUsd": 2188927499016,
+    "otherUsd": 2180000000000,
+    "other": "CoinCodex",
+    "basis": "year-end (CoinCodex table)",
+    "sourceUrl": "https://www.coincodex.com/market-cap/",
+    "diffPct": 0.41,
+    "flagged": false
+   },
+   {
+    "date": "2022-01-01",
+    "coinMarketCapUsd": 2253025340162,
+    "otherUsd": 2310000000000,
+    "other": "CoinGecko",
+    "basis": "start of year; chart label, not a sentence (implied by 64% drop to $829B)",
+    "sourceUrl": "https://assets.coingecko.com/reports/2022/CoinGecko-2022-Annual-Crypto-Industry-Report.pdf",
+    "diffPct": -2.47,
+    "flagged": false
+   },
+   {
+    "date": "2022-11-09",
+    "coinMarketCapUsd": 794331764018,
+    "otherUsd": 736000000000,
+    "other": "TradingView (via CoinDesk)",
+    "basis": "daily low/level on that date (intraday vs close not stated)",
+    "sourceUrl": "https://www.coindesk.com/markets/2022/11/17/ftx-collapse-leaves-total-crypto-market-cap-under-800b-close-to-2022-low/",
+    "diffPct": 7.93,
+    "flagged": false
+   },
+   {
+    "date": "2022-12-31",
+    "coinMarketCapUsd": 795532009425,
+    "otherUsd": 829000000000,
+    "other": "CoinGecko",
+    "basis": "year-end",
+    "sourceUrl": "https://assets.coingecko.com/reports/2022/CoinGecko-2022-Annual-Crypto-Industry-Report.pdf",
+    "diffPct": -4.04,
+    "flagged": false
+   },
+   {
+    "date": "2022-12-31",
+    "coinMarketCapUsd": 795532009425,
+    "otherUsd": 791990000000,
+    "other": "CoinCodex",
+    "basis": "year-end (CoinCodex table)",
+    "sourceUrl": "https://www.coincodex.com/market-cap/",
+    "diffPct": 0.45,
+    "flagged": false
+   },
+   {
+    "date": "2023-12-31",
+    "coinMarketCapUsd": 1647895239480,
+    "otherUsd": 1720000000000,
+    "other": "CoinGecko",
+    "basis": "year-end",
+    "sourceUrl": "https://assets.coingecko.com/reports/2023/CoinGecko-2023-Annual-Crypto-Industry-Report.pdf",
+    "diffPct": -4.19,
+    "flagged": false
+   },
+   {
+    "date": "2023-12-31",
+    "coinMarketCapUsd": 1647895239480,
+    "otherUsd": 1630000000000,
+    "other": "CoinCodex",
+    "basis": "year-end (CoinCodex table)",
+    "sourceUrl": "https://www.coincodex.com/market-cap/",
+    "diffPct": 1.1,
+    "flagged": false
+   },
+   {
+    "date": "2024-03-13",
+    "coinMarketCapUsd": 2766421242865,
+    "otherUsd": 2900000000000,
+    "other": "CoinGecko",
+    "basis": "quarter high (about, rounded)",
+    "sourceUrl": "https://assets.coingecko.com/reports/2024/CoinGecko-2024-Q1-Report.pdf",
+    "diffPct": -4.61,
+    "flagged": false
+   },
+   {
+    "date": "2024-03-31",
+    "coinMarketCapUsd": 2702110380159,
+    "otherUsd": 2800000000000,
+    "other": "CoinGecko",
+    "basis": "quarter-end (about, rounded)",
+    "sourceUrl": "https://assets.coingecko.com/reports/2024/CoinGecko-2024-Q1-Report.pdf",
+    "diffPct": -3.5,
+    "flagged": false
+   },
+   {
+    "date": "2024-07-22",
+    "coinMarketCapUsd": 2438970748615,
+    "otherUsd": 2610000000000,
+    "other": "CoinGecko",
+    "basis": "quarter high",
+    "sourceUrl": "https://assets.coingecko.com/reports/2024/CoinGecko-2024-Q3-Crypto-Industry-Report.pdf",
+    "diffPct": -6.55,
+    "flagged": false
+   },
+   {
+    "date": "2024-09-30",
+    "coinMarketCapUsd": 2229803903919,
+    "otherUsd": 2330000000000,
+    "other": "CoinGecko",
+    "basis": "quarter-end",
+    "sourceUrl": "https://assets.coingecko.com/reports/2024/CoinGecko-2024-Q3-Crypto-Industry-Report.pdf",
+    "diffPct": -4.3,
+    "flagged": false
+   },
+   {
+    "date": "2024-12-17",
+    "coinMarketCapUsd": 3702886479765,
+    "otherUsd": 3910000000000,
+    "other": "CoinGecko",
+    "basis": "all-time-high (daily, CoinGecko)",
+    "sourceUrl": "https://assets.coingecko.com/reports/2024/CoinGecko-2024-Annual-Crypto-Industry-Report.pdf",
+    "diffPct": -5.3,
+    "flagged": false
+   },
+   {
+    "date": "2024-12-31",
+    "coinMarketCapUsd": 3258746507343,
+    "otherUsd": 3400000000000,
+    "other": "CoinGecko",
+    "basis": "quarter-end / year-end",
+    "sourceUrl": "https://assets.coingecko.com/reports/2024/CoinGecko-2024-Annual-Crypto-Industry-Report.pdf",
+    "diffPct": -4.15,
+    "flagged": false
+   },
+   {
+    "date": "2024-12-31",
+    "coinMarketCapUsd": 3258746507343,
+    "otherUsd": 3260000000000,
+    "other": "CoinCodex",
+    "basis": "year-end (CoinCodex table)",
+    "sourceUrl": "https://www.coincodex.com/market-cap/",
+    "diffPct": -0.04,
+    "flagged": false
+   },
+   {
+    "date": "2025-01-18",
+    "coinMarketCapUsd": 3638190132867,
+    "otherUsd": 3800000000000,
+    "other": "CoinGecko",
+    "basis": "YTD high (about, rounded)",
+    "sourceUrl": "https://assets.coingecko.com/reports/2025/CoinGecko-2025-Q1-Crypto-Industry-Report.pdf",
+    "diffPct": -4.26,
+    "flagged": false
+   },
+   {
+    "date": "2025-03-31",
+    "coinMarketCapUsd": 2667542682342,
+    "otherUsd": 2800000000000,
+    "other": "CoinGecko",
+    "basis": "quarter-end (about, rounded)",
+    "sourceUrl": "https://assets.coingecko.com/reports/2025/CoinGecko-2025-Q1-Crypto-Industry-Report.pdf",
+    "diffPct": -4.73,
+    "flagged": false
+   },
+   {
+    "date": "2025-06-30",
+    "coinMarketCapUsd": 3309726866995,
+    "otherUsd": 3500000000000,
+    "other": "CoinGecko",
+    "basis": "quarter-end (about, rounded)",
+    "sourceUrl": "https://www.coingecko.com/research/publications/2025-q2-crypto-report",
+    "diffPct": -5.44,
+    "flagged": false
+   },
+   {
+    "date": "2025-09-30",
+    "coinMarketCapUsd": 3899878206960,
+    "otherUsd": 4000000000000,
+    "other": "CoinGecko",
+    "basis": "quarter-end (about, rounded)",
+    "sourceUrl": "https://assets.coingecko.com/reports/2025/CoinGecko-2025-Q3-Crypto-Industry-Report.pdf",
+    "diffPct": -2.5,
+    "flagged": false
+   },
+   {
+    "date": "2025-12-31",
+    "coinMarketCapUsd": 2962686913812,
+    "otherUsd": 3000000000000,
+    "other": "CoinGecko",
+    "basis": "quarter-end / year-end (about, rounded)",
+    "sourceUrl": "https://www.coingecko.com/research/publications/2025-annual-crypto-report",
+    "diffPct": -1.24,
+    "flagged": false
+   },
+   {
+    "date": "2025-12-31",
+    "coinMarketCapUsd": 2962686913812,
+    "otherUsd": 2970000000000,
+    "other": "CoinCodex",
+    "basis": "year-end (CoinCodex table)",
+    "sourceUrl": "https://www.coincodex.com/market-cap/",
+    "diffPct": -0.25,
+    "flagged": false
+   },
+   {
+    "date": "2026-03-31",
+    "coinMarketCapUsd": 2345871850149,
+    "otherUsd": 2400000000000,
+    "other": "CoinGecko",
+    "basis": "quarter-end (about, rounded; stated as Q2 starting level)",
+    "sourceUrl": "https://www.coingecko.com/research/publications/2026-q2-crypto-report",
+    "diffPct": -2.26,
+    "flagged": false
+   },
+   {
+    "date": "2026-06-30",
+    "coinMarketCapUsd": 2036206647826,
+    "otherUsd": 2100000000000,
+    "other": "CoinGecko",
+    "basis": "quarter-end (about, rounded)",
+    "sourceUrl": "https://www.coingecko.com/research/publications/2026-q2-crypto-report",
+    "diffPct": -3.04,
+    "flagged": false
+   }
   ]
  },
  "months": [
