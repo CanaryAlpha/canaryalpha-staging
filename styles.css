@@ -222,9 +222,14 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) 4rem;
   overflow: visible;
 }
+/* Slogan and supporting text centred, each block centred too; the supporting
+   text is capped at ~70 characters a line so it doesn't run too wide.
+   The scroll-down arrow (.scroll-hint) is already centred. */
 .hero--chart .hero__title,
 .hero--chart .hero__text {
   position: static;
+  margin-inline: auto;
+  text-align: center;
   text-shadow: none;
 }
 .hero--chart .hero__title { order: 1; }
@@ -235,7 +240,11 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   pointer-events: auto;
 }
 .hero--chart .mcc { margin: 0; max-width: 80rem; }
-.hero--chart .hero__text { order: 3; font-size: clamp(1rem, 1.3vw, 1.375rem); }
+.hero--chart .hero__text {
+  order: 3;
+  max-width: min(36em, 100%);
+  font-size: clamp(1rem, 1.3vw, 1.375rem);
+}
 @media (min-width: 768px) {
   .hero.hero--chart { padding-top: calc(var(--site-header-h, 0px) + 2rem); }
 }
