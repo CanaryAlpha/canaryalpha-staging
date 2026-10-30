@@ -9,6 +9,8 @@
  * --success (best-deal green): light #15803d 5.0:1, dark #4ade80 12.1:1.
  * --danger (red flags in the feature visuals): light #b91c1c 6.5:1,
  * dark #f87171 7.6:1.
+ * --milestone (gold milestone markers, market cap chart): light #a16207
+ * 4.9:1, dark #facc15 13.7:1.
  */
 :root,
 :root[data-theme="light"] {
@@ -20,6 +22,7 @@
   --selected-ink: #ffffff;
   --success: #15803d;
   --danger: #b91c1c;
+  --milestone: #a16207;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,6 +35,7 @@
     --selected-ink: #000000;
     --success: #4ade80;
     --danger: #f87171;
+    --milestone: #facc15;
   }
 }
 
@@ -44,6 +48,7 @@
   --selected-ink: #000000;
   --success: #4ade80;
   --danger: #f87171;
+  --milestone: #facc15;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -203,6 +208,38 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
+/* Hero with the market cap chart (components/market-cap-chart.*): the
+   chart is interactive, so the slogan, chart and supporting text stack in
+   normal flow instead of overlapping. At least one screen; taller only if
+   the content needs it. */
+.hero.hero--chart {
+  height: auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.5vh, 1.75rem);
+  padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) 4rem;
+  overflow: visible;
+}
+.hero--chart .hero__title,
+.hero--chart .hero__text {
+  position: static;
+  text-shadow: none;
+}
+.hero--chart .hero__title { order: 1; }
+.hero--chart .hero__stage {
+  order: 2;
+  position: static;
+  display: block;
+  pointer-events: auto;
+}
+.hero--chart .mcc { margin: 0; max-width: 80rem; }
+.hero--chart .hero__text { order: 3; font-size: clamp(1rem, 1.3vw, 1.375rem); }
+@media (min-width: 768px) {
+  .hero.hero--chart { padding-top: calc(var(--site-header-h, 0px) + 2rem); }
+}
+
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
   position: absolute;

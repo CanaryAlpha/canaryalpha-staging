@@ -214,6 +214,9 @@
   z-index: 3;
   top: 0.25rem;
   width: min(21rem, calc(100% - 0.5rem));
+  /* Never past the plot, so it can't cover the controls; long cards scroll. */
+  max-height: calc(100% - 0.5rem);
+  overflow-y: auto;
   padding: 0.9rem 1rem 0.85rem;
   background: var(--ground);
   border: 1px solid var(--rule);

@@ -31,12 +31,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
-  <link rel="stylesheet" href="styles.css?v=66">
+  <link rel="stylesheet" href="styles.css?v=67">
   <link rel="stylesheet" href="components/site-header.css?v=43">
   <!-- Old hero globe, unused; to bring it back, restore these two tags and the
        globe markup and scripts below, and remove the hero-visuals ones.
   <link rel="stylesheet" href="components/dotted-globe.css?v=34"> -->
-  <link rel="stylesheet" href="components/hero-visuals.css?v=4">
+  <!-- Hero animations, unused while the market cap chart is the hero; to
+       bring one back, restore this tag, the data-hero-visual markup and the
+       hero-visuals scripts below, and remove the market-cap-chart ones.
+  <link rel="stylesheet" href="components/hero-visuals.css?v=4"> -->
+  <link rel="stylesheet" href="components/market-cap-chart.css?v=1">
   <link rel="stylesheet" href="components/feature-visuals.css?v=12">
   <link rel="stylesheet" href="components/learn/learn.css?v=2">
   <!-- Site settings and production mode: load first. -->
@@ -164,11 +168,18 @@
          which option shows is heroVariant in hero-visuals.config.js) is
          centred in the area under the menu bar; the slogan (top-left) and supporting text (lower-left, on
          the slogan's left edge) are separate overlay layers, so they never move it. -->
-    <section class="hero" aria-labelledby="hero-title">
+    <section class="hero hero--chart" aria-labelledby="hero-title">
       <h1 id="hero-title" class="hero__title">Crypto research built to institutional standards.</h1>
       <p class="hero__text">Deep-dive token reports scored on an 80-point framework and backed by on-chain forensics. Know what you hold before the market tells you.</p>
       <div class="hero__stage">
-        <div data-hero-visual></div>
+        <!-- Total crypto market cap history (components/market-cap-chart.*;
+             data in data/, built by tools/build-market-cap-data.py).
+             Hero animations, unused: <div data-hero-visual></div> -->
+        <figure data-market-cap-chart
+                data-src="data/total-market-cap-monthly.json?v=1"
+                data-events="data/crypto-events.json?v=1">
+          <noscript>Total crypto market cap history: this chart needs JavaScript.</noscript>
+        </figure>
         <!-- Old globe, unused:
         <div class="dotted-globe" data-dotted-globe role="img"
              aria-label="A slowly rotating globe made of dots that outline the world's continents. Drag to spin it.">
@@ -502,11 +513,13 @@
   <script src="components/learn/explain.js?v=2"></script>
   <script src="components/feature-visuals.config.js?v=9"></script>
   <script src="components/feature-visuals.js?v=8"></script>
+  <!-- Hero animations, unused (see the <head>):
   <script src="components/hero-visuals.config.js?v=1"></script>
   <script src="components/hero-early-warning.js?v=1"></script>
   <script src="components/hero-verdict.js?v=1"></script>
   <script src="components/hero-noise.js?v=1"></script>
-  <script src="components/hero-visuals.js?v=2"></script>
+  <script src="components/hero-visuals.js?v=2"></script> -->
+  <script src="components/market-cap-chart.js?v=1"></script>
   <script src="script.js?v=40"></script>
 
   <!-- DEV FONT PANEL START ====================================================
