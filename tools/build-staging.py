@@ -49,7 +49,8 @@ def stage_html(text, sha, base):
         body = re.search(r"<body[^>]*>", text, re.I)
         text = text[:body.end()] + "\n  " + banner(sha) + text[body.end():]
     # Root-relative paths: href="/x" or src="/x", never protocol-relative "//x".
-    text = re.sub(r'((?:href|src|content)=")/(?!/)', lambda m: m.group(1) + base, text)
+    # data-home/data-root tell the header and footer where the site root is.
+    text = re.sub(r'((?:href|src|content|data-home|data-root)=")/(?!/)', lambda m: m.group(1) + base, text)
     return text, True
 
 
