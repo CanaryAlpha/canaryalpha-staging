@@ -1,0 +1,402 @@
+[
+ {
+  "date": "2008-10",
+  "title": "Bitcoin whitepaper announced on cryptography list",
+  "summary": "On 31 October 2008, Satoshi Nakamoto posted \"Bitcoin P2P e-cash paper\" to the Cryptography Mailing List. The post described a fully peer-to-peer electronic cash system with no trusted third party and linked to the paper at bitcoin.org/bitcoin.pdf.",
+  "type": "milestone",
+  "sourceUrl": "https://www.metzdowd.com/pipermail/cryptography/2008-October/014810.html",
+  "sourceNote": "Mailing-list archive: post from Satoshi Nakamoto dated Fri 31 Oct 2008 14:10 EDT, subject 'Bitcoin P2P e-cash paper', linking bitcoin.org/bitcoin.pdf."
+ },
+ {
+  "date": "2009-01",
+  "title": "Genesis block mined",
+  "summary": "Bitcoin's first block (height 0) carries a timestamp of 3 January 2009, 18:15:05 UTC. Its coinbase transaction embeds the text \"The Times 03/Jan/2009 Chancellor on brink of second bailout for banks\".",
+  "type": "milestone",
+  "sourceUrl": "https://mempool.space/tx/4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b",
+  "sourceNote": "Genesis coinbase tx on mempool.space; block 0 timestamp 1231006505 (2009-01-03 18:15:05 UTC). The tx's raw hex (mempool.space/api/tx/4a5e…a33b/hex) decodes to the Times headline text; decoded locally to confirm."
+ },
+ {
+  "date": "2009-01",
+  "title": "First bitcoin transaction: Satoshi to Hal Finney",
+  "summary": "Block 170, timestamped 12 January 2009, contains a transaction paying 10 BTC to one key and 40 BTC to another. Hal Finney later wrote that he was \"the recipient of the first bitcoin transaction\", when Satoshi sent him ten coins as a test.",
+  "type": "milestone",
+  "sourceUrl": "https://mempool.space/tx/f4184fc596403b9d638783cf57adfe4c75c605f6356fbc91338530e9831e9e16",
+  "sourceNote": "mempool.space: tx in block 170 (time 1231731025 = 2009-01-12 UTC), outputs 10 BTC + 40 BTC. Recipient identity from Hal Finney's own post 'Bitcoin and me' (19 Mar 2013): https://bitcointalk.org/index.php?topic=155054.0"
+ },
+ {
+  "date": "2009-10",
+  "title": "New Liberty Standard publishes first exchange rate",
+  "summary": "On 5 October 2009, the New Liberty Standard site published a rate of 1,309.03 BTC for US$1.00, about $0.000764 per bitcoin. This was a rate published by one person's site, not a price set by trading on a market.",
+  "type": "milestone",
+  "sourceUrl": "https://bitcoin.zorinaq.com/price/",
+  "sourceNote": "Price-history page compiled by mrb (Marc Bevand): 'first established at $0.000764/BTC' on 2009-10-05, $1.00 = 1309.03 BTC. Secondary compilation; the original NLS page survives only on archive.org, which could not be fetched."
+ },
+ {
+  "date": "2010-03",
+  "title": "BitcoinMarket.com opens to real-money trading",
+  "summary": "Forum user dwdollar first announced the Bitcoin Market exchange in January 2010 and ran it with play money in February. On 16 March 2010 he posted that it was \"time to try some real trading\", taking dollar deposits via PayPal. It was trading four months before Mt. Gox opened.",
+  "type": "positive",
+  "sourceUrl": "https://bitcointalk.org/index.php?topic=20.20",
+  "sourceNote": "Thread 'New exchange (Bitcoin Market)': OP dwdollar, Jan 15 2010 start; 6 Feb play-money demo; 16 Mar 2010 05:05 post says real trading with PayPal deposits. bitcoin.zorinaq.com/price/ gives 17 Mar 2010 as start of operation."
+ },
+ {
+  "date": "2010-05",
+  "title": "Bitcoin Pizza Day: 10,000 BTC for pizza",
+  "summary": "On 18 May 2010, forum user laszlo (Laszlo Hanyecz) offered 10,000 bitcoins for \"a couple of pizzas\". On 22 May 2010 he reported that he had successfully traded 10,000 bitcoins for pizza.",
+  "type": "positive",
+  "sourceUrl": "https://bitcointalk.org/index.php?topic=137.0",
+  "sourceNote": "bitcointalk thread: laszlo's offer on 18 May 2010 and his 22 May 2010 19:17 post confirming the trade."
+ },
+ {
+  "date": "2010-07",
+  "title": "Mt. Gox opens as a bitcoin exchange",
+  "summary": "On 18 July 2010, the forum user mtgox announced: \"I just put up a new bitcoin exchange.\" The operator said all trades were between users. Mt. Gox was not the first exchange, since Bitcoin Market had been trading since March 2010.",
+  "type": "positive",
+  "sourceUrl": "https://bitcointalk.org/index.php?topic=444.0",
+  "sourceNote": "bitcointalk thread 'New Bitcoin Exchange (mtgox.com)', opening post by mtgox on 18 Jul 2010."
+ },
+ {
+  "date": "2010-08",
+  "title": "Value overflow bug creates 184 billion BTC",
+  "summary": "On 15 August 2010, users noticed that a transaction in block 74638 had two outputs of about 92.2 billion BTC each, created by an integer overflow. Satoshi released a patch (version 0.3.10). He said only the bad transaction and blocks built after it would be removed from the chain and all other transactions would remain.",
+  "type": "negative",
+  "sourceUrl": "https://bitcointalk.org/index.php?topic=823.0",
+  "sourceNote": "Thread 'overflow bug SERIOUS' (lfm, 15 Aug 2010) with Satoshi's edits and posts on the 0.3.10 patch. Discovery thread 'Strange block 74638': bitcointalk.org/index.php?topic=822.0. Tracked as CVE-2010-5139 (NVD page did not render)."
+ },
+ {
+  "date": "2010-12",
+  "title": "Satoshi's last bitcointalk forum post",
+  "summary": "On 12 December 2010, Satoshi posted \"Added some DoS limits, removed safe mode (0.3.19)\", the last post on the account's bitcointalk profile. Later private emails from 2011 have been published, but this forum post is the last verifiable public post.",
+  "type": "milestone",
+  "sourceUrl": "https://bitcointalk.org/index.php?topic=2228.0",
+  "sourceNote": "Satoshi's post dated 12 Dec 2010 18:22:33. The satoshi profile post list (bitcointalk.org/index.php?action=profile;u=3;sa=showPosts) shows it as the most recent post."
+ },
+ {
+  "date": "2011-01",
+  "title": "Silk Road darknet market launches",
+  "summary": "According to US authorities, Ross Ulbricht created the Silk Road marketplace in January 2011 and ran it until law enforcement shut it down in October 2013. More than $200 million in illegal drugs and other illicit goods were bought and sold on the site.",
+  "type": "negative",
+  "sourceUrl": "https://ice.gov/news/releases/ross-ulbricht-aka-dread-pirate-roberts-sentenced-life-federal-prison-creating",
+  "sourceNote": "ICE/HSI press release on Ulbricht's life sentence (imposed 29 May 2015): 'Ulbricht created Silk Road in January 2011'; shut down October 2013; >$200 million in sales."
+ },
+ {
+  "date": "2011-02",
+  "title": "Bitcoin reaches parity with the US dollar",
+  "summary": "In February 2011, bitcoin traded at parity with the US dollar for the first time. On 13 February a forum thread linked a spike in Google searches to a Slashdot story headlined \"Online-Only Currency BitCoin Reaches Dollar Parity\".",
+  "type": "positive",
+  "sourceUrl": "https://bitcointalk.org/index.php?topic=3444.0",
+  "sourceNote": "Thread 'HUGE spike in Google trends' (grondilu, 13 Feb 2011) cites 'the slashdot article about BTC/USD parity'. The usual exact date, 9 Feb 2011 on Mt. Gox, is not confirmed by a primary source fetched here."
+ },
+ {
+  "date": "2011-06",
+  "title": "Mt. Gox account compromise triggers flash crash",
+  "summary": "On 19 June 2011 (UTC), an attacker used a compromised Mt. Gox account holding a large balance to sell coins, briefly crashing the exchange's price from about $17.50 to under $2. Mt. Gox halted the site and said it would roll back the fraudulent trades.",
+  "type": "negative",
+  "sourceUrl": "https://gizmodo.com/bitcoin-price-tumbles-after-massive-account-hack-and-se-5813622",
+  "sourceNote": "Gizmodo, 20 Jun 2011: sale occurred ~3:00 JST 20 Jun (19 Jun UTC); quotes Mt. Gox that price 'will be back to around 17.5$/BTC after we rollback all trades'; price 'was under $2'."
+ },
+ {
+  "date": "2012-11",
+  "title": "First bitcoin halving at block 210,000",
+  "summary": "Block 210,000 was mined on 28 November 2012 at 15:24:38 UTC. Under Bitcoin's protocol schedule, the block subsidy halves every 210,000 blocks, so this block cut it from 50 to 25 BTC.",
+  "type": "milestone",
+  "sourceUrl": "https://mempool.space/block/000000000000048b95347e83192f69cf0366076336c639f9b7228e9ba171342e",
+  "sourceNote": "mempool.space block 210000, timestamp 2012-11-28 15:24:38 UTC. Subsidy amounts follow the protocol rule; they are not stated on the page."
+ },
+ {
+  "date": "2014-02",
+  "title": "Mt. Gox files for bankruptcy protection",
+  "summary": "On 28 February 2014, Mt. Gox sought bankruptcy protection in Japan. It said it might have lost 750,000 of its customers' bitcoins and about 100,000 of its own, roughly $473–480 million at the time. CEO Mark Karpeles cited a \"weakness in our system\".",
+  "type": "negative",
+  "sourceUrl": "https://www.mprnews.org/story/2014/02/28/bitcoin-exchange-mtgox-files-for-bankruptcy",
+  "sourceNote": "NPR (Mark Memmott) via MPR News, 28 Feb 2014: bankruptcy filing in Japan; 750,000 customer coins + ~100,000 own; Bloomberg valuation $473M."
+ },
+ {
+  "date": "2015-07",
+  "title": "Ethereum mainnet launches (Frontier)",
+  "summary": "On 30 July 2015, participants generated and loaded Ethereum's genesis block, launching Frontier. The Ethereum Foundation blog described it as the first live release of the Ethereum project.",
+  "type": "positive",
+  "sourceUrl": "https://blog.ethereum.org/2015/07/30/ethereum-launches",
+  "sourceNote": "Ethereum Foundation blog post by Stephan Tual, 30 Jul 2015: 'Ethereum Launches', marking the inception of Frontier."
+ },
+ {
+  "date": "2016-06",
+  "title": "The DAO exploited for 3.6 million ETH",
+  "summary": "On 17 June 2016, an attacker began diverting ether from The DAO, moving about 3.6 million ETH, one-third of the total it had raised. Ethereum adopted a hard fork on 20 July 2016 that moved the funds to a recovery address for token holders.",
+  "type": "negative",
+  "sourceUrl": "https://www.sec.gov/litigation/investreport/34-81207.pdf",
+  "sourceNote": "SEC Report of Investigation on The DAO (Release 34-81207): 'On June 17, 2016 … approximately 3.6 million ETH—1/3 of the total ETH raised'; hard fork active 20 Jul 2016."
+ },
+ {
+  "date": "2016-07",
+  "title": "Second bitcoin halving at block 420,000",
+  "summary": "Block 420,000 was mined on 9 July 2016 at 16:46:13 UTC. Under the protocol schedule, the block subsidy fell from 25 to 12.5 BTC.",
+  "type": "milestone",
+  "sourceUrl": "https://mempool.space/block/000000000000000002cce816c0ab2c5c269cb081896b7dcb34b8422d6b74ffa1",
+  "sourceNote": "mempool.space block 420000, timestamp 2016-07-09 16:46:13 UTC. Subsidy amounts follow the protocol rule."
+ },
+ {
+  "date": "2016-08",
+  "title": "Bitfinex hacked for 119,756 bitcoin",
+  "summary": "Hong Kong-based exchange Bitfinex discovered on 2 August 2016 that 119,756 bitcoin, about $72 million, had been stolen from users' segregated wallets. Bitcoin's price fell just over 23% that day. In 2022 the US Justice Department seized about 94,636 BTC linked to the hack.",
+  "type": "negative",
+  "sourceUrl": "https://www.nbcnews.com/tech/tech-news/second-massive-breach-bitcoin-worth-72-million-stolen-hong-kong-n622061",
+  "sourceNote": "Reuters report on NBC News, 3 Aug 2016: 119,756 BTC (~$72M) stolen, discovered Tue 2 Aug; price fell >23%. 2022 seizure figure from The Block, quoting DOJ: theblock.co/linked/133499."
+ },
+ {
+  "date": "2017-07",
+  "title": "SEC says DAO tokens were securities",
+  "summary": "On 25 July 2017, the US SEC published an investigative report concluding that tokens sold by The DAO were securities subject to federal securities laws. The agency brought no charges but warned issuers of token offerings to comply with the registration requirements.",
+  "type": "milestone",
+  "sourceUrl": "https://www.sec.gov/newsroom/press-releases/2017-131",
+  "sourceNote": "SEC press release 2017-131 (25 Jul 2017): 'SEC Issues Investigative Report Concluding DAO Tokens, a Digital Asset, Were Securities'."
+ },
+ {
+  "date": "2017-08",
+  "title": "Segregated Witness (SegWit) activates on Bitcoin",
+  "summary": "SegWit's new consensus rules took effect at block 481,824, mined at 01:57 UTC on 24 August 2017. From that block, SegWit-ready nodes enforced the upgrade.",
+  "type": "positive",
+  "sourceUrl": "https://bitcoinmagazine.com/technical/segregated-witness-activates-bitcoin-what-expect",
+  "sourceNote": "Bitcoin Magazine, 24 Aug 2017: 'As of block height 481,824, found at 1:57 UTC by BTCC'. mempool.space confirms block 481824 at 2017-08-24 01:57:37 UTC."
+ },
+ {
+  "date": "2017-09",
+  "title": "China bans initial coin offerings",
+  "summary": "On 4 September 2017, the People's Bank of China and other regulators declared fundraising through initial coin offerings illegal. They told issuers that had completed ICOs to arrange refunds. Ether fell almost 20% and bitcoin about 8% that day.",
+  "type": "negative",
+  "sourceUrl": "https://investing.com/news/technology-news/china-bans-initial-coin-offerings-as-illegal-fundraising-525232",
+  "sourceNote": "Reuters (Ruwitch/Kelly), 4 Sep 2017, syndicated on Investing.com: quotes the PBoC joint statement on returning funds; ETH -~20%, BTC -~8%."
+ },
+ {
+  "date": "2017-12",
+  "title": "CME launches bitcoin futures",
+  "summary": "CME Group, the world's largest futures exchange, began trading cash-settled bitcoin futures at 6 p.m. EST on 17 December 2017, for an 18 December trade date. The January 2018 contract opened at $20,650.",
+  "type": "positive",
+  "sourceUrl": "https://www.coindesk.com/markets/2017/12/18/cme-bitcoin-futures-price-above-20k-in-first-day-trading",
+  "sourceNote": "CoinDesk, 17 Dec 2017 19:45 EST: 'the launch took place at 6 p.m EST'; Jan 2018 contract opened $20,650. Contract terms are in CME's 1 Dec 2017 release (via Mondo Visione)."
+ },
+ {
+  "date": "2018-12",
+  "title": "Bitcoin down 83.5% from record high",
+  "summary": "A year after its December 2017 peak, bitcoin traded at $3,230 on Bitstamp on 17 December 2018. CoinDesk reported that this was 83.5% below the record high of about $20,000 set on 17 December 2017.",
+  "type": "negative",
+  "sourceUrl": "https://www.coindesk.com/markets/2018/12/17/a-year-ago-today-bitcoins-price-hit-a-record-20k",
+  "sourceNote": "CoinDesk, 17 Dec 2018: BTC 'trading at $3,230 on Bitstamp – down 83.5 percent from the record high of $20,000 reached on Dec. 17, 2017'."
+ },
+ {
+  "date": "2020-03",
+  "title": "Black Thursday: COVID sell-off hits bitcoin",
+  "summary": "On 12 March 2020, amid a global market sell-off over the coronavirus, bitcoin fell 26% to $5,863 by 13:54 UTC. CoinDesk called it the biggest drop in seven years.",
+  "type": "negative",
+  "sourceUrl": "https://www.coindesk.com/markets/2020/03/12/down-26-bitcoin-sees-worst-sell-off-in-7-years-as-coronavirus-spurs-flight-to-safety",
+  "sourceNote": "CoinDesk, 12 Mar 2020: 'plunged 26 percent to $5,863 as of 13:54 UTC'. A follow-up (coindesk.com/markets/2020/03/13/…) reports a low of $3,867 around 02:15 UTC on 13 Mar."
+ },
+ {
+  "date": "2020-05",
+  "title": "Third bitcoin halving at block 630,000",
+  "summary": "Block 630,000 was mined on 11 May 2020 at 19:23:43 UTC. Under the protocol schedule, the block subsidy fell from 12.5 to 6.25 BTC.",
+  "type": "milestone",
+  "sourceUrl": "https://mempool.space/block/000000000000000000024bead8df69990852c202db0e0097c1a12ea637d7e96d",
+  "sourceNote": "mempool.space block 630000, timestamp 2020-05-11 19:23:43 UTC. Subsidy amounts follow the protocol rule."
+ },
+ {
+  "date": "2020-08",
+  "title": "MicroStrategy buys 21,454 bitcoin",
+  "summary": "On 11 August 2020, Nasdaq-listed MicroStrategy announced it had bought 21,454 bitcoins for $250 million including fees. The company said the purchase was part of a capital allocation strategy to invest in alternative assets.",
+  "type": "positive",
+  "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1050446/000119312520215604/d921849dex991.htm",
+  "sourceNote": "MicroStrategy press release filed as Exhibit 99.1 to its 8-K of 11 Aug 2020 on SEC EDGAR."
+ },
+ {
+  "date": "2021-01",
+  "title": "Crypto market cap tops $1 trillion",
+  "summary": "On 6 January 2021, the total market capitalization of all cryptocurrencies reached $1 trillion for the first time, according to CoinGecko data. The Block reported a figure of $1.003 trillion at 6:45 p.m. EST (23:45 UTC).",
+  "type": "positive",
+  "sourceUrl": "https://www.theblock.co/post/90336/global-cryptocurrency-market-cap-hits-1-trillion",
+  "sourceNote": "The Block, 6 Jan 2021 18:45 EST: 'The market capitalization of all cryptocurrencies has reached $1 trillion'; CoinGecko $1.003T. A Reuters piece dates it 7 Jan, likely a time-zone difference."
+ },
+ {
+  "date": "2021-02",
+  "title": "Tesla discloses $1.5 billion bitcoin purchase",
+  "summary": "In its annual report filed on 8 February 2021, Tesla disclosed that it had \"invested an aggregate $1.50 billion in bitcoin\" under its investment policy. It also said it expected to begin accepting bitcoin as payment for its products.",
+  "type": "positive",
+  "sourceUrl": "https://www.sec.gov/Archives/edgar/data/1318605/000156459021004599/tsla-10k_20201231.htm",
+  "sourceNote": "Tesla 10-K for FY2020 on SEC EDGAR, filed 2021-02-08; quote 'we invested an aggregate $1.50 billion in bitcoin under this policy'."
+ },
+ {
+  "date": "2021-04",
+  "title": "Crypto market cap hits $2 trillion",
+  "summary": "On 5 April 2021, the total value of cryptocurrencies hit $2 trillion for the first time, according to data from CoinGecko and Blockfolio. The milestone came less than three months after the market first passed $1 trillion.",
+  "type": "positive",
+  "sourceUrl": "https://techcentral.co.za/?p=169813",
+  "sourceNote": "Reuters (Gertrude Chavez-Dreyfuss) via TechCentral, 5 Apr 2021: 'hit an all-time peak of US$2-trillion … on Monday', citing CoinGecko and Blockfolio; also says $1T was passed on 7 Jan."
+ },
+ {
+  "date": "2021-09",
+  "title": "El Salvador makes bitcoin legal tender",
+  "summary": "On 7 September 2021, El Salvador became the first country to adopt bitcoin as legal tender, and businesses were required to accept it alongside the US dollar. The government's Chivo wallet app was down on the first day.",
+  "type": "positive",
+  "sourceUrl": "https://www.gpb.org/news/2021/09/07/el-salvador-has-adopted-bitcoin-legal-tender-the-first-country-do-so",
+  "sourceNote": "NPR All Things Considered (Tim Padgett), 7 Sep 2021, via GPB: first country to adopt bitcoin as legal tender; Chivo app down on day one."
+ },
+ {
+  "date": "2021-09",
+  "title": "China declares crypto business activity illegal",
+  "summary": "The People's Bank of China and nine other authorities issued a notice dated 15 September 2021, Yin Fa [2021] No. 237. It declared virtual-currency business activities, including exchange services, token issuance and derivatives trading, to be illegal financial activities.",
+  "type": "negative",
+  "sourceUrl": "https://www.gov.cn/zhengce/zhengceku/2021-10/08/content_5641404.htm",
+  "sourceNote": "Official notice text on gov.cn, 银发〔2021〕237号, dated 15 Sep 2021; Art. 2: '虚拟货币相关业务活动属于非法金融活动'. Mining is covered by separate measures that are not cited here."
+ },
+ {
+  "date": "2021-11",
+  "title": "Crypto market cap crosses $3 trillion",
+  "summary": "On 8 November 2021, the total value of the crypto market crossed $3 trillion for the first time. CoinGecko put it at $3.007 trillion.",
+  "type": "positive",
+  "sourceUrl": "https://www.khaleejtimes.com/business/cryptocurrency/crypto-market-value-tops-3-trillion-for-first-time?amp=1",
+  "sourceNote": "Khaleej Times, 8 Nov 2021: valuation 'crossed $3 trillion on Monday for the first time'; CoinGecko '$3.007 trillion'. Some US outlets date it 9 Nov."
+ },
+ {
+  "date": "2022-03",
+  "title": "Ronin bridge exploited for over $625 million",
+  "summary": "On 29 March 2022, Axie Infinity's Ronin network disclosed that an attacker had used compromised validator keys to forge withdrawals from its bridge. The attacker took 173,600 ETH and 25.5 million USDC, worth over $625 million. The attack took place on 23 March.",
+  "type": "negative",
+  "sourceUrl": "https://www.coindesk.com/tech/2022/03/29/axie-infinitys-ronin-network-suffers-625m-exploit",
+  "sourceNote": "CoinDesk, 29 Mar 2022: 173,600 ETH + 25.5M USDC, >$625M; Etherscan shows the attack 'last Wednesday' (23 Mar)."
+ },
+ {
+  "date": "2022-05",
+  "title": "TerraUSD de-pegs; UST and LUNA collapse",
+  "summary": "In May 2022, Terraform Labs' TerraUSD (UST) stablecoin lost its peg to the US dollar, and the prices of UST and its sister tokens, including LUNA, fell close to zero. The SEC later charged Terraform and Do Kwon with fraud.",
+  "type": "negative",
+  "sourceUrl": "https://www.sec.gov/newsroom/press-releases/2023-32",
+  "sourceNote": "SEC press release 2023-32 (16 Feb 2023): 'In May 2022, UST depegged from the U.S. dollar, and the price of it and its sister tokens plummeted to close to zero.'"
+ },
+ {
+  "date": "2022-06",
+  "title": "Celsius freezes customer withdrawals",
+  "summary": "On 12 June 2022, crypto lender Celsius Network froze customer withdrawals. It filed for bankruptcy on 13 July 2022, disclosing liabilities more than $1 billion greater than its assets.",
+  "type": "negative",
+  "sourceUrl": "https://www.cftc.gov/PressRoom/PressReleases/8749-23",
+  "sourceNote": "CFTC release 8749-23 (13 Jul 2023): 'on June 12, 2022, Celsius froze customer withdrawals'; bankruptcy filing showed liabilities exceeding assets by >$1B."
+ },
+ {
+  "date": "2022-06",
+  "title": "Crypto market cap falls below $1 trillion",
+  "summary": "On 13 June 2022, the total crypto market capitalization fell about 12% in 24 hours to nearly $970 billion, according to CoinMarketCap. It was the first time below $1 trillion since early 2021, after a peak near $3 trillion in November 2021.",
+  "type": "negative",
+  "sourceUrl": "https://www.coindesk.com/markets/2022/06/13/crypto-market-cap-falls-below-1t-for-first-time-since-early-2021",
+  "sourceNote": "CoinDesk, 13 Jun 2022: market cap 'fell by some 12% in the last 24 hours to nearly $970 billion' (CoinMarketCap); similar level last seen Jan 2021."
+ },
+ {
+  "date": "2022-06",
+  "title": "Three Arrows Capital ordered into liquidation",
+  "summary": "A British Virgin Islands court ordered crypto hedge fund Three Arrows Capital into liquidation, and Teneo was appointed to handle the process. The fund had reportedly suffered at least $400 million in liquidations in mid-June. It filed for Chapter 15 protection in New York on 1 July 2022.",
+  "type": "negative",
+  "sourceUrl": "https://www.coindesk.com/business/2022/06/29/three-arrows-capital-liquidation-ordered-in-british-virgin-isles-report",
+  "sourceNote": "CoinDesk, 29 Jun 2022: BVI court ordered liquidation 'on Monday' (27 Jun); Teneo appointed. Chapter 15: coindesk.com/business/2022/07/01/three-arrows-capital-files-for-bankruptcy-in-new-york…"
+ },
+ {
+  "date": "2022-09",
+  "title": "Ethereum completes the Merge to proof-of-stake",
+  "summary": "On 15 September 2022, Ethereum switched from proof-of-work to proof-of-stake in an upgrade called the Merge. The ethereum.org website says the change cut the network's energy consumption by about 99.95%.",
+  "type": "positive",
+  "sourceUrl": "https://ethereum.org/roadmap/merge/",
+  "sourceNote": "ethereum.org: 'The Merge was executed on September 15, 2022', 'reducing energy consumption by ~99.95%'."
+ },
+ {
+  "date": "2022-11",
+  "title": "FTX files for bankruptcy",
+  "summary": "On 11 November 2022, FTX and about 130 affiliated companies, including Alameda Research, filed for Chapter 11 bankruptcy protection in the US. Sam Bankman-Fried resigned as CEO and was replaced by John J. Ray III. Bitcoin fell more than $1,000 to about $16,500 on the news.",
+  "type": "negative",
+  "sourceUrl": "https://www.coindesk.com/policy/2022/11/11/ftx-files-for-bankruptcy-protections-in-us",
+  "sourceNote": "CoinDesk, 11 Nov 2022: Chapter 11 filing for FTX Group (~130 affiliates), SBF resigned, John J. Ray III CEO, BTC fell to ~$16,500."
+ },
+ {
+  "date": "2023-11",
+  "title": "Binance hit with record US penalties",
+  "summary": "On 21 November 2023, the US Treasury announced a $3.4 billion FinCEN penalty against Binance, the largest in Treasury and FinCEN history, plus a $968 million OFAC settlement. The penalties covered anti-money-laundering and sanctions violations, alongside a parallel Justice Department resolution.",
+  "type": "negative",
+  "sourceUrl": "https://home.treasury.gov/news/press-releases/jy1925",
+  "sourceNote": "US Treasury press release jy1925 (21 Nov 2023): FinCEN $3.4B penalty, OFAC $968M settlement, references the DOJ resolution."
+ },
+ {
+  "date": "2024-01",
+  "title": "SEC approves spot bitcoin ETPs",
+  "summary": "On 10 January 2024, the US SEC approved the listing and trading of several spot bitcoin exchange-traded products. Chair Gary Gensler stressed that the Commission did not approve or endorse bitcoin itself.",
+  "type": "positive",
+  "sourceUrl": "https://www.sec.gov/newsroom/speeches-statements/gensler-statement-spot-bitcoin-011023",
+  "sourceNote": "SEC Chair statement, 10 Jan 2024: 'approved the listing and trading of a number of spot bitcoin exchange-traded product (ETP) shares'."
+ },
+ {
+  "date": "2024-04",
+  "title": "Fourth bitcoin halving at block 840,000",
+  "summary": "Block 840,000 was mined on 20 April 2024 at 00:09:27 UTC. Under the protocol schedule, the block subsidy fell from 6.25 to 3.125 BTC.",
+  "type": "milestone",
+  "sourceUrl": "https://mempool.space/block/0000000000000000000320283a032748cef8227873ff4872689bf23f1cda83a5",
+  "sourceNote": "mempool.space block 840000, timestamp 2024-04-20 00:09:27 UTC. Subsidy amounts follow the protocol rule."
+ },
+ {
+  "date": "2024-05",
+  "title": "SEC approves spot ether ETP listings",
+  "summary": "On 23 May 2024, the SEC approved rule changes letting NYSE Arca, Nasdaq and Cboe BZX list eight spot ether exchange-traded products. Trading could not begin until the funds' separate registration statements took effect.",
+  "type": "positive",
+  "sourceUrl": "https://www.sec.gov/files/rules/sro/nysearca/2024/34-100224.pdf",
+  "sourceNote": "SEC Release 34-100224, dated 23 May 2024: 'Order Granting Accelerated Approval … to List and Trade Shares of Ether-Based Exchange-Traded Products'. Eight-fund count per Mayer Brown (30 May 2024)."
+ },
+ {
+  "date": "2024-12",
+  "title": "Bitcoin rises above $100,000",
+  "summary": "Bitcoin rose above $100,000 for the first time on the evening of 4 December 2024 US Eastern time, which was 5 December UTC. CoinDesk reported the move at 9:46 p.m. EST.",
+  "type": "positive",
+  "sourceUrl": "https://www.coindesk.com/markets/2024/12/04/bitcoin-hits-major-milestone-of-100-k-nears-2-trillion-market-value",
+  "sourceNote": "CoinDesk, 4 Dec 2024 21:46 EST: 'The price of bitcoin has risen above $100,000 for the first time.'"
+ },
+ {
+  "date": "2025-02",
+  "title": "Bybit hacked for about $1.5 billion",
+  "summary": "On or about 21 February 2025, about $1.5 billion in virtual assets was stolen from the crypto exchange Bybit. The FBI attributed the theft to North Korea, calling the activity \"TraderTraitor\".",
+  "type": "negative",
+  "sourceUrl": "https://www.ic3.gov/PSA/2025/PSA250226",
+  "sourceNote": "FBI public service announcement I-022625-PSA (26 Feb 2025): ~$1.5B stolen from Bybit on or about 21 Feb 2025; attributed to the DPRK (TraderTraitor)."
+ },
+ {
+  "date": "2025-07",
+  "title": "GENIUS Act stablecoin law signed",
+  "summary": "On 18 July 2025, the President signed the GENIUS Act, a federal framework for payment stablecoins. According to the White House, it requires 100% reserve backing with liquid assets such as US dollars or short-term Treasuries, plus monthly reserve disclosures.",
+  "type": "positive",
+  "sourceUrl": "https://www.whitehouse.gov/fact-sheets/2025/07/fact-sheet-president-donald-j-trump-signs-genius-act-into-law/",
+  "sourceNote": "White House fact sheet dated 18 Jul 2025: 'Today, President Donald J. Trump signed the GENIUS Act into law'; reserve and disclosure provisions."
+ },
+ {
+  "date": "2025-07",
+  "title": "Crypto market cap tops $4 trillion",
+  "summary": "On 17 July 2025, the global crypto market capitalization rose above $4 trillion for the first time, according to CoinGecko data. The Block put the total at around $4.003 trillion.",
+  "type": "positive",
+  "sourceUrl": "https://www.theblock.co/post/363296/crypto-market-cap-tops-4-trillion",
+  "sourceNote": "The Block, 18 Jul 2025 00:10 EDT: 'rose above the $4 trillion line for the first time on Thursday' (17 Jul); CoinGecko ~$4.003T."
+ },
+ {
+  "date": "2025-10",
+  "title": "Bitcoin sets a record above $125,000",
+  "summary": "Early on 5 October 2025, bitcoin hit a new all-time high above $125,000, touching $125,700 on Coinbase at around 12:45 a.m. ET. The previous record, about $124,290, had been set on 14 August 2025.",
+  "type": "positive",
+  "sourceUrl": "https://www.theblock.co/news/macro/2025-10-05-bitcoin-hits-new-all-time-high-crosses-125000-for-the-first-time-as-uptober-momentum-builds-373369",
+  "sourceNote": "The Block, 5 Oct 2025: new ATH above $125,000; $125,700 on Coinbase; prior high 14 Aug ~$124,290. CoinDesk later cites a peak above $126,000 on 6 Oct 2025."
+ },
+ {
+  "date": "2025-10",
+  "title": "Record $19 billion crypto liquidation event",
+  "summary": "On 10 October 2025, after the US President announced an additional 100% tariff on Chinese imports, more than $19 billion of leveraged crypto positions were liquidated within 24 hours. CoinDesk described it as the largest single-day liquidation event in crypto history by dollar value.",
+  "type": "negative",
+  "sourceUrl": "https://www.coindesk.com/markets/2025/10/11/largest-ever-crypto-liquidation-event-wipes-out-6-300-wallets-on-hyperliquid",
+  "sourceNote": "CoinDesk, 11 Oct 2025: 'over $19 billion in liquidations over a 24 hours period'; trigger the 100% tariff announcement; CoinGlass says actual total likely higher."
+ },
+ {
+  "date": "2026-06",
+  "title": "Bitcoin falls more than 53% from peak",
+  "summary": "On 30 June 2026, bitcoin fell to just below $59,000, more than 53% below its record high of over $126,000 set on 6 October 2025. By early October 2026 it had recovered to about $85,000.",
+  "type": "negative",
+  "sourceUrl": "https://www.coindesk.com/markets/2026/10/06/from-retail-leverage-to-etf-flows-a-year-after-its-record-high-bitcoin-is-down-just-32",
+  "sourceNote": "CoinDesk, 6 Oct 2026: 'At its lowest, just below $59,000 on June 30, bitcoin was down more than 53% from its peak'; record above $126,000 on 6 Oct 2025; $85,453 at publication."
+ }
+]
