@@ -1,0 +1,304 @@
+/*
+ * Total crypto market cap history (components/market-cap-chart.js).
+ * Theme tokens from styles.css only, so Light and Dark both work: --success
+ * and --danger for months up and down, --milestone for milestone events,
+ * --muted for Bitcoin's infancy. No panel: the chart sits on the page.
+ */
+.mcc {
+  /* About one screen with the hero's slogan and text around it. */
+  --mcc-h: clamp(220px, 100svh - 36rem, 520px);
+  position: relative;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+}
+@media (min-width: 768px) {
+  .mcc { --mcc-h: clamp(260px, 100svh - 34rem, 560px); }
+}
+.mcc p { margin: 0; }
+.mcc--error { padding: 2rem 0; color: var(--muted); }
+
+/* Heading row: title on the left; the era and month being drawn on the right. */
+.mcc__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.25rem 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.mcc__title {
+  font-family: var(--font-heading);
+  font-weight: 500;
+  font-size: 1.0625rem;
+}
+.mcc__sub { color: var(--muted); font-size: 0.8125rem; }
+.mcc__readout { text-align: right; min-width: 0; }
+.mcc__era {
+  font-size: 0.8125rem;
+  color: var(--muted);
+  transition: color 0.3s ease;
+}
+.mcc__era.is-entering { color: var(--ink); font-weight: 600; }
+.mcc__value { font-size: 1.0625rem; white-space: nowrap; }
+@media (max-width: 599px) {
+  .mcc__readout { text-align: left; }
+}
+
+/* ---- Plot ---------------------------------------------------------------- */
+.mcc__plot {
+  position: relative;
+  height: var(--mcc-h);
+  touch-action: pan-y;
+  border-radius: 4px;
+}
+.mcc-svg { display: block; overflow: visible; }
+
+.mcc-grid line { stroke: var(--rule); stroke-width: 1; opacity: 0.5; }
+.mcc-grid line.is-base { opacity: 1; }
+.mcc-axis { font-size: 11px; fill: var(--muted); }
+
+.mcc-band { opacity: 1; }
+.mcc-hatch { stroke: var(--muted); stroke-width: 1; opacity: 0.28; }
+.mcc-band-label { font-size: 11px; fill: var(--muted); letter-spacing: 0.04em; }
+.mcc-era-rule { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 3 4; }
+.mcc-era-label { font-size: 11px; fill: var(--muted); letter-spacing: 0.04em; }
+
+.mcc-line {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.mcc-line--up { stroke: var(--success); }
+.mcc-line--down { stroke: var(--danger); }
+.mcc-line--none { stroke: var(--muted); stroke-dasharray: 4 4; stroke-linecap: butt; }
+
+.mcc-head { fill: var(--ink); stroke: var(--ground); stroke-width: 2; }
+.mcc-cross { stroke: var(--muted); stroke-width: 1; stroke-dasharray: 2 3; display: none; }
+.mcc-dot { fill: var(--ink); stroke: var(--ground); stroke-width: 2; display: none; }
+.mcc-guide { stroke: var(--ink); stroke-width: 1; stroke-dasharray: 2 3; opacity: 0.7; }
+
+/* Event markers: shape and colour by type; a ring in the page colour keeps
+   neighbours apart. */
+.mcc-shape { stroke: var(--ground); stroke-width: 1.5; stroke-linejoin: round; }
+.mcc-shape--positive { fill: var(--success); }
+.mcc-shape--negative { fill: var(--danger); }
+.mcc-shape--milestone { fill: var(--milestone); }
+.mcc-rail .mcc-shape.is-active { stroke: var(--ink); stroke-width: 2; }
+
+/* Hover tooltip. */
+.mcc-tip {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  gap: 0.1rem;
+  padding: 0.5rem 0.65rem;
+  min-width: 9rem;
+  background: var(--ground);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+  pointer-events: none;
+  box-shadow: 0 4px 16px color-mix(in srgb, var(--ink) 12%, transparent);
+}
+.mcc-tip[hidden] { display: none; }
+.mcc-tip__date { color: var(--muted); }
+.mcc-tip__value { font-size: 1rem; font-weight: 600; }
+.mcc-tip__change.is-up::before { content: "\25B2\00A0"; color: var(--success); font-size: 0.7em; }
+.mcc-tip__change.is-down::before { content: "\25BC\00A0"; color: var(--danger); font-size: 0.7em; }
+.mcc-tip__era { color: var(--muted); font-size: 0.75rem; }
+
+/* ---- Controls ------------------------------------------------------------ */
+.mcc__controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem 1rem;
+  margin-top: 0.25rem;
+}
+.mcc__playback,
+.mcc__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.5rem;
+}
+.mcc__playback { flex: 1 1 22rem; }
+.mcc__scrub {
+  flex: 1 1 8rem;
+  min-width: 6rem;
+  height: 44px;
+  margin: 0;
+  accent-color: var(--ink);
+  cursor: pointer;
+}
+.mcc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  padding: 0 0.7rem;
+  border: 1px solid var(--rule);
+  color: var(--ink);
+}
+.mcc-btn:hover { border-color: var(--ink); }
+.mcc-btn:disabled { color: var(--muted); border-color: var(--rule); cursor: default; opacity: 0.6; }
+.mcc-btn[hidden] { display: none; }
+.mcc-btn--play { min-width: 6.25rem; }
+.mcc-icon { flex: none; }
+.mcc-seg { display: inline-flex; }
+.mcc-seg[hidden] { display: none; }
+.mcc-seg .mcc-btn { border-radius: 0; margin-left: -1px; }
+.mcc-seg .mcc-btn:first-child { border-radius: 4px 0 0 4px; margin-left: 0; }
+.mcc-seg .mcc-btn:last-child { border-radius: 0 4px 4px 0; }
+.mcc-seg .mcc-btn:focus-visible { position: relative; z-index: 1; }
+.mcc-btn[aria-pressed="true"] {
+  background: var(--selected-bg);
+  color: var(--selected-ink);
+  border-color: var(--selected-bg);
+}
+@media (max-width: 599px) {
+  .mcc__playback { flex-basis: 100%; }
+  .mcc__scrub { order: -1; flex-basis: 100%; }
+  .mcc__tools { flex-basis: 100%; justify-content: space-between; }
+  .mcc-btn__text { font-size: 0.8125rem; }
+}
+
+/* Legend. */
+.mcc__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.1rem;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8125rem;
+  color: var(--muted);
+}
+.mcc__legend-item { display: inline-flex; align-items: center; gap: 0.4rem; }
+.mcc__legend-item svg { flex: none; }
+
+/* Legend and the data view share a row; the data view takes the full
+   width when open. */
+.mcc__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0 1.5rem;
+}
+.mcc__foot .mcc__legend { flex: 1 1 30rem; }
+.mcc__foot .mcc__data[open] { flex-basis: 100%; }
+
+/* Read by screen readers only (the keyboard hint, the live announcements). */
+.mcc__keys,
+.mcc__live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---- Event card ---------------------------------------------------------- */
+.mcc-card {
+  position: absolute;
+  z-index: 3;
+  top: 0.25rem;
+  width: min(21rem, calc(100% - 0.5rem));
+  padding: 0.9rem 1rem 0.85rem;
+  background: var(--ground);
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  box-shadow: 0 8px 28px color-mix(in srgb, var(--ink) 16%, transparent);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.mcc-card[hidden] { display: none; }
+.mcc-card:focus { outline: none; }
+.mcc-card:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.mcc-card__close {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  border: 0;
+  color: var(--muted);
+}
+.mcc-card__close:hover { color: var(--ink); }
+.mcc-card__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.6875rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.mcc-card__title {
+  margin: 0.2rem 2.25rem 0 0;
+  font-size: 1.0625rem;
+  font-weight: 500;
+  line-height: 1.25;
+}
+.mcc-card__date { color: var(--muted); font-size: 0.8125rem; }
+.mcc-card__summary { margin-top: 0.5rem !important; }
+.mcc-card__cap { margin-top: 0.5rem !important; font-weight: 600; }
+.mcc-card__source {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--ink);
+  text-underline-offset: 0.15em;
+  overflow-wrap: anywhere;
+}
+.mcc-card__count { color: var(--muted); font-size: 0.75rem; }
+
+/* Phones: the card is a bottom sheet. */
+.mcc-card.is-sheet {
+  position: fixed;
+  z-index: 1000;
+  top: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: auto;
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 1.1rem 1rem calc(1rem + env(safe-area-inset-bottom, 0px));
+  border-radius: 14px 14px 0 0;
+  border-width: 1px 0 0;
+  font-size: 0.9375rem;
+}
+
+/* ---- Data, method and sources ------------------------------------------- */
+.mcc__data { font-size: 0.875rem; color: var(--muted); }
+.mcc__data summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--ink);
+}
+.mcc__data h3 { margin: 1rem 0 0.4rem; font-size: 0.9375rem; font-weight: 500; color: var(--ink); }
+.mcc__data ul,
+.mcc__data ol { margin: 0; padding-left: 1.25rem; display: grid; gap: 0.25rem; }
+.mcc__data a { color: var(--ink); text-underline-offset: 0.15em; }
+.mcc__events-date { color: var(--ink); }
+.mcc__table-wrap { max-height: 22rem; overflow: auto; border: 1px solid var(--rule); border-radius: 4px; }
+.mcc__table { width: 100%; border-collapse: collapse; }
+.mcc__table th,
+.mcc__table td { padding: 0.3rem 0.6rem; text-align: left; border-bottom: 1px solid var(--rule); font-weight: 400; }
+.mcc__table thead th { position: sticky; top: 0; background: var(--ground); color: var(--ink); }
+.mcc__table .is-num { text-align: right; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mcc__era { transition: none; }
+}
