@@ -245,6 +245,38 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
+/* STAGING ONLY. Text-only hero (the homepage): the slogan, the supporting
+   text and the hero buttons stack in normal flow, centred across and down
+   the one screen, clear of the scroll-down arrow. The supporting text is
+   capped at ~70 characters a line so it doesn't run too wide. */
+.hero.hero--text {
+  height: auto;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1rem, 3vh, 2rem);
+  padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) var(--arrow-clear);
+}
+.hero--text .hero__title,
+.hero--text .hero__text {
+  position: static;
+  margin-inline: auto;
+  text-align: center;
+  text-shadow: none;
+}
+.hero--text .hero__text { max-width: min(36em, 100%); }
+.hero--text .hero__foot { position: static; align-items: center; }
+.hero--text .hero__actions { justify-content: center; }
+@media (max-width: 1099px) {
+  .hero--text .hero__foot { width: min(36rem, 100%); margin-inline: auto; }
+}
+@media (min-width: 1100px) {
+  /* Centred under the text here (the live hero puts them to its right). */
+  .hero--text .hero__foot { flex-direction: column; align-items: center; gap: 1.25rem; }
+}
+
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
   position: absolute;

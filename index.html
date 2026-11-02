@@ -31,12 +31,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
-  <link rel="stylesheet" href="styles.css?v=73">
+  <link rel="stylesheet" href="styles.css?v=74">
   <link rel="stylesheet" href="components/site-header.css?v=45">
   <!-- Old hero globe, unused; to bring it back, restore these two tags and the
        globe markup and scripts below, and remove the hero-visuals ones.
   <link rel="stylesheet" href="components/dotted-globe.css?v=34"> -->
-  <link rel="stylesheet" href="components/hero-visuals.css?v=4">
+  <!-- Hero animations, unused: the hero is text only. To bring one back,
+       restore this tag, the hero__stage markup and the hero-visuals scripts
+       below, and remove the hero--text class from the hero.
+  <link rel="stylesheet" href="components/hero-visuals.css?v=4"> -->
   <link rel="stylesheet" href="components/feature-visuals.css?v=12">
   <link rel="stylesheet" href="components/learn/learn.css?v=4">
   <!-- Site settings and production mode: load first. -->
@@ -174,7 +177,7 @@
         try { if (window.CA_AUTH && window.CA_AUTH.loggedInHint()) document.documentElement.setAttribute("data-auth-state", "in"); } catch (e) {}
       })();
     </script>
-    <section class="hero" aria-labelledby="hero-title">
+    <section class="hero hero--text" aria-labelledby="hero-title">
       <h1 id="hero-title" class="hero__title">Crypto research built to institutional standards.</h1>
       <!-- The supporting text and the hero buttons. Desktop: the buttons sit
            to the right of the text, in a row. Below 1100px: under the text,
@@ -206,14 +209,15 @@
           }, function () {});
         })();
       </script>
+      <!-- Hero visual, unused (see the <head>); either one goes back here:
       <div class="hero__stage">
         <div data-hero-visual></div>
-        <!-- Old globe, unused:
+        or the old globe:
         <div class="dotted-globe" data-dotted-globe role="img"
              aria-label="A slowly rotating globe made of dots that outline the world's continents. Drag to spin it.">
           <canvas></canvas>
-        </div> -->
-      </div>
+        </div>
+      </div> -->
       <a class="scroll-hint" href="#our-process" aria-label="Scroll to content">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -541,11 +545,12 @@
   <script src="components/learn/explain.js?v=2"></script>
   <script src="components/feature-visuals.config.js?v=9"></script>
   <script src="components/feature-visuals.js?v=8"></script>
+  <!-- Hero animations, unused (see the <head>):
   <script src="components/hero-visuals.config.js?v=1"></script>
   <script src="components/hero-early-warning.js?v=1"></script>
   <script src="components/hero-verdict.js?v=1"></script>
   <script src="components/hero-noise.js?v=1"></script>
-  <script src="components/hero-visuals.js?v=2"></script>
+  <script src="components/hero-visuals.js?v=2"></script> -->
   <script src="components/paid-plans.js?v=1"></script>
   <script src="script.js?v=41"></script>
 
