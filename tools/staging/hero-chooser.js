@@ -20,7 +20,11 @@
   if (!actions) return;
   var dash = document.querySelector("[data-hero-dashboard]");
 
-  var DEFAULTS = { style: "a", preview: "out", arrows: "on", size: "std", gap: 0, place: "right", open: true };
+  // The staging homepage has the text-only hero (centred): there the buttons
+  // default to a centred row under the text; the live layout (to the right
+  // of the text on desktop) is one switch away. Phones start collapsed.
+  var DEFAULTS = { style: "a", preview: "out", arrows: "on", size: "std", gap: 0,
+    place: document.querySelector(".hero--text") ? "below" : "right", open: window.innerWidth >= 768 };
   var s = {};
   try { s = JSON.parse(localStorage.getItem(KEY)) || {}; } catch (e) {}
   Object.keys(DEFAULTS).forEach(function (k) { if (!(k in s)) s[k] = DEFAULTS[k]; });
@@ -38,29 +42,30 @@
     'html[data-hc-size="lg"] .hero__actions .button.button { min-height: 52px; font-size: 1.0625rem; }',
     'html[data-hc-gap] .hero__actions { gap: var(--hc-gap); }',
     '@media (min-width: 1100px) { html[data-hc-place="below"] .hero__foot { flex-direction: column; align-items: flex-start; gap: 1.25rem; }',
-    '  html[data-hc-place="below"] .hero--text .hero__foot { align-items: center; } }',
-    /* The panel itself: fixed colours, the same in both themes. */
-    '.hc { position: fixed; z-index: 2147483646; right: 12px; bottom: 72px; width: min(19rem, calc(100vw - 24px)); max-height: calc(100vh - 140px); overflow: auto;',
+    '  html[data-hc-place="below"] .hero--text .hero__foot { align-items: center; }',
+    '  html[data-hc-place="below"] .hero--text .hero__foot .hero__text { margin-inline: auto; text-align: center; } }',
+    /* The panel itself: compact, fixed colours, the same in both themes. */
+    '.hc { position: fixed; z-index: 2147483646; right: 12px; bottom: 64px; width: min(16.5rem, calc(100vw - 24px)); max-height: calc(100vh - 140px); overflow: auto;',
     '  background: #fff; color: #0A0A0A; border: 1px solid #0A0A0A; border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.25);',
-    '  font: 14px/1.4 system-ui, -apple-system, sans-serif; text-shadow: none; }',
+    '  font: 13px/1.35 system-ui, -apple-system, sans-serif; text-shadow: none; }',
     '.hc[data-closed] { width: auto; }',
-    '.hc__head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 8px 8px 8px 12px; background: #FFEF00; border-radius: 9px 9px 0 0; }',
+    '.hc__head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; padding: 6px 6px 6px 10px; background: #FFEF00; border-radius: 9px 9px 0 0; }',
     '.hc[data-closed] .hc__head { border-radius: 9px; }',
-    '.hc__title { margin: 0; font: 700 14px/1.2 system-ui, sans-serif; }',
-    '.hc__body { padding: 10px 12px 12px; display: grid; gap: 10px; }',
+    '.hc__title { margin: 0; font: 700 13px/1.2 system-ui, sans-serif; }',
+    '.hc__body { padding: 8px 10px 10px; display: grid; gap: 8px; }',
     '.hc[data-closed] .hc__body { display: none; }',
-    '.hc fieldset { margin: 0; padding: 0; border: 0; display: grid; gap: 4px; }',
-    '.hc legend { padding: 0; margin-bottom: 4px; font-weight: 700; }',
-    '.hc label { display: flex; align-items: flex-start; gap: 6px; cursor: pointer; }',
-    '.hc label small { display: block; color: #3D3D3D; }',
-    '.hc input[type=radio], .hc input[type=checkbox] { margin: 3px 0 0; accent-color: #0A0A0A; }',
-    '.hc input[type=range] { width: 100%; accent-color: #0A0A0A; }',
-    '.hc button { all: unset; box-sizing: border-box; min-height: 32px; padding: 4px 10px; border: 1px solid #0A0A0A; border-radius: 6px; background: #fff; color: #0A0A0A; cursor: pointer; font: 600 13px/1.2 system-ui, sans-serif; text-align: center; }',
+    '.hc__label { margin: 0 0 3px; font-weight: 700; }',
+    '.hc__seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }',
+    '.hc__chips { display: flex; flex-wrap: wrap; gap: 4px; }',
+    '.hc button, .hc select { all: unset; box-sizing: border-box; min-height: 30px; padding: 4px 8px; border: 1px solid #0A0A0A; border-radius: 6px; background: #fff; color: #0A0A0A; cursor: pointer; font: 600 12px/1.2 system-ui, sans-serif; text-align: center; }',
+    '.hc select { width: 100%; text-align: left; background: #fff url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 10 6%27%3E%3Cpath d=%27M0 0h10L5 6z%27/%3E%3C/svg%3E") no-repeat right 8px center / 8px; padding-right: 22px; }',
+    '.hc button[aria-pressed="true"] { background: #0A0A0A; color: #FFEF00; }',
     '.hc button:hover, .hc button:focus-visible { background: #0A0A0A; color: #FFEF00 !important; text-shadow: none !important; }',
-    '.hc button:focus-visible, .hc input:focus-visible { outline: 2px solid #0A0A0A; outline-offset: 2px; }',
-    '.hc__row { display: flex; gap: 6px; flex-wrap: wrap; }',
-    '.hc__out { margin: 0; padding: 8px; background: #F4F4F4; border-radius: 6px; font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; }',
-    '.hc__note { margin: 0; color: #3D3D3D; font-size: 12px; }'
+    '.hc button:focus-visible, .hc select:focus-visible, .hc input:focus-visible { outline: 2px solid #0A0A0A; outline-offset: 2px; }',
+    '.hc input[type=range] { width: 100%; margin: 0; accent-color: #0A0A0A; }',
+    '.hc__hint { margin: 3px 0 0; color: #3D3D3D; font-size: 11.5px; }',
+    '.hc__row { display: flex; gap: 4px; flex-wrap: wrap; }',
+    '.hc__out { margin: 0; color: #3D3D3D; font-size: 11.5px; }'
   ].join("\n");
   document.head.appendChild(css);
 
@@ -79,20 +84,15 @@
     // real check (index.html) runs as usual when this panel is closed.
     if (s.preview === "out") root.removeAttribute("data-auth-state");
     else { root.setAttribute("data-auth-state", "in"); if (dash) dash.setAttribute("href", HOME[s.preview]); }
-    out.textContent = "Option: " + STYLE_NAMES[s.style] +
-      "\nArrows: " + s.arrows + " · Height: " + (s.size === "lg" ? "52px" : "44px") +
-      "\nSpacing: " + (s.gap ? s.gap + "px" : "default") + " · Desktop: " + (s.place === "right" ? "right of text" : "below text") +
-      "\nPreview: " + PREVIEW_NAMES[s.preview];
+    var full = "Hero buttons: option " + STYLE_NAMES[s.style] + "; arrows " + s.arrows +
+      "; height " + (s.size === "lg" ? "52px" : "44px") + "; spacing " + (s.gap ? s.gap + "px" : "default") +
+      "; desktop " + (s.place === "right" ? "right of the text" : "below the text") + " (previewed: " + PREVIEW_NAMES[s.preview] + ")";
+    out.setAttribute("data-full", full);
+    out.textContent = "Copy choice copies your settings to paste to Claude.";
     panel.toggleAttribute("data-closed", !s.open);
     toggle.textContent = s.open ? "Hide" : "Show";
     toggle.setAttribute("aria-expanded", String(s.open));
     sync();
-  }
-
-  function radios(name, legend, opts) {
-    return '<fieldset><legend>' + legend + "</legend>" + opts.map(function (o) {
-      return '<label><input type="radio" name="hc-' + name + '" value="' + o[0] + '"><span>' + o[1] + (o[2] ? "<small>" + o[2] + "</small>" : "") + "</span></label>";
-    }).join("") + "</fieldset>";
   }
 
   var panel = document.createElement("section");
@@ -101,65 +101,65 @@
   panel.innerHTML =
     '<div class="hc__head"><p class="hc__title">Hero buttons (staging)</p><button type="button" data-hc-toggle aria-controls="hc-body">Hide</button></div>' +
     '<div class="hc__body" id="hc-body">' +
-      radios("style", "Primary button", [
-        ["a", "A. Filled", "Submit-button fill: black (Light), white (Dark)"],
-        ["b", "B. Ghost only", "Same as Learn more and Log in"],
-        ["c", "C. Black and yellow", "Like Log in's Continue, both themes"]
-      ]) +
-      radios("preview", "Preview as", [["out", "Logged out"], ["free", "Logged in: Free"], ["pro", "Logged in: Pro"], ["enterprise", "Logged in: Enterprise"]]) +
-      '<fieldset><legend>Adjust</legend>' +
-        '<label><input type="checkbox" name="hc-arrows"><span>Show arrows</span></label>' +
-        '<label><input type="checkbox" name="hc-size"><span>Taller buttons (52px)</span></label>' +
-        '<label><input type="checkbox" name="hc-place"><span>Desktop: buttons below the text</span></label>' +
-        '<label style="display:block">Spacing between buttons: <span data-hc-gapval></span><input type="range" name="hc-gap" min="0" max="40" step="4" aria-describedby="hc-gapnote"></label>' +
-        '<p class="hc__note" id="hc-gapnote">0 = the default spacing.</p>' +
-      "</fieldset>" +
-      '<div class="hc__row"><button type="button" data-hc-theme="light">Light</button><button type="button" data-hc-theme="dark">Dark</button><button type="button" data-hc-reset>Reset</button><button type="button" data-hc-copy>Copy my choice</button></div>' +
-      '<pre class="hc__out" aria-live="polite"></pre>' +
-      '<p class="hc__note">Staging only; settings stay in this browser. Tell Claude the option you like (or paste "Copy my choice").</p>' +
+      '<div><p class="hc__label" id="hc-style-l">Sign up button</p><div class="hc__seg" role="group" aria-labelledby="hc-style-l">' +
+        '<button type="button" data-hc-style="a" title="Filled: the form Submit fill">A</button>' +
+        '<button type="button" data-hc-style="b" title="Ghost: like Learn more and Log in">B</button>' +
+        '<button type="button" data-hc-style="c" title="Black and yellow: like Log in\u2019s Continue">C</button></div>' +
+        '<p class="hc__hint" data-hc-stylename></p></div>' +
+      '<div><label class="hc__label" for="hc-preview" style="display:block">Preview as</label>' +
+        '<select id="hc-preview" data-hc-preview><option value="out">Logged out</option><option value="free">Logged in: Free</option><option value="pro">Logged in: Pro</option><option value="enterprise">Logged in: Enterprise</option></select></div>' +
+      '<div><p class="hc__label" id="hc-adj-l">Adjust</p><div class="hc__chips" role="group" aria-labelledby="hc-adj-l">' +
+        '<button type="button" data-hc-flag="arrows">Arrows</button>' +
+        '<button type="button" data-hc-flag="size">Taller (52px)</button>' +
+        '<button type="button" data-hc-flag="place">Desktop: below text</button></div></div>' +
+      '<div><label class="hc__label" for="hc-gap" style="display:block">Spacing: <span data-hc-gapval></span></label><input type="range" id="hc-gap" data-hc-gap min="0" max="40" step="4"></div>' +
+      '<div class="hc__row"><button type="button" data-hc-theme="light">Light</button><button type="button" data-hc-theme="dark">Dark</button><button type="button" data-hc-reset>Reset</button><button type="button" data-hc-copy>Copy choice</button></div>' +
+      '<p class="hc__out" aria-live="polite"></p>' +
     "</div>";
   document.body.appendChild(panel);
   var out = panel.querySelector(".hc__out");
   var toggle = panel.querySelector("[data-hc-toggle]");
 
   function sync() {
-    panel.querySelectorAll('input[name="hc-style"]').forEach(function (i) { i.checked = i.value === s.style; });
-    panel.querySelectorAll('input[name="hc-preview"]').forEach(function (i) { i.checked = i.value === s.preview; });
-    panel.querySelector('input[name="hc-arrows"]').checked = s.arrows === "on";
-    panel.querySelector('input[name="hc-size"]').checked = s.size === "lg";
-    panel.querySelector('input[name="hc-place"]').checked = s.place === "below";
-    panel.querySelector('input[name="hc-gap"]').value = s.gap;
+    panel.querySelectorAll("[data-hc-style]").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-hc-style") === s.style)); });
+    panel.querySelector("[data-hc-stylename]").textContent = STYLE_NAMES[s.style];
+    panel.querySelector("[data-hc-preview]").value = s.preview;
+    panel.querySelector('[data-hc-flag="arrows"]').setAttribute("aria-pressed", String(s.arrows === "on"));
+    panel.querySelector('[data-hc-flag="size"]').setAttribute("aria-pressed", String(s.size === "lg"));
+    panel.querySelector('[data-hc-flag="place"]').setAttribute("aria-pressed", String(s.place === "below"));
+    panel.querySelector("[data-hc-gap]").value = s.gap;
     panel.querySelector("[data-hc-gapval]").textContent = s.gap ? s.gap + "px" : "default";
   }
 
   panel.addEventListener("change", function (e) {
-    var t = e.target, n = t.name;
-    if (n === "hc-style") s.style = t.value;
-    else if (n === "hc-preview") s.preview = t.value;
-    else if (n === "hc-arrows") s.arrows = t.checked ? "on" : "off";
-    else if (n === "hc-size") s.size = t.checked ? "lg" : "std";
-    else if (n === "hc-place") s.place = t.checked ? "below" : "right";
-    else return;
-    save(); apply();
+    if (!e.target.hasAttribute("data-hc-preview")) return;
+    s.preview = e.target.value; save(); apply();
   });
   panel.addEventListener("input", function (e) {
-    if (e.target.name !== "hc-gap") return;
+    if (!e.target.hasAttribute("data-hc-gap")) return;
     s.gap = +e.target.value; save(); apply();
   });
   panel.addEventListener("click", function (e) {
     var b = e.target.closest("button");
     if (!b) return;
-    if (b.hasAttribute("data-hc-toggle")) { s.open = !s.open; save(); apply(); }
-    else if (b.hasAttribute("data-hc-reset")) { s = JSON.parse(JSON.stringify(DEFAULTS)); save(); apply(); }
+    var flag = b.getAttribute("data-hc-flag");
+    if (b.hasAttribute("data-hc-style")) s.style = b.getAttribute("data-hc-style");
+    else if (flag === "arrows") s.arrows = s.arrows === "on" ? "off" : "on";
+    else if (flag === "size") s.size = s.size === "lg" ? "std" : "lg";
+    else if (flag === "place") s.place = s.place === "below" ? "right" : "below";
+    else if (b.hasAttribute("data-hc-toggle")) s.open = !s.open;
+    else if (b.hasAttribute("data-hc-reset")) s = JSON.parse(JSON.stringify(DEFAULTS));
     else if (b.hasAttribute("data-hc-theme")) {
       var t = b.getAttribute("data-hc-theme");
       root.setAttribute("data-theme", t);
       try { localStorage.setItem("ca-demo-theme", t); } catch (x) {}
+      return;
     } else if (b.hasAttribute("data-hc-copy")) {
-      var text = out.textContent;
-      var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy my choice"; }, 1500); };
-      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, function () {});
-    }
+      var done = function () { b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy choice"; }, 1500); };
+      if (navigator.clipboard) navigator.clipboard.writeText(out.getAttribute("data-full")).then(done, function () {});
+      return;
+    } else return;
+    save(); apply();
   });
 
   apply();
