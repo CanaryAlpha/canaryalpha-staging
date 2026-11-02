@@ -13,6 +13,8 @@ What it changes, and only in <dir>:
   - paths that start at the site root ("/styles.css" in 404.html) gain the
     staging address's folder (--base), because GitHub Pages serves staging at
     canaryalpha.github.io/canaryalpha-staging/, not at a domain root.
+  - every script in tools/staging/ (staging-only design tools, such as the
+    hero buttons chooser) is added to the homepage.
 The production site is the repo as committed; none of this ever reaches it.
 """
 import argparse, os, re, sys
@@ -92,6 +94,25 @@ def main():
                 pages += 1
     print("build-staging: %d pages marked noindex with the STAGING banner (build %s, base %s)"
           % (pages, a.sha[:7], a.base))
+
+    # Staging-only tools for the homepage (tools/staging/*.js, e.g. the hero
+    # buttons chooser): added to the staging homepage only. tools/ is never
+    # deployed to canaryalpha.co (.vercelignore), so they can't reach it.
+    tools = os.path.join(root, "tools", "staging")
+    home = os.path.join(root, "index.html")
+    if os.path.isdir(tools):
+        names = sorted(n for n in os.listdir(tools) if n.endswith(".js"))
+        if names:
+            with open(home, encoding="utf-8") as f:
+                text = f.read()
+            tags = "".join('  <script src="tools/staging/%s?v=%s" defer></script>\n' % (n, a.sha[:7]) for n in names)
+            i = text.lower().rfind("</body>")
+            if i == -1:
+                sys.exit("build-staging: no </body> in index.html")
+            text = text[:i] + "  <!-- STAGING ONLY (tools/staging/) -->\n" + tags + text[i:]
+            with open(home, "w", encoding="utf-8") as f:
+                f.write(text)
+            print("build-staging: homepage gets staging tools: " + ", ".join(names))
 
 
 if __name__ == "__main__":

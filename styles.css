@@ -245,29 +245,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
-/* Text-only hero (the homepage): the slogan and supporting text stack in
-   normal flow, centred across and down the one screen, clear of the
-   scroll-down arrow. The supporting text is capped at ~70 characters a line
-   so it doesn't run too wide. */
-.hero.hero--text {
-  height: auto;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(1rem, 3vh, 2rem);
-  padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) var(--arrow-clear);
-}
-.hero--text .hero__title,
-.hero--text .hero__text {
-  position: static;
-  margin-inline: auto;
-  text-align: center;
-  text-shadow: none;
-}
-.hero--text .hero__text { max-width: min(36em, 100%); }
-
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
   position: absolute;
@@ -281,6 +258,87 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   place-items: center;
   border-radius: 50%;
   color: var(--muted);
+}
+
+/* Hero buttons (.hero__foot holds the supporting text and the buttons).
+   Learn more and Log in are the shared .button--ghost; Sign up (logged
+   out) or Go to dashboard (logged in, <html data-auth-state="in">, set in
+   index.html before the hero is drawn) is .button--primary, the one
+   filled button. Labels never wrap (.button.button: nowrap); every button
+   is at least 44px tall.
+   Desktop (1100px+): the foot is the bottom overlay layer the text was,
+   with the buttons in a row to the right of the text, centred on it. */
+.hero__foot {
+  position: absolute;
+  z-index: 1;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: var(--arrow-clear);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1.25rem;
+  pointer-events: none;
+}
+.hero__foot .hero__text { position: static; max-width: min(62.5rem, 100%); }
+.hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  pointer-events: auto;
+}
+:root:not([data-auth-state="in"]) .hero__actions [data-auth="in"],
+:root[data-auth-state="in"] .hero__actions [data-auth="out"] { display: none; }
+@media (min-width: 1100px) {
+  .hero__foot { flex-direction: row; align-items: center; justify-content: space-between; gap: 2.5rem; }
+  .hero__foot .hero__text { flex: 0 1 auto; }
+  .hero__actions { flex: none; flex-wrap: nowrap; gap: 1rem; }
+}
+/* Below 1100px: the slogan, the visual and the foot stack in normal flow
+   (no overlap at any height; the hero grows past one screen if it must),
+   with the buttons under the text, Sign up / Go to dashboard first. Tablet:
+   one row of equal buttons across the width. Phone (under 600px): stacked,
+   full width. */
+@media (max-width: 1099px) {
+  .hero {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    row-gap: 1.5rem;
+    height: auto;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) var(--arrow-clear);
+  }
+  .hero__title { position: static; max-width: 14em; grid-row: 1; }
+  .hero__stage { position: static; grid-row: 2; }
+  .hero__foot { position: static; grid-row: 3; }
+  .hero__actions { width: 100%; }
+  .hero__actions .button { flex: 1 1 0; justify-content: center; min-width: 0; }
+  .hero__btn--main { order: -1; }
+}
+@media (min-width: 768px) and (max-width: 1099px) {
+  .hero { padding-top: calc(var(--site-header-h, 0px) + 2.5rem); }
+}
+@media (max-width: 599px) {
+  .hero__actions { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+  .hero__actions .button { flex: none; width: 100%; }
+}
+/* The hero visual (components/hero-visuals.css) gives up the buttons'
+   height, so the hero still fits one screen where it can: in flow it is
+   already inside the hero's side padding (full width), and its height
+   leaves room for one row of buttons (tablet) or three (phone). */
+@media (max-width: 1099px) {
+  .hero .hv { --hv-w: min(100%, 60rem); --hv-h: clamp(180px, 100vh - 580px, 320px); }
+  @supports (height: 1svh) { .hero .hv { --hv-h: clamp(180px, 100svh - 580px, 320px); } }
+}
+@media (max-width: 767px) {
+  .hero .hv { --hv-h: clamp(120px, 100vh - 620px, 260px); }
+  @supports (height: 1svh) { .hero .hv { --hv-h: clamp(120px, 100svh - 620px, 260px); } }
+}
+@media (max-width: 599px) {
+  .hero .hv { --hv-h: clamp(110px, 100vh - 700px, 260px); }
+  @supports (height: 1svh) { .hero .hv { --hv-h: clamp(110px, 100svh - 700px, 260px); } }
 }
 
 /* Placeholder content sections. Anchored links stop below the fixed bar. */
@@ -487,6 +545,32 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 }
 @media (prefers-reduced-motion: reduce) {
   .button--ghost .button__icon { transition: none; transform: none !important; }
+}
+/* The one filled link-button (the hero's Sign up / Go to dashboard): the
+   fill of the form Submit button (--selected-bg / --selected-ink: black in
+   Light, white in Dark), otherwise .button--ghost's size and arrow. Hover
+   and focus follow the shared rule (label and arrow turn Canary Yellow; no
+   fill change). Yellow on the white Dark fill is only 1.07:1, so the
+   button keeps Light's thin black outline (--canary-halo) in both themes. */
+.button.button--primary {
+  justify-content: center;
+  min-width: 10rem;
+  min-height: 44px;
+  background: var(--selected-bg);
+  border: 1px solid var(--selected-bg);
+  color: var(--selected-ink);
+  font-weight: 500;
+  --canary-halo: 0.5px 0 #000, -0.5px 0 #000, 0 0.5px #000, 0 -0.5px #000,
+    0.5px 0.5px #000, -0.5px 0.5px #000, 0.5px -0.5px #000, -0.5px -0.5px #000;
+  --canary-halo-icon: drop-shadow(0 0 0.6px #000) drop-shadow(0 0 0.6px #000) drop-shadow(0 0 0.6px #000);
+}
+.button--primary .button__icon { transition: transform 0.2s ease, filter 0.15s ease; }
+.button--primary:focus-visible .button__icon { transform: translate(3px, -3px); }
+@media (hover: hover) {
+  .button--primary:hover .button__icon { transform: translate(3px, -3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .button--primary .button__icon { transition: none; transform: none !important; }
 }
 
 /* Mobile: one column; the split tile puts its text above the visual. */
