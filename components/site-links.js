@@ -14,7 +14,9 @@
 window.CA_SITE_LINKS = {
   // Menu drop-down, top to bottom. loggedOut: only shown when logged out;
   // a logged-in user gets the Dashboard group (below) in their place.
+  // Home ("./", the root) comes first here and in the Dashboard group.
   menu: [
+    { label: "Home", href: "./" },
     { label: "Our process", href: "#our-process" },
     { label: "How it works", href: "#how-it-works" },
     { label: "Why us", href: "#why-us" },
@@ -27,13 +29,13 @@ window.CA_SITE_LINKS = {
     { label: "Glossary", href: "learn/glossary/" }
   ],
 
-  // The menu's Dashboard group when logged in (site-header.js). All three
-  // show for everyone; plans the user doesn't have get a lock and the
-  // plan's name, and lead to that dashboard's paywall.
+  // The menu's Dashboard group when logged in (site-header.js). An entry
+  // with a tier shows only to members on that tier or higher.
   dashboards: [
-    { label: "Free dashboard", href: "dashboard/", tier: "free" },
-    { label: "Pro dashboard", href: "dashboard/pro/", tier: "pro" },
-    { label: "Enterprise dashboard", href: "dashboard/enterprise/", tier: "enterprise" }
+    { label: "Home", href: "./" },
+    { label: "Dashboard", href: "dashboard/" },
+    { label: "Bespoke reports", href: "dashboard/enterprise/", tier: "enterprise" },
+    { label: "Account", href: "account/" }
   ],
 
   footer: {

@@ -1,7 +1,9 @@
 /*
- * Enterprise dashboard: "Your custom reports". The access panel, then one
- * card per custom report order with a progress bar, a stage tracker and
- * the stage history. Stages come from report-stages.config.js.
+ * Enterprise dashboard: "Your bespoke reports". This month's allowance
+ * (3 a billing month, no carry-over) with the request form, then one card
+ * per report order with a progress bar, a stage tracker and the stage
+ * history. Stages come from report-stages.config.js. A request uses one of
+ * the month's reports and its card appears at the top of the list.
  *
  *   CA_DASH_REPORTS.mount(container, { contact: "../../contact/" })
  *
@@ -33,33 +35,97 @@ window.CA_DASH_REPORTS = (function () {
   function mount(container, opts) {
     var api = window.CA_DASH_API;
     var o = opts || {};
-    return Promise.all([api.getReportStages(), api.getReports(), api.getReportAccess()]).then(function (res) {
-      var stages = res[0], reports = res[1], access = res[2];
+    return Promise.all([api.getReportStages(), api.getReports(), api.getAllowance()]).then(function (res) {
+      var stages = res[0], reports = res[1];
       var lastUpdate = 0;
 
       container.innerHTML =
         '<div class="rep-top">' +
-          '<h2 class="dash-section__title" id="reports-title">Your custom reports</h2>' +
+          '<h2 class="dash-section__title" id="reports-title">Your bespoke reports</h2>' +
           '<p class="rep-live" aria-hidden="true"><span class="rep-live__dot"></span>Live<span class="rep-live__ago"></span></p>' +
         "</div>" +
-        (access ? '<div class="rep-access">' +
-          '<p class="rep-access__main"><span class="dash-label">Full platform access</span>' +
-            '<span class="rep-access__until">Until ' + UI.date(access.until) + "</span>" +
-            '<span class="rep-access__days">' + access.daysLeft + (access.daysLeft === 1 ? " day" : " days") + " remaining</span></p>" +
-          '<p class="rep-access__note">Each custom report includes 1 month of full platform access. ' +
-            "Your " + access.reports + " reports add a month each, counted from your first order.</p>" +
-          UI.cta(o.contact || "../../contact/", "Order another report", "rep-access__cta") +
-        "</div>" : "") +
+        '<div class="rep-access"></div>' +
+        '<p class="rep-empty dash-muted"' + (reports.length ? " hidden" : "") + ">No bespoke reports yet.</p>" +
         '<div class="rep-list"></div>' +
         '<p class="dash-sr" aria-live="polite" data-rep-announce></p>';
 
       var list = container.querySelector(".rep-list");
       var announce = container.querySelector("[data-rep-announce]");
       var agoEl = container.querySelector(".rep-live__ago");
+      var panel = container.querySelector(".rep-access");
 
-      reports.forEach(function (r) {
+      /* ---- This month's allowance and the request form ---- */
+      var draft = { reportFor: "", notes: "" };
+      function showAllowance(a, focusForm) {
+        if (!a) {
+          panel.innerHTML = '<p class="rep-access__main"><span class="dash-label">Bespoke reports</span>' +
+            '<span class="rep-access__until">Part of Enterprise</span></p>' +
+            '<p class="rep-access__note">Enterprise includes 3 bespoke reports every billing month.</p>' +
+            UI.cta(o.account || "../../account/", "See your plan", "rep-access__cta");
+          return;
+        }
+        var resets = UI.date(a.resetsAt);
+        var when = a.renews ? "Resets " + resets : "Your plan ends " + UI.date(a.periodEnd);
+        panel.innerHTML =
+          '<p class="rep-access__main"><span class="dash-label">Bespoke reports this month</span>' +
+            '<span class="rep-access__until">' + a.left + " of " + a.limit + " reports left this month</span>" +
+            '<span class="rep-access__days">' + when + "</span></p>" +
+          (a.left > 0
+            ? '<form class="rep-request" novalidate>' +
+                '<div class="field"><label class="field__label" for="rep-for">Token or project</label>' +
+                  '<input class="field__input" id="rep-for" name="reportFor" maxlength="100" autocomplete="off" required aria-describedby="rep-for-error">' +
+                  '<p class="field__error" id="rep-for-error" aria-live="polite"></p></div>' +
+                '<div class="field"><label class="field__label" for="rep-notes">Notes (optional)</label>' +
+                  '<textarea class="field__input rep-request__notes" id="rep-notes" name="notes" maxlength="500" rows="3" placeholder="What should the report focus on?"></textarea></div>' +
+                '<div class="form__actions"><button type="submit" class="form__submit" data-busy="Sending&hellip;">Request report</button>' +
+                  '<p class="form__status" role="status" aria-live="polite"></p></div>' +
+                '<p class="rep-access__note">Each request uses one of this month&rsquo;s reports. Unused reports don&rsquo;t carry over.</p>' +
+              "</form>"
+            : '<p class="rep-access__note">You&rsquo;ve used all ' + a.limit + " of this month&rsquo;s reports. " +
+              (a.renews ? "Your allowance resets on " + resets + "." : "Your plan ends on " + UI.date(a.periodEnd) + ", so there are no more reports this period.") + "</p>");
+        var form = panel.querySelector(".rep-request");
+        if (!form) return;
+        form.elements.reportFor.value = draft.reportFor;
+        form.elements.notes.value = draft.notes;
+        form.addEventListener("input", function () { draft.reportFor = form.elements.reportFor.value; draft.notes = form.elements.notes.value; });
+        if (focusForm) form.elements.reportFor.focus();
+        form.addEventListener("submit", function (e) {
+          e.preventDefault();
+          var btn = form.querySelector("[type=submit]"), status = form.querySelector(".form__status"), err = form.querySelector("#rep-for-error");
+          var forWhat = form.elements.reportFor.value.trim();
+          err.textContent = ""; status.textContent = ""; status.classList.remove("is-error");
+          if (forWhat.length < 2) {
+            err.textContent = "Name the token or project the report is for.";
+            form.elements.reportFor.setAttribute("aria-invalid", "true");
+            form.elements.reportFor.closest(".field").classList.add("is-invalid");
+            form.elements.reportFor.focus();
+            return;
+          }
+          form.elements.reportFor.removeAttribute("aria-invalid");
+          form.elements.reportFor.closest(".field").classList.remove("is-invalid");
+          var label = btn.textContent;
+          btn.disabled = true; btn.setAttribute("aria-busy", "true"); btn.textContent = "Sending…";
+          api.requestReport(forWhat, form.elements.notes.value.trim()).then(function (res) {
+            draft = { reportFor: "", notes: "" };
+            container.querySelector(".rep-empty").hidden = true;
+            addReport(res.order, true);
+            showAllowance(res.allowance);
+            announce.textContent = "Report requested: " + res.order.token.name + ", order " + res.order.id + ". " +
+              (res.allowance ? res.allowance.left + " of " + res.allowance.limit + " reports left this month." : "");
+          }, function (e2) {
+            btn.disabled = false; btn.removeAttribute("aria-busy"); btn.textContent = label;
+            status.classList.add("is-error");
+            status.textContent = e2.message;
+            // The month's reports ran out meanwhile (another tab): show it.
+            if (e2.code === "allowance_used") api.getAllowance().then(function () {}, function () {});
+          });
+        });
+      }
+      showAllowance(res[2]);
+
+      function addReport(r, first) {
         var card = build(r);
-        list.appendChild(card.el);
+        if (first) list.insertBefore(card.el, list.firstChild); else list.appendChild(card.el);
         var prev = null;
         api.subscribeToReportProgress(r.id, function (next) {
           if (next.updatedAt) lastUpdate = Math.max(lastUpdate, Date.parse(next.updatedAt));
@@ -71,7 +137,9 @@ window.CA_DASH_REPORTS = (function () {
           }
           prev = next;
         });
-      });
+        if (first) card.update(r, null);
+      }
+      reports.forEach(function (r) { addReport(r, false); });
 
       // "Updated 4s ago": the time of the newest update, ticking each second.
       function showAgo() {
@@ -134,10 +202,12 @@ window.CA_DASH_REPORTS = (function () {
             return;
           }
           var f = rep.files || {};
+          // Only the links the pipeline recorded (report_url); otherwise the
+          // report is emailed.
           actions.innerHTML =
-            '<a class="button button--ghost dash-cta" href="' + esc(f.pdf || "#") + '"><span>Download PDF<span class="dash-sr"> for ' + esc(rep.token.name) + "</span></span>" + DOWNLOAD + "</a>" +
-            '<a class="button button--ghost dash-cta" href="' + esc(f.docx || "#") + '"><span>Download DOCX<span class="dash-sr"> for ' + esc(rep.token.name) + "</span></span>" + DOWNLOAD + "</a>" +
-            UI.cta(f.view || "#", "View report<span class=\"dash-sr\"> for " + esc(rep.token.name) + "</span>") +
+            (f.pdf ? '<a class="button button--ghost dash-cta" href="' + esc(f.pdf) + '"><span>Download PDF<span class="dash-sr"> for ' + esc(rep.token.name) + "</span></span>" + DOWNLOAD + "</a>" : "") +
+            (f.docx ? '<a class="button button--ghost dash-cta" href="' + esc(f.docx) + '"><span>Download DOCX<span class="dash-sr"> for ' + esc(rep.token.name) + "</span></span>" + DOWNLOAD + "</a>" : "") +
+            (f.view ? UI.cta(f.view, "View report<span class=\"dash-sr\"> for " + esc(rep.token.name) + "</span>") : '<p class="rep__wait">Delivered by email.</p>') +
             (justDelivered ? '<span class="rep__flash" aria-hidden="true">Report delivered</span>' : "");
         }
 

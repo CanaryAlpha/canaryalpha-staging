@@ -150,7 +150,7 @@
     if (window.CA_SITE && window.CA_SITE.productionMode) on = false; // not on the public site
     if (!on || !thisScript) return;
     var s = document.createElement("script");
-    s.src = new URL("components/font-panel.js?v=3", thisScript).href;
+    s.src = new URL("components/font-panel.js?v=4", thisScript).href;
     document.head.appendChild(s);
   })();
 

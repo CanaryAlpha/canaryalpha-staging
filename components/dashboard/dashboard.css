@@ -173,6 +173,14 @@ select.dash-select {
   background-size: 5px 5px;
   background-repeat: no-repeat;
 }
+/* Hover and keyboard focus: the arrow turns Canary Yellow with the text
+   (styles.css, "Button hover"), drawn as a small triangle image with the
+   Light theme's thin black edge (--canary-halo-arrow), in the same place
+   as the CSS arrow above. */
+@media (hover: hover) {
+  select.dash-select:hover:not(:disabled) { background-image: var(--canary-halo-arrow); background-position: calc(100% - 9.5px) 52%; background-size: 11px 6px; }
+}
+select.dash-select:focus-visible { background-image: var(--canary-halo-arrow); background-position: calc(100% - 9.5px) 52%; background-size: 11px 6px; }
 .dash-select option { color: #000; background: #fff; }
 .dash-input { padding-right: 0.75rem; width: 100%; }
 .dash-icon-btn {
@@ -202,7 +210,6 @@ select.dash-select {
   color: var(--muted);
   background: transparent;
 }
-.dash-seg__btn:hover { color: var(--ink); }
 .dash-seg__btn[aria-pressed="true"] { background: var(--selected-bg); color: var(--selected-ink); }
 .dash-columns { position: relative; }
 .dash-columns.is-inactive { visibility: hidden; }
@@ -232,11 +239,43 @@ select.dash-select {
   .dash-controls > .dash-field { flex: 1 1 9rem; }
   .dash-field--sort .dash-select { flex: 1; min-width: 0; }
   .dash-search { max-width: none; flex-basis: 100%; }
+  .dash-controls > .dash-order { flex-basis: 100%; }
 }
 
 /* ---- Cards ---------------------------------------------------------------- */
-.dash-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: 1rem; }
-.dash-assets--cards:not(.dash-assets--pro) .dash-cards { grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); }
+/* Two card views (dashboard-assets.js), both with large cards (.dash-big):
+   Cards, every card in a grid (two a row at full width, one on a phone);
+   Carousel, one card centred, the cards either side turned away and faded. */
+.dash-cards--grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(30rem, 100%), 1fr)); gap: 1.5rem; }
+.dash-carousel { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 0.5rem; }
+.dash-carousel .dash-cards {
+  display: flex; gap: 1.5rem;
+  overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x mandatory; scrollbar-width: none;
+  padding: 1.5rem calc(50% - min(48rem, 100%) / 2);
+  perspective: 1400px;
+}
+.dash-carousel .dash-cards::-webkit-scrollbar { display: none; }
+.dash-carousel .dash-cards:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; border-radius: 6px; }
+.dash-carousel .dash-card {
+  flex: 0 0 min(48rem, 100%);
+  scroll-snap-align: center;
+  transform: rotateY(calc(var(--off, 0) * -32deg)) scale(calc(1 - var(--abs, 0) * 0.12));
+  opacity: calc(1 - var(--abs, 0) * 0.8);
+  background: var(--ground);
+}
+.dash-carousel__btn {
+  width: 44px; height: 44px; border: 1px solid var(--rule); border-radius: 50%;
+  background: var(--ground); color: var(--ink); font: inherit; font-size: 1.5rem; line-height: 1; cursor: pointer;
+}
+.dash-carousel__btn:disabled { opacity: 0.35; cursor: default; }
+.dash-carousel__count { grid-column: 1 / -1; margin: 0; text-align: center; color: var(--muted); font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+@media (max-width: 599px) {
+  .dash-carousel { grid-template-columns: minmax(0, 1fr); }
+  .dash-carousel__btn { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dash-carousel .dash-card { transform: none; }
+}
 .dash-card {
   position: relative;
   display: grid;
@@ -249,6 +288,17 @@ select.dash-select {
 }
 .dash-assets:not(.dash-assets--pro) .dash-card { height: 20.5rem; }
 .dash-card--pro { height: 25.5rem; }
+.dash-big .dash-card, .dash-assets:not(.dash-assets--pro) .dash-big .dash-card { height: auto; min-height: 24rem; padding: 2rem; }
+.dash-big .dash-card__name { font-size: 1.5rem; }
+.dash-big .dash-card__price { font-size: 2.5rem; }
+.dash-big .dash-card__spark .dash-spark { flex: 1 1 auto; width: 100%; height: 64px; }
+.dash-big .dash-card__stats { grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 1.25rem 2.5rem; margin-top: 1.75rem; }
+/* Each stat stacks, label above value, so a long value never runs into
+   its label. */
+.dash-big .dash-card__stats div { flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 0.375rem; font-size: 0.9375rem; }
+.dash-big .dash-card__stats dd { justify-content: flex-start; font-size: 1.0625rem; }
+.dash-big .dash-card__stats .dash-verdict { text-align: left; }
+.dash-big .dash-card__report { margin-top: 1.5rem; }
 .dash-card:hover { border-color: var(--muted); }
 .dash-card__head { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
 .dash-card__name { margin: 0; font-size: 1.125rem; font-weight: 400; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -267,7 +317,11 @@ select.dash-select {
 .dash-card__stats dt { white-space: nowrap; }
 .dash-card__stats dt { color: var(--muted); }
 .dash-card__stats dd { margin: 0; display: flex; gap: 0.5rem; align-items: baseline; white-space: nowrap; }
-.dash-card__report { position: relative; z-index: 1; justify-self: start; }
+/* A long verdict ("Staged DCA — core holding, no holder economics") wraps
+   inside its card instead of running into the next one. */
+.dash-card__stats dd { min-width: 0; justify-content: flex-end; }
+.dash-card__stats .dash-verdict { white-space: normal; overflow: visible; text-align: right; line-height: 1.3; border-radius: 0.75rem; }
+.dash-card__report { position: relative; z-index: 1; justify-self: center; }
 .dash-spark { display: block; flex: none; }
 .dash-spark polyline { fill: none; stroke-width: 1.75; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .dash-spark--up polyline { stroke: var(--success); }
@@ -356,9 +410,46 @@ select.dash-select {
   text-transform: inherit;
   cursor: pointer;
 }
-.dash-sort:hover, th[aria-sort] .dash-sort { color: var(--ink); }
+th[aria-sort] .dash-sort { color: var(--ink); }
 .dash-sort__icon { font-size: 0.75rem; }
 .dash-empty { margin: 0; padding: 2rem 0; color: var(--muted); }
+
+/* ---- Custom order (Pro, Enterprise; dashboard-assets.js) ------------------
+   "Custom order" and, while arranging, Done and Reset to default sit in the
+   control bar. Each card or row gets a bar: the drag handle (touch-action
+   none, so a finger drags instead of scrolling), its position, and Move up /
+   Move down (44px targets). Links rest while arranging. Grid rows all take
+   the tallest card's height, so a card moved to another row changes no
+   row's height; the dragged item rides above the others. */
+.dash-order__btn { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0 0.875rem; cursor: pointer; white-space: nowrap; }
+.dash-order__done { font-weight: 600; }
+.dash-order__btn[hidden] { display: none; }
+.dash-order .dash-field__row { flex-wrap: wrap; gap: 0.5rem; }
+.dash-order__bar { display: flex; align-items: center; gap: 0.25rem; }
+.dash-order__bar svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dash-order__handle, .dash-order__move {
+  display: inline-grid; place-items: center;
+  width: 44px; height: 44px; min-width: 44px; padding: 0;
+  border: 1px solid var(--rule); border-radius: 4px;
+  background: transparent; color: var(--ink);
+}
+.dash-order__handle { cursor: grab; touch-action: none; }
+.dash-assets.is-dragging, .dash-assets.is-dragging * { cursor: grabbing; user-select: none; -webkit-user-select: none; }
+.dash-order__move:disabled { opacity: 0.35; cursor: default; }
+.dash-order__pos { margin: 0 auto 0 0.5rem; color: var(--muted); font-size: 0.875rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dash-card .dash-order__bar { margin: -0.5rem 0 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid var(--rule); }
+.dash-assets.is-ordering .dash-cards--grid { grid-auto-rows: 1fr; }
+.dash-assets.is-ordering a { pointer-events: none; }
+.dash-assets.is-ordering .dash-row { cursor: default; }
+.dash-assets [data-id].is-dragging { position: relative; z-index: 5; background: var(--ground); box-shadow: 0 10px 30px rgb(0 0 0 / 0.2); }
+.dash-col--order { width: 1%; white-space: nowrap; }
+.dash-col--order .dash-order__pos { display: none; }
+@media (max-width: 767px) {
+  .dash-assets--list .dash-row > .dash-col--order { grid-column: 1 / -1; grid-row: 1; justify-content: flex-start; }
+  .dash-assets--list .dash-row > .dash-col--order::before { content: none; }
+  .dash-assets--list .dash-row > .dash-col--order .dash-order__pos { display: inline; }
+  .dash-assets--list.is-ordering .dash-row > .dash-col--name, .dash-assets--list.is-ordering .dash-row > .dash-col--price { grid-row: 2; }
+}
 
 /* Phones: each table row becomes a compact stacked block. */
 @media (max-width: 767px) {
@@ -560,7 +651,13 @@ path[class*="dash-rainbow__band--"] { opacity: 0.32; }
   border: 1px solid var(--rule);
   border-radius: 6px;
 }
-@media (min-width: 900px) { .rep-access { grid-template-columns: auto minmax(0, 1fr) auto; } }
+/* The allowance on the left, the request form beside it from 900px. */
+@media (min-width: 900px) { .rep-access { grid-template-columns: minmax(14rem, 1fr) minmax(0, 2fr); align-items: start; } }
+.rep-request { display: grid; gap: 1rem; max-width: 40rem; }
+.rep-request .field__error:empty { display: none; }
+.rep-request__notes { min-height: 5.5rem; padding-top: 0.625rem; padding-bottom: 0.625rem; resize: vertical; font: inherit; }
+.rep-request .form__actions { margin-top: 0; }
+.rep-request .form__status.is-error { color: var(--danger); }
 .rep-access__main { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.125rem 0.75rem; }
 .rep-access__main .dash-label { flex-basis: 100%; }
 .rep-access__until { font-size: 1.25rem; }
@@ -692,3 +789,19 @@ path[class*="dash-rainbow__band--"] { opacity: 0.32; }
   .rep.is-live .rep__fill { transition: none; }
   .rep__flash { animation-duration: 0.01s; animation-delay: 4s; }
 }
+
+/* ---- Live data additions (item 404) ---------------------------------------- */
+/* A researched token the Free plan hides: same size as a real card or row,
+   so nothing shifts; no name, no data. */
+.dash-card--locked { color: var(--muted); }
+.dash-card--locked .dash-card__name { color: var(--muted); }
+.dash-lock { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.dash-row--locked { color: var(--muted); cursor: default; }
+.dash-row--locked .dash-row__link { pointer-events: none; }
+/* Source credits and per-panel source lines. */
+.dash-sources { margin: 2.5rem 0 0; font-size: 0.8125rem; line-height: 1.5; }
+.dash-sources a, .dash-fg__source a { color: inherit; text-underline-offset: 0.15em; }
+.dash-etf__source, .dash-fg__source { margin: 0.5rem 0 0; font-size: 0.8125rem; }
+/* Enterprise: no orders yet. */
+.rep-empty { margin: 0.5rem 0 1rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.25rem 1rem; }
+.rep-empty[hidden] { display: none; }

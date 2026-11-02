@@ -6,8 +6,8 @@
  *   - <html data-production> is set, so CSS can hide [data-demo-only] and
  *     show [data-production-only] (styles.css, "Production mode").
  *   - A page marked <html data-page="dev"> (design and test pages) sends the
- *     visitor to the home page; <html data-page="account"> (Log in and the
- *     dashboards) sends them to signup/, which shows "Accounts open soon".
+ *     visitor to the home page; <html data-page="account"> (members' pages)
+ *     sends them to signup/ while accounts are off (CA_SITE.accounts).
  *
  * CA_SITE.root is the site root, worked out from this file's address, so the
  * same code works at canaryalpha.co/ and on a GitHub Pages project address.
@@ -21,6 +21,6 @@
   var html = document.documentElement;
   html.setAttribute("data-production", "");
   var page = html.getAttribute("data-page");
-  var to = page === "dev" ? site.root : page === "account" ? site.root + "signup/" : null;
+  var to = page === "dev" ? site.root : page === "account" && !site.accounts ? site.root + "signup/" : null;
   if (to) location.replace(to);
 })();

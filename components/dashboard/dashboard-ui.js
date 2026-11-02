@@ -34,6 +34,10 @@ window.CA_DASH_UI = (function () {
   }
 
   /* ---- Numbers ----------------------------------------------------------- */
+  // A value a source didn't supply: a dash, never a made-up number.
+  var NA = '<span class="dash-muted" title="Not available">—</span>';
+  function missing(v) { return v == null || !isFinite(v); }
+
   function group(value, decimals) {
     return value.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
   }
@@ -42,6 +46,7 @@ window.CA_DASH_UI = (function () {
   // shows at least 4 decimals and always 2 significant figures, so tiny
   // prices and tiny changes still mean something.
   function price(v) {
+    if (missing(v)) return NA;
     var a = Math.abs(v), s = v < 0 ? MINUS : "";
     if (a === 0) return "$0.00";
     if (a >= 0.99995) return s + "$" + group(a, 2);
@@ -51,6 +56,7 @@ window.CA_DASH_UI = (function () {
   function signedPrice(v) { return (v > 0 ? "+" : "") + price(v); }
   // $1.96T, $436.02B, $640.0M
   function usd(v) {
+    if (missing(v)) return NA;
     var a = Math.abs(v), s = v < 0 ? MINUS : "";
     if (a >= 1e12) return s + "$" + (a / 1e12).toFixed(2) + "T";
     if (a >= 1e9) return s + "$" + (a / 1e9).toFixed(2) + "B";
@@ -79,6 +85,7 @@ window.CA_DASH_UI = (function () {
   // "+3.62%" with an arrow, coloured by direction. The sign and arrow carry
   // the meaning for anyone who can't see the colour.
   function change(v, opts) {
+    if (missing(v)) return NA;
     var o = opts || {};
     var dir = direction(v);
     var arrow = dir === "up" ? "▲" : dir === "down" ? "▼" : "–";
@@ -91,6 +98,7 @@ window.CA_DASH_UI = (function () {
   // opts.stack puts the dollar on top and the % below in smaller text
   // (list view); opts.big for the card headline.
   function changeUsd(usdValue, pctValue, kind, opts) {
+    if (missing(pctValue) || missing(usdValue)) return NA;
     var o = opts || {};
     var dir = direction(pctValue);
     var arrow = '<span class="dash-change__arrow" aria-hidden="true">' + (dir === "up" ? "▲" : dir === "down" ? "▼" : "–") + "</span>";
@@ -106,6 +114,7 @@ window.CA_DASH_UI = (function () {
   /* ---- Charts ------------------------------------------------------------ */
   // 7-day sparkline: fixed size, coloured by the week's direction.
   function sparkline(values, w, h) {
+    if (!values || values.length < 2) return '<span class="dash-muted" style="display:inline-block;width:' + (w || 120) + 'px">—</span>';
     var W = w || 120, H = h || 36, min = Math.min.apply(null, values), max = Math.max.apply(null, values);
     var span = max - min || 1;
     var pts = values.map(function (v, i) {
@@ -146,6 +155,8 @@ window.CA_DASH_UI = (function () {
   // ETF flows: latest day, 7-day and 30-day totals, and the last 14 days as
   // bars above (inflow) or below (outflow) a zero line.
   function etfPanel(e) {
+    if (!e || !e.days || !e.days.length) return "";
+    var disagree = e.days.slice(-14).filter(function (d) { return d.disagree; }).length;
     var days = e.days.slice(-14), W = 224, H = 72, gap = 4, bw = (W - gap * 13) / 14;
     var max = Math.max.apply(null, days.map(function (d) { return Math.abs(d.netFlow); })) || 1;
     var mid = H / 2;
@@ -165,6 +176,9 @@ window.CA_DASH_UI = (function () {
       '<svg class="dash-etf__chart" viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" role="img" aria-label="' + esc(summary) + '">' +
         '<line class="dash-etf__zero" x1="0" x2="' + W + '" y1="' + mid + '" y2="' + mid + '"/>' + bars + "</svg>" +
       '<p class="dash-etf__legend"><span class="dash-key dash-key--in"></span>Inflow <span class="dash-key dash-key--out"></span>Outflow</p>' +
+      // Median of the sources each day; days where they differ are flagged.
+      '<p class="dash-etf__source dash-muted">' + (e.sources.length > 1 ? "Median of " + e.sources.map(esc).join(" and ") : "Source: " + esc(e.sources[0] || "")) +
+        (disagree ? ". Sources differ on " + disagree + " of these days." : ".") + "</p>" +
       "</div>";
   }
   function flow(v, big) {
@@ -185,6 +199,9 @@ window.CA_DASH_UI = (function () {
         '<p class="dash-fg__now"><span class="dash-fg__value">' + fg.value + '</span><span class="dash-fg__label">' + esc(fg.label) + "</span></p></div>" +
       '<dl class="dash-fg__history">' + past("Yesterday", fg.yesterday) + past("Last week", fg.lastWeek) + past("Last month", fg.lastMonth) + "</dl>" +
       summary("fearGreed", { value: fg.value }, fg.label) +
+      // alternative.me asks for its credit right next to the index.
+      '<p class="dash-fg__source dash-muted">Source: <a href="https://alternative.me/crypto/fear-and-greed-index/" rel="noopener" target="_blank">alternative.me</a>' +
+        (fg.crossCheck ? " (CoinMarketCap&rsquo;s index: " + fg.crossCheck.value + ")" : "") + "</p>" +
       "</div>";
   }
 
@@ -192,13 +209,17 @@ window.CA_DASH_UI = (function () {
   function marketStrip(container) {
     var api = window.CA_DASH_API;
     return Promise.all([api.getFearGreed(), api.getEtfFlows()]).then(function (r) {
-      var b7 = r[1].btc.total7d, e7 = r[1].eth.total7d;
+      var fg = r[0], etf = r[1] || {};
+      var btc = etf.btc && etf.btc.days.length ? etf.btc : null, eth = etf.eth && etf.eth.days.length ? etf.eth : null;
+      var b7 = btc ? btc.total7d : 0, e7 = eth ? eth.total7d : 0;
       var flows = b7 >= 0 && e7 >= 0 ? "in" : b7 < 0 && e7 < 0 ? "out" : "mixed";
+      // A panel whose sources are all down is left out, never filled in.
       container.innerHTML =
-        '<div class="dash-strip__item">' + fearGreedPanel(r[0]) + "</div>" +
-        '<div class="dash-strip__item"><h3 class="dash-panel-title">Spot ETF flows' + explain("etf-flows") + '</h3><div class="dash-etfs">' +
-          etfPanel(r[1].btc) + etfPanel(r[1].eth) + "</div>" +
-          summary("etfFlows", { btcDir: b7 >= 0 ? "inflows" : "outflows", ethDir: e7 >= 0 ? "inflows" : "outflows" }, flows) + "</div>";
+        (fg ? '<div class="dash-strip__item">' + fearGreedPanel(fg) + "</div>" : "") +
+        (btc || eth ? '<div class="dash-strip__item"><h3 class="dash-panel-title">Spot ETF flows' + explain("etf-flows") + '</h3><div class="dash-etfs">' +
+          etfPanel(btc) + etfPanel(eth) + "</div>" +
+          (btc && eth ? summary("etfFlows", { btcDir: b7 >= 0 ? "inflows" : "outflows", ethDir: e7 >= 0 ? "inflows" : "outflows" }, flows) : "") + "</div>" : "");
+      container.hidden = !fg && !btc && !eth;
     });
   }
 
@@ -235,11 +256,17 @@ window.CA_DASH_UI = (function () {
       '" alt="' + esc(alt || "") + '" decoding="async"></picture>';
   }
 
-  // "Sample data · Last updated ..." line for the top of each page.
+  // "Last updated ..." line for the top of each page, and the data
+  // sources' credits at the foot of the page (some sources require them).
   function sampleNote(container) {
     return window.CA_DASH_API.getMeta().then(function (m) {
-      container.innerHTML = (m.sample ? '<span class="dash-sample">Sample data</span>' : "") +
-        '<span>Last updated <time datetime="' + esc(m.lastUpdated) + '">' + dateTime(m.lastUpdated) + "</time></span>";
+      container.innerHTML = m.lastUpdated ? '<span>Prices updated <time datetime="' + esc(m.lastUpdated) + '">' + dateTime(m.lastUpdated) + "</time></span>" : "";
+      var main = container.closest("main");
+      if (main && m.attribution.length && !main.querySelector(".dash-sources")) {
+        main.insertAdjacentHTML("beforeend", '<p class="dash-sources dash-muted">Market data: ' +
+          m.attribution.map(function (a) { return '<a href="' + esc(a.url) + '" rel="noopener" target="_blank">' + esc(a.name) + "</a>"; }).join(", ") +
+          ". Scores, verdicts and reports: Canary Alpha Research. Not investment advice.</p>");
+      }
     });
   }
 

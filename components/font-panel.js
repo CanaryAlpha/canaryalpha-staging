@@ -223,7 +223,6 @@
     ".fp{position:fixed;right:1rem;bottom:4.5rem;z-index:60;font:13px/1.35 system-ui,-apple-system,\"Segoe UI\",Roboto,Arial,sans-serif;color:var(--ink);letter-spacing:0;font-weight:400}",
     ".fp *{box-sizing:border-box}",
     ".fp button,.fp select{font:inherit;color:inherit;min-height:32px;min-width:0;padding:0 .5rem;border:1px solid var(--rule);border-radius:4px;background:var(--ground);cursor:pointer}",
-    ".fp button:hover{background:var(--rule)}",
     ".fp :focus-visible{outline:2px solid var(--ink);outline-offset:1px}",
     ".fp__toggle{display:block;margin-left:auto;width:44px;height:44px;border-radius:50% !important;font-size:16px !important;font-weight:700 !important;box-shadow:0 2px 8px rgba(0,0,0,.15)}",
     ".fp__box{position:absolute;right:0;bottom:52px;width:min(20.5rem,calc(100vw - 2rem));max-height:calc(100vh - 9rem);overflow:auto;padding:.6rem .7rem .7rem;border:1px solid var(--rule);border-radius:8px;background:var(--ground);box-shadow:0 8px 28px rgba(0,0,0,.18)}",

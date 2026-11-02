@@ -8,3 +8,9 @@
 
 # Brand build fonts (SIL OFL, downloaded; see brand/build_logo.py)
 brand/fonts/
+
+# Server dependencies (npm install); Vercel installs its own
+node_modules/
+
+# Vercel CLI link
+.vercel/

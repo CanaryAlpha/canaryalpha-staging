@@ -38,7 +38,7 @@
       var tf = v.y === "score" ? "h24" : v.y;
       var ys = assets.map(function (a) { return v.y === "score" ? a.canaryScore : a.priceChange[v.y]; });
       var y;
-      if (v.y === "score") y = B.linearScale(20, 80, box.h - m.b - rMax * 0.5, m.t + rMax * 0.5);
+      if (v.y === "score") y = B.linearScale(0, 10, box.h - m.b - rMax * 0.5, m.t + rMax * 0.5);
       else {
         var span = Math.max.apply(null, ys.map(Math.abs)) * 1.15 || 1;
         y = B.linearScale(-span, span, box.h - m.b - rMax * 0.5, m.t + rMax * 0.5);

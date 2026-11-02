@@ -63,6 +63,26 @@
    logo is the same height in Satoshi and in the fallback. */
 :root {
   --font-logo: "Satoshi", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  /* Canary Yellow: the hover colour of every button and the logo, and the
+     login / sign-up panel. The same in both themes. #0A0A0A on it is
+     16.6:1, #000000 17.6:1; it is 16.6:1 on #0A0A0A and 1.07:1 on white. */
+  --canary: #FFEF00;
+  /* Light theme: a thin black outline keeps yellow text readable on white
+     (none in Dark, below). Text: a text-shadow (not -webkit-text-stroke,
+     which thins the letters), 0.5px in eight directions: one device pixel
+     on high-density screens, a soft dark edge on 1x ones. A 1px outline
+     made 15-16px labels look bold and filled the letters' insides. Icons
+     (SVG): three 0.6px drop-shadows, the same weight. The dashboard
+     drop-downs' arrow (dashboard.css) is a yellow triangle with a 0.5px
+     black edge. Used by the logo and "Button hover" rules. */
+  --canary-halo: 0.5px 0 #000, -0.5px 0 #000, 0 0.5px #000, 0 -0.5px #000,
+    0.5px 0.5px #000, -0.5px 0.5px #000, 0.5px -0.5px #000, -0.5px -0.5px #000;
+  --canary-halo-icon: drop-shadow(0 0 0.6px #000) drop-shadow(0 0 0.6px #000) drop-shadow(0 0 0.6px #000);
+  --canary-halo-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'%3E%3Cpath d='M.5.5h10l-5 5z' fill='%23FFEF00' stroke='%23000' stroke-linejoin='round' paint-order='stroke'/%3E%3C/svg%3E");
+}
+:root[data-theme="dark"] { --canary-halo: none; --canary-halo-icon: none; --canary-halo-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'%3E%3Cpath d='M.5.5h10l-5 5z' fill='%23FFEF00'/%3E%3C/svg%3E"); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) { --canary-halo: none; --canary-halo-icon: none; --canary-halo-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'%3E%3Cpath d='M.5.5h10l-5 5z' fill='%23FFEF00'/%3E%3C/svg%3E"); }
 }
 .ca-logo {
   --logo-cap: 0.67rem;
@@ -93,6 +113,28 @@
   height: max(1px, calc(var(--logo-cap) * 0.094));
   background: currentColor;
   visibility: hidden;
+}
+/* Logo hover and keyboard focus (header and footer): the wordmark turns
+   Canary Yellow, in both themes, the same as every button (see "Button
+   hover" below), with the thin black outline in Light (--canary-halo).
+   No highlight or underline; the focus outline stays. */
+.site-header__brand .ca-logo,
+.site-footer__home .ca-logo { transition: color 0.15s ease, text-shadow 0.15s ease; }
+.site-header__brand .ca-logo__alpha,
+.site-footer__home .ca-logo__alpha { transition: filter 0.15s ease; }
+@media (hover: hover) {
+  .site-header__brand:hover .ca-logo,
+  .site-footer__home:hover .ca-logo { color: var(--canary); text-shadow: var(--canary-halo); }
+  .site-header__brand:hover .ca-logo__alpha,
+  .site-footer__home:hover .ca-logo__alpha { filter: var(--canary-halo-icon); }
+}
+.site-header__brand:focus-visible .ca-logo,
+.site-footer__home:focus-visible .ca-logo { color: var(--canary); text-shadow: var(--canary-halo); }
+.site-header__brand:focus-visible .ca-logo__alpha,
+.site-footer__home:focus-visible .ca-logo__alpha { filter: var(--canary-halo-icon); }
+@media (prefers-reduced-motion: reduce) {
+  .site-header__brand .ca-logo, .site-footer__home .ca-logo,
+  .site-header__brand .ca-logo__alpha, .site-footer__home .ca-logo__alpha { transition: none; }
 }
 
 /* Display heading: used by the Section 1 slogan (.hero__title); the
@@ -203,29 +245,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
-/* Text-only hero (the homepage): the slogan and supporting text stack in
-   normal flow, centred across and down the one screen, clear of the
-   scroll-down arrow. The supporting text is capped at ~70 characters a line
-   so it doesn't run too wide. */
-.hero.hero--text {
-  height: auto;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(1rem, 3vh, 2rem);
-  padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) var(--arrow-clear);
-}
-.hero--text .hero__title,
-.hero--text .hero__text {
-  position: static;
-  margin-inline: auto;
-  text-align: center;
-  text-shadow: none;
-}
-.hero--text .hero__text { max-width: min(36em, 100%); }
-
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
   position: absolute;
@@ -240,7 +259,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   border-radius: 50%;
   color: var(--muted);
 }
-.scroll-hint:hover { color: var(--ink); }
 
 /* Placeholder content sections. Anchored links stop below the fixed bar. */
 .content {
@@ -408,7 +426,8 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   padding-left: 0;
 }
 
-/* Link buttons reuse the site's button rule (`button, .button` above). */
+/* Link buttons reuse the site's button rule (`button, .button` above).
+   The label and arrow stay on one line; the button grows to fit. */
 .button.button {
   display: inline-flex;
   align-items: center;
@@ -417,34 +436,33 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   text-decoration: none;
   font-size: 1rem;
   padding: 0 1.25rem;
+  white-space: nowrap;
 }
 .button__icon { flex: none; }
 
 /* The site's one link-button style (every "Sign up", "Learn more", plan
-   button): no frame or fill, one fixed size whatever the label, label and
-   arrow in --ink. Hover and keyboard focus: they shift to --muted (dark
-   grey in Light, light grey in Dark) over 0.2s, and the arrow slides up
-   and to the right. Hover only on devices that can hover, so a tap never
-   leaves a button stuck "hovered". Reduced motion: colour change only.
+   button): no frame or fill, label and arrow in --ink, at least 10rem wide
+   so short labels line up, wider when the label needs it (never wrapping).
+   Hover and keyboard focus: Canary Yellow (the shared "Button hover" rule
+   at the end of the file), and the arrow slides up and to the right. Hover
+   only on devices that can hover, so a tap never leaves a button stuck
+   "hovered". Reduced motion: colour change only.
    .button.button--ghost so it wins over the base rule later in the file. */
 .button.button--ghost {
   justify-content: flex-start;
-  width: 10rem;
+  width: auto;
+  min-width: 10rem;
   min-height: 44px;
   background: transparent;
   border: 1px solid transparent;
   color: var(--ink);
-  transition: color 0.2s ease;
 }
-.button--ghost .button__icon { transition: transform 0.2s ease; }
-.button.button--ghost:focus-visible { color: var(--muted); }
+.button--ghost .button__icon { transition: transform 0.2s ease, filter 0.15s ease; }
 .button--ghost:focus-visible .button__icon { transform: translate(3px, -3px); }
 @media (hover: hover) {
-  .button.button--ghost:hover { color: var(--muted); }
   .button--ghost:hover .button__icon { transform: translate(3px, -3px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .button.button--ghost { transition: none; }
   .button--ghost .button__icon { transition: none; transform: none !important; }
 }
 
@@ -762,7 +780,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   line-height: 1.2;
   letter-spacing: 0;
 }
-.plan__alt { margin: 0.5rem 0 0; color: var(--muted); font-size: 1rem; }
 .plan__desc {
   margin: 1.25rem 0 0;
   max-width: min(26rem, 100%);
@@ -794,18 +811,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   gap: 0.875rem;
   align-items: center;
 }
-/* Fine print under a feature list (Enterprise): muted, smaller, on the
-   features' left edge. */
-.plan__fine {
-  list-style: none;
-  margin: 1.5rem 0 0;
-  padding: 0;
-  display: grid;
-  gap: 0.5rem;
-  color: var(--muted);
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
 /* Line icons: one size and stroke for all. */
 .plan__icon {
   width: 24px;
@@ -827,6 +832,9 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   justify-self: end;
   justify-content: flex-end;
 }
+/* "Coming soon. Join the list" (paid plans closed, components/paid-plans.js)
+   is longer than the usual label, so the button takes its width. */
+.button.plan__cta--soon { width: auto; white-space: nowrap; }
 
 /* Tablet: info and features side by side, button below the info. */
 @media (max-width: 1023px) {
@@ -936,7 +944,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 /* As tall as a column heading, so the logo lines up with them. */
 .site-footer__home { display: inline-flex; align-items: center; height: 1.3125rem; color: var(--ink) !important; text-decoration: none; }
 .site-footer__logo { --logo-cap: 0.67rem; }
-.site-footer__home:hover .ca-logo::after { visibility: visible; }
 .site-footer__tagline { margin-top: 0.25rem !important; max-width: 16rem; }
 /* Columns side by side, each as wide as it needs up to an even share. */
 .site-footer__nav {
@@ -1065,7 +1072,7 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   border: 1px solid var(--rule);
   border-radius: 999px;
   color: var(--muted);
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition: color 0.15s ease, text-shadow 0.15s ease;
 }
 .glossary__chip.glossary__chip[aria-pressed="true"] { background: var(--selected-bg); border-color: var(--selected-bg); color: var(--selected-ink); }
 .glossary__bar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0.25rem 1rem; margin-top: 1rem; }
@@ -1143,8 +1150,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 .glossary__empty { margin: 2.5rem 0 0; color: var(--muted); }
 /* Hover only where a pointer can hover, so a tap never leaves it stuck. */
 @media (hover: hover) {
-  .glossary__chip.glossary__chip:hover { color: var(--ink); border-color: var(--ink); }
-  .glossary__chip.glossary__chip[aria-pressed="true"]:hover { color: var(--selected-ink); border-color: var(--selected-bg); }
   .glossary__letters a:hover { text-decoration: underline; text-underline-offset: 0.15em; }
   .glossary__permalink:hover { color: var(--ink); }
 }
@@ -1292,7 +1297,6 @@ button.form__submit {
   color: var(--selected-ink);
   border: 1px solid var(--selected-bg);
 }
-button.form__submit:hover { background: var(--muted); border-color: var(--muted); }
 button.form__submit[aria-busy="true"] { cursor: progress; background: var(--muted); border-color: var(--muted); }
 .form__status { margin: 0; font-size: 0.9375rem; }
 .form__status:empty { display: none; }
@@ -1313,7 +1317,6 @@ button.form__submit[aria-busy="true"] { cursor: progress; background: var(--mute
   color: var(--muted);
   font-size: 0.875rem;
 }
-.field__pw-toggle:hover { color: var(--ink); }
 .field__pw-toggle:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; }
 .form__links { margin: 0; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.25rem 1rem; font-size: 0.9375rem; }
 .form__links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-underline-offset: 0.15em; }
@@ -1370,14 +1373,13 @@ button.form__submit[aria-busy="true"] { cursor: progress; background: var(--mute
   color: var(--ink);
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0s linear 0.2s;
+  transition: opacity 0.2s ease, visibility 0s linear 0.2s, color 0.15s ease, text-shadow 0.15s ease;
 }
 .back-to-top.is-visible {
   opacity: 1;
   visibility: visible;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s ease, color 0.15s ease, text-shadow 0.15s ease;
 }
-.back-to-top:hover { background: var(--rule); }
 
 button,
 .button {
@@ -1407,7 +1409,6 @@ button,
 }
 
 .themes button { color: var(--muted); }
-.themes button:hover { color: var(--ink); }
 
 /* ---- Access (demo auth: components/auth.js, auth-gate.js) ----------------- */
 /* <main> stays hidden until the access check is done, so locked content
@@ -1452,3 +1453,56 @@ html:not([data-production]) [data-production-only] { display: none !important; }
    paywall's. */
 .form-page__cta { margin: 1.75rem 0 0; }
 .form-page .button.button--ghost { width: auto; padding: 0 0.25rem 0 0; white-space: nowrap; }
+
+/* ---- Button hover (every button on the site) ------------------------------
+   Hover and keyboard focus turn a button's label and icon (icons draw in
+   currentColor) Canary Yellow, in both themes, over 0.15s. In Light the
+   label and icons also get a thin black outline (--canary-halo, above),
+   which takes no space. Nothing else changes: no fill, underline, border
+   or size. The focus outline stays.
+   This is the only hover rule for buttons: a button's own CSS sets its
+   resting colours only. "Buttons" are every <button>, every .button link,
+   the dashboard drop-downs, the menu's links, the members' action links,
+   the Learn tier links and the homepage scroll arrow. Not included: Clerk's
+   own controls (class "cl-..."), styled through its appearance settings,
+   and the Canary panel on login/ and signup/, drawn for yellow
+   (components/members/members.css). The logo has its own rule above. */
+/* No weight (:where), so a button with its own transition list keeps it
+   (and lists color and text-shadow 0.15s itself: .back-to-top, the menu
+   links, glossary chips; the arrow icon, .button__icon, lists filter). */
+:where(:is(button, .button, select.dash-select, .members__button, .members__link,
+  .site-header__links a, .learn-tierbar a, .scroll-hint):not(.auth-panel *, [class*="cl-"])) {
+  transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+:where(:is(button, .button, .members__button, .members__link,
+  .site-header__links a, .learn-tierbar a, .scroll-hint):not(.auth-panel *, [class*="cl-"])) svg {
+  transition: filter 0.15s ease;
+}
+@media (hover: hover) {
+  :is(button, .button, select.dash-select, .members__button, .members__link,
+    .site-header__links a, .learn-tierbar a, .scroll-hint):not(.auth-panel *, [class*="cl-"]):not(:disabled, [aria-disabled="true"]):hover {
+    color: var(--canary);
+    text-shadow: var(--canary-halo);
+  }
+  :is(button, .button, .members__button, .members__link,
+    .site-header__links a, .learn-tierbar a, .scroll-hint):not(.auth-panel *, [class*="cl-"]):not(:disabled, [aria-disabled="true"]):hover svg {
+    filter: var(--canary-halo-icon);
+  }
+}
+:is(button, .button, select.dash-select, .members__button, .members__link,
+  .site-header__links a, .learn-tierbar a, .scroll-hint):not(.auth-panel *, [class*="cl-"]):focus-visible {
+  color: var(--canary);
+  text-shadow: var(--canary-halo);
+}
+:is(button, .button, .members__button, .members__link,
+  .site-header__links a, .learn-tierbar a, .scroll-hint):not(.auth-panel *, [class*="cl-"]):focus-visible svg {
+  filter: var(--canary-halo-icon);
+}
+@media (prefers-reduced-motion: reduce) {
+  :is(button, .button, select.dash-select, .members__button, .members__link,
+    .site-header__links a, .learn-tierbar a, .scroll-hint):not(.auth-panel *, [class*="cl-"]),
+  :is(button, .button, .members__button, .members__link,
+    .site-header__links a, .learn-tierbar a, .scroll-hint):not(.auth-panel *, [class*="cl-"]) svg {
+    transition: none !important;
+  }
+}

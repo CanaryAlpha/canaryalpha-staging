@@ -1,0 +1,163 @@
+/*
+ * Members' pages: login/ and signup/ (Clerk's forms), account/, and the
+ * dashboard (dashboard/, dashboard/report/, dashboard/enterprise/). Theme
+ * tokens from styles.css, so Light and Dark both work; the verdict colours
+ * come from components/dashboard/dashboard.css. Same look as the rest of
+ * the site: no panels, sections divided by thin rules.
+ */
+
+/* ---- Clerk's forms --------------------------------------------------------- */
+.form-page--clerk .form { margin-top: 1.5rem; }
+.clerk-slot { margin-top: 1.5rem; min-height: 6rem; }
+.clerk-slot__note { margin: 0; color: var(--muted); }
+.clerk-slot__note a { color: var(--ink); text-underline-offset: 0.15em; }
+/* Clerk's own look is set in clerk-forms.js (appearance): no card frame. */
+/* ---- The Canary panel (login/ and signup/) ----------------------------------
+   Clerk's sign-in form and our sign-up form sit on a Canary Yellow panel
+   that looks the same in both themes. Inside it the theme tokens are
+   pinned to fixed colours, so every control is drawn for yellow whatever
+   the site theme. Contrast on #FFEF00: #0A0A0A text 16.6:1, #3D3D3D muted
+   text 9.1:1, #A30000 errors 6.9:1; #FFEF00 on the #0A0A0A button 16.6:1
+   (dimmed on #4A4A4A while disabled);
+   white inputs with a #0A0A0A border (19.8:1 against white, 16.6:1 against
+   the yellow). Clerk's own colours are set in clerk-forms.js to match. */
+.auth-panel {
+  --ink: #0A0A0A;
+  --muted: #3D3D3D;
+  --rule: #0A0A0A;
+  --ground: #FFEF00;
+  --selected-bg: #0A0A0A;
+  --selected-ink: #FFEF00;
+  --danger: #A30000;
+  --success: #0A5C2A;
+  max-width: 30rem;
+  margin: 2rem auto 0;
+  padding: clamp(1.25rem, 5vw, 2rem);
+  border-radius: 12px;
+  background: var(--canary);
+  color: var(--ink);
+}
+.auth-panel .clerk-slot { margin-top: 0; min-height: 6rem; }
+.auth-panel .consent-form { margin: 0 0 1.5rem; }
+.auth-panel .field__input { background: #ffffff; border-color: #0A0A0A; color: #0A0A0A; }
+.auth-panel .field__pw-toggle.field__pw-toggle { color: #3D3D3D; }
+.auth-panel .field__pw-toggle:hover { color: #0A0A0A; }
+.auth-panel :focus-visible { outline-color: #0A0A0A; }
+.auth-panel a { color: #0A0A0A; }
+.auth-panel button.form__submit { background: #0A0A0A; border-color: #0A0A0A; color: #FFEF00; }
+.auth-panel button.form__submit:hover:not(:disabled) { background: #333333; border-color: #333333; }
+.auth-panel button.form__submit:disabled { cursor: not-allowed; background: #4A4A4A; border-color: #4A4A4A; opacity: 0.85; color: #FFEF00; }
+.auth-panel .form__hint { margin: 0; color: #3D3D3D; font-size: 0.9375rem; }
+.auth-panel .form__hint[hidden] { display: none; }
+/* The panel sits under the heading; the switch link stays outside it,
+   in the page's own colours. */
+.form-page--panel .form__switch { text-align: center; }
+
+/* Our sign-up form (signup-form.js): the site's form fields; the two
+   name fields side by side where there is room. */
+.clerk-slot .form--signup { margin-top: 0; }
+.form__row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(12rem, 100%), 1fr)); gap: 1.25rem; }
+#clerk-captcha:empty { display: none; }
+.clerk-slot--profile { min-height: 10rem; overflow-x: auto; }
+
+/* ---- Page frame ------------------------------------------------------------- */
+.members {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: calc(var(--site-header-h, 0px) + clamp(2rem, 5vw, 3.5rem)) 1rem clamp(3rem, 8vw, 6rem);
+  line-height: 1.5;
+}
+.members--report { max-width: 46rem; }
+.members__head { margin-bottom: 1.5rem; }
+.members__title { margin: 0; font-weight: 400; font-size: var(--section-title-size); line-height: 1.1; letter-spacing: -0.01em; overflow-wrap: anywhere; }
+.members__sub { margin: 0.75rem 0 0; color: var(--muted); }
+.members__sub a, .members__muted a, .members__notice a { color: var(--ink); text-underline-offset: 0.15em; }
+.members__section { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
+.members__h2 { margin: 0 0 0.75rem; font-family: var(--font-heading); font-weight: 500; font-size: 1.25rem; }
+.members__muted { margin: 0.5rem 0 0; color: var(--muted); }
+.members__notice { margin: 0 0 1.5rem; padding: 0.75rem 1rem; border: 1px solid var(--rule); border-radius: 6px; }
+.members__error { margin: 0.75rem 0 0; color: var(--danger); }
+.members__error:empty { display: none; }
+.members__back { margin: 0 0 1rem; }
+.members__back a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-underline-offset: 0.15em; }
+
+/* One action button: a plain outlined button (link or <button>). */
+.members__button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+}
+.members__button:disabled { opacity: 0.6; cursor: progress; }
+.members__link { min-height: 44px; padding: 0; border: 0; background: none; color: var(--ink); font: inherit; text-decoration: underline; text-underline-offset: 0.15em; cursor: pointer; }
+
+/* ---- Verdict label ---------------------------------------------------------- */
+.verdict { font-weight: 600; font-size: 0.875rem; letter-spacing: 0.02em; text-transform: uppercase; }
+.verdict--deploy { color: var(--dash-v-deploy); }
+.verdict--hold { color: var(--dash-v-hold); }
+.verdict--watch { color: var(--dash-v-watch); }
+.verdict--avoid { color: var(--dash-v-avoid); }
+
+/* ---- Report list (dashboard/) ------------------------------------------------ */
+.reports { list-style: none; margin: 0; padding: 0; }
+.reports__item { padding: 1.25rem 0; border-bottom: 1px solid var(--rule); }
+.reports__item:first-child { padding-top: 0.25rem; }
+.reports__top { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 0.25rem 1rem; }
+.reports__name { margin: 0; font-family: var(--font-heading); font-weight: 500; font-size: 1.25rem; }
+.reports__name a { color: var(--ink); text-underline-offset: 0.15em; }
+.reports__ticker { color: var(--muted); font-weight: 400; font-size: 0.875em; }
+.reports__rating { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 0.75rem; }
+.reports__score { font-variant-numeric: tabular-nums; font-weight: 600; }
+.reports__risk { color: var(--muted); font-size: 0.9375rem; }
+.reports__thesis { margin: 0.5rem 0 0; }
+.reports__meta { margin: 0.375rem 0 0; color: var(--muted); font-size: 0.875rem; }
+.reports__open, .reports__lock { margin: 0.5rem 0 0; }
+.reports__open a, .reports__lock a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-underline-offset: 0.15em; }
+.reports__lock { color: var(--muted); font-size: 0.9375rem; }
+.is-locked .reports__thesis { color: var(--muted); }
+
+/* ---- One report (dashboard/report/) ---------------------------------------- */
+.report__head .reports__rating { margin-top: 0.75rem; }
+.report__thesis { margin: 1rem 0 0; font-size: 1.125rem; }
+.report__doc { overflow-wrap: anywhere; }
+.report__doc h2, .report__doc h3, .report__doc h4, .report__doc h5, .report__doc h6 { font-family: var(--font-heading); font-weight: 500; line-height: 1.25; margin: 1.75em 0 0.5em; }
+.report__doc h2 { font-size: 1.5rem; }
+.report__doc h3 { font-size: 1.25rem; }
+.report__doc h4, .report__doc h5, .report__doc h6 { font-size: 1.0625rem; }
+.report__doc p, .report__doc ul, .report__doc ol { margin: 0.75em 0; }
+.report__doc hr { border: 0; border-top: 1px solid var(--rule); margin: 2rem 0; }
+.report__doc a { color: var(--ink); text-underline-offset: 0.15em; }
+.report__doc code { font-size: 0.9em; }
+.md-table { overflow-x: auto; margin: 1rem 0; }
+.md-table table { border-collapse: collapse; font-size: 0.9375rem; font-variant-numeric: tabular-nums; }
+.md-table th, .md-table td { padding: 0.375rem 0.75rem 0.375rem 0; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.md-table th { font-weight: 600; }
+.report__more { border-bottom: 1px solid var(--rule); }
+.report__more summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-weight: 500; }
+.report__more .report__doc { padding-bottom: 1rem; }
+.report__files { margin: 0; padding-left: 1.25rem; }
+.report__files a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink); text-underline-offset: 0.15em; }
+.report__locked p { margin: 0.5rem 0 0; }
+.report__disclaimer { margin: 2.5rem 0 0; color: var(--muted); font-size: 0.875rem; }
+.report__disclaimer a { color: var(--ink); text-underline-offset: 0.15em; }
+
+/* ---- Custom-report orders (dashboard/enterprise/) --------------------------- */
+.orders { list-style: none; margin: 0 0 1.25rem; padding: 0; }
+.orders__item { padding: 0.875rem 0; border-bottom: 1px solid var(--rule); }
+.orders__what { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+.orders__meta { margin: 0.25rem 0 0; color: var(--muted); font-size: 0.9375rem; }
+
+/* ---- Account (account/) ----------------------------------------------------- */
+.account__plan { margin: 0 0 0.5rem; }
+.account__badge { display: inline-block; padding: 0 0.625rem; border-radius: 999px; background: var(--selected-bg); color: var(--selected-ink); font-size: 0.875rem; }
+.account__offer { margin-top: 1.25rem; }
+.account__offer-title { margin: 0; font-weight: 600; }
+.account__buttons { display: flex; flex-wrap: wrap; gap: 0.5rem 0.75rem; }

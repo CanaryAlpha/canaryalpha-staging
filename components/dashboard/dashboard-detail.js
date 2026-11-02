@@ -110,6 +110,7 @@ window.CA_DASH_DETAIL = (function () {
   }
 
   function indicators(a, ind) {
+    if (ind && (!ind.puell || !ind.rainbow || !a.price)) return partialIndicators(a, ind);
     if (!ind) {
       return section("ind-title", "Indicators",
         '<div class="dash-indicators"><div class="dash-indicator"><h3 class="dash-panel-title">Puell Multiple' + UI.explain("puell-multiple") + '</h3><p class="dash-note">Bitcoin-only indicator.</p></div>' +
@@ -128,15 +129,33 @@ window.CA_DASH_DETAIL = (function () {
             ind.puell.bands.map(function (b, i, all) {
               var from = i ? all[i - 1].max : 0;
               return esc(b.label) + " " + (b.max == null ? "above " + from : (i ? from + "–" : "below ") + b.max);
-            }).join(", ") + ".</p>" + puellChart(ind.puell) + "</div>" +
+            }).join(", ") + ". " + esc(ind.puell.note) + " (block data: mempool.space; prices: Bitstamp and Kraken).</p>" + puellChart(ind.puell) + "</div>" +
         '<div class="dash-indicator dash-indicator--wide"><h3 class="dash-panel-title">Bitcoin Rainbow Price Chart' + UI.explain("rainbow-chart") + "</h3>" +
           UI.summary("rainbow", { band: rb.band }, bandAt < mid ? "below" : bandAt > mid ? "above" : "on") +
           '<p class="dash-indicator__value"><span class="dash-label">Current band</span><span class="dash-status">' + esc(rb.band) + "</span></p>" +
           '<div class="dash-rainbow__wrap">' + rb.svg + rb.legend + "</div>" +
+          '<p class="dash-note">Our own chart: bands around a log-regression line we fit to Bitcoin&rsquo;s monthly closes since ' + esc(ind.rainbow.monthly[0].month.slice(0, 4)) +
+            " (prices: " + ind.rainbow.sources.map(esc).join(" and ") + ").</p>" +
           '<p class="dash-note dash-rainbow__note"><span aria-hidden="true">*</span><a href="' + DISCLAIMER + '">Not investment advice</a>. ' +
             "The Rainbow Chart is a long-term visualization for educational and entertainment purposes. It has no predictive power, and past performance " +
             "does not guarantee future results.</p></div>" +
       "</div>");
+  }
+
+  // Bitcoin, with one of the two indicators unavailable: show the other.
+  function partialIndicators(a, ind) {
+    var parts = [];
+    if (ind.puell) parts.push('<div class="dash-indicator"><h3 class="dash-panel-title">Puell Multiple' + UI.explain("puell-multiple") + "</h3>" +
+      '<p class="dash-indicator__value"><span class="dash-big">' + ind.puell.value.toFixed(2) + '</span><span class="dash-status dash-status--' +
+      ind.puell.status.toLowerCase() + '">' + esc(ind.puell.status) + "</span></p>" + puellChart(ind.puell) + "</div>");
+    if (ind.rainbow && a.price) {
+      var rb = rainbowChart(ind.rainbow, a.price);
+      parts.push('<div class="dash-indicator dash-indicator--wide"><h3 class="dash-panel-title">Bitcoin Rainbow Price Chart' + UI.explain("rainbow-chart") + "</h3>" +
+        '<div class="dash-rainbow__wrap">' + rb.svg + rb.legend + "</div>" +
+        '<p class="dash-note dash-rainbow__note"><span aria-hidden="true">*</span><a href="' + DISCLAIMER + '">Not investment advice</a>. ' +
+        "The Rainbow Chart is a long-term visualization for educational and entertainment purposes. It has no predictive power, and past performance does not guarantee future results.</p></div>");
+    }
+    return parts.length ? section("ind-title", "Indicators", '<div class="dash-indicators">' + parts.join("") + "</div>") : "";
   }
 
   /* ---- Page ------------------------------------------------------------ */
@@ -147,58 +166,61 @@ window.CA_DASH_DETAIL = (function () {
       o.pro ? api.getProDetail(id) : Promise.resolve(null)]).then(function (r) {
       var a = r[0], news = r[1], exchanges = r[2], ind = r[3], proData = r[4];
       if (!a) {
+        // The server sends nothing for a token this plan doesn't include,
+        // the same as for one that doesn't exist.
         container.innerHTML = '<p class="dash-back"><a href="' + o.back + '">← ' + esc(o.backLabel) + "</a></p>" +
-          '<h1 class="dash-title">Asset not found</h1><p class="dash-sub">There is no asset called “' + esc(id) + "” in the sample data.</p>";
+          '<h1 class="dash-title">Not available on your plan</h1><p class="dash-sub">This asset isn&rsquo;t part of your plan, or we don&rsquo;t cover it. ' +
+          "Pro includes every token we research.</p>";
         return;
       }
+      var mk = !!a.market;
       document.title = a.name + " (" + a.ticker + ") — Canary Alpha Research";
-      var fromAth = (a.price / a.ath.price - 1) * 100, fromAtl = (a.price / a.atl.price - 1) * 100;
+      var fromAth = mk && a.ath ? (a.price / a.ath.price - 1) * 100 : null, fromAtl = mk && a.atl ? (a.price / a.atl.price - 1) * 100 : null;
       var html =
         '<p class="dash-back"><a href="' + o.back + '">← ' + esc(o.backLabel) + "</a></p>" +
         '<header class="dash-head dash-head--asset">' + UI.logo(a, "lg") +
           '<div><h1 class="dash-title">' + esc(a.name) + ' <span class="dash-title__ticker">' + esc(a.ticker) + "</span></h1>" +
           '<p class="dash-meta" data-sample-note></p></div>' +
-          (o.pro ? '<p class="dash-head__score"><span class="dash-label">Canary score' + UI.explain("canary-score") + '</span><span class="dash-head__total"><span class="dash-big">' + a.canaryScore +
-            '</span> <span class="dash-muted">/ 80</span></span> <span class="dash-head__verdict">' + window.CA_DASH_ASSETS.verdictTag(a.verdict) +
-            UI.explain("verdict-" + a.verdict.toLowerCase().replace(/[^a-z]+/g, "-"), "Verdict: " + a.verdict) + "</span></p>" : "") +
+          (o.pro ? '<p class="dash-head__score"><span class="dash-label">Canary score' + UI.explain("canary-score") + '</span><span class="dash-head__total"><span class="dash-big">' +
+            window.CA_DASH_ASSETS.score(a) + '</span></span> <span class="dash-head__verdict">' + window.CA_DASH_ASSETS.verdictTag(a.verdict) +
+            UI.explain("verdict", "Verdict: " + a.verdict) + "</span></p>" : "") +
           (L ? '<div class="dash-field dash-field--mode"><span class="dash-field__label">Explanations</span>' + L.modeToggle() + "</div>" : "") +
         "</header>" +
         (L ? L.assetTakeaways(a) : "") +
-        (o.pro ? UI.summary("score", { name: a.name, score: a.canaryScore }, a.verdict) : "") +
-        section("price-title", "Price" + UI.explain("price-change"), UI.summary("price", { name: a.name, day: moved(a.priceChange.h24), week: moved(a.priceChange.d7) }) +
+        (mk ? section("price-title", "Price" + UI.explain("price-change"), UI.summary("price", { name: a.name, day: moved(a.priceChange.h24), week: moved(a.priceChange.d7) }) +
           '<p class="dash-big dash-big--price">' + UI.price(a.price) + "</p>" + changeRow(a.priceChange, a.priceChangeUsd, "price", ["h1", "h24", "d7", "d30", "d90", "y1"])) +
         section("cap-title", "Market cap" + UI.explain("market-cap"), UI.summary("marketCap", { name: a.name, cap: UI.usd(a.marketCap) }) +
           '<p class="dash-big">' + UI.usd(a.marketCap) + "</p>" + changeRow(a.marketCapChange, a.marketCapChangeUsd, "compact", ["h24", "d7", "d30", "d90", "y1"])) +
         section("vol-title", "Volume" + UI.explain("volume"), UI.summary("volume", { name: a.name, volume: UI.usd(a.volume24h) }, volCase(a)) +
-          '<p class="dash-big">' + UI.usd(a.volume24h) + ' <span class="dash-muted">24h</span></p>' + changeRow(a.volumeChange, a.volumeChangeUsd, "compact", ["h24", "d7", "d30", "d90", "y1"])) +
-        section("ath-title", "All-time high and low" + UI.explain("ath-atl"),
-          UI.summary("athAtl", { name: a.name, fromAth: Math.abs(fromAth).toFixed(0) + "%", athDate: monthYear(a.ath.date) }) +
+          '<p class="dash-big">' + UI.usd(a.volume24h) + ' <span class="dash-muted">24h</span></p>' + changeRow(a.volumeChange, a.volumeChangeUsd, "compact", ["h24", "d7", "d30", "d90", "y1"])) : "") +
+        (mk && (a.ath || a.atl) ? section("ath-title", "All-time high and low" + UI.explain("ath-atl"),
+          (a.ath ? UI.summary("athAtl", { name: a.name, fromAth: Math.abs(fromAth).toFixed(0) + "%", athDate: monthYear(a.ath.date) }) : "") +
           '<dl class="dash-extremes">' +
-            '<div><dt class="dash-panel-title">All-time high</dt><dd><span class="dash-big">' + UI.price(a.ath.price) + '</span><span class="dash-muted">' +
-              UI.date(a.ath.date) + "</span>" + UI.change(fromAth) + ' <span class="dash-muted">from now</span></dd></div>' +
-            '<div><dt class="dash-panel-title">All-time low</dt><dd><span class="dash-big">' + UI.price(a.atl.price) + '</span><span class="dash-muted">' +
-              UI.date(a.atl.date) + "</span>" + UI.change(fromAtl, { decimals: fromAtl > 10000 ? 0 : 2 }) + ' <span class="dash-muted">from now</span></dd></div>' +
-          "</dl>") +
+            (a.ath ? '<div><dt class="dash-panel-title">All-time high</dt><dd><span class="dash-big">' + UI.price(a.ath.price) + '</span><span class="dash-muted">' +
+              UI.date(a.ath.date) + "</span>" + UI.change(fromAth) + ' <span class="dash-muted">from now</span></dd></div>' : "") +
+            (a.atl ? '<div><dt class="dash-panel-title">All-time low</dt><dd><span class="dash-big">' + UI.price(a.atl.price) + '</span><span class="dash-muted">' +
+              UI.date(a.atl.date) + "</span>" + UI.change(fromAtl, { decimals: fromAtl > 10000 ? 0 : 2 }) + ' <span class="dash-muted">from now</span></dd></div>' : "") +
+          "</dl>" + '<p class="dash-note">Sources: ' + ((a.ath && a.ath.sources) || (a.atl && a.atl.sources) || []).map(esc).join(" and ") + ".</p>") : "") +
         indicators(a, ind) +
-        section("info-title", "Key information",
-          '<p class="dash-about">' + esc(a.about) + "</p>" +
-          '<p class="dash-links">' + link(a.website, "Official website") + link(a.whitepaper, "Whitepaper") + "</p>" +
-          '<h3 class="dash-panel-title">Recent news</h3><ul class="dash-news">' + news.slice(0, 5).map(function (n) {
-            return '<li><a href="' + esc(n.url) + '">' + esc(n.headline) + '</a><span class="dash-muted"><time datetime="' + n.date + '">' +
+        (a.about || a.website || a.whitepaper || news.length ? section("info-title", "Key information",
+          (a.about ? '<p class="dash-about">' + esc(a.about) + "</p>" : "") +
+          (a.website || a.whitepaper ? '<p class="dash-links">' + (a.website ? link(a.website, "Official website") : "") + (a.whitepaper ? link(a.whitepaper, "Whitepaper") : "") + "</p>" : "") +
+          (news.length ? '<h3 class="dash-panel-title">Recent news</h3><ul class="dash-news">' + news.slice(0, 5).map(function (n) {
+            return '<li><a href="' + esc(n.url) + '" rel="noopener" target="_blank">' + esc(n.headline) + '</a><span class="dash-muted"><time datetime="' + n.date + '">' +
               UI.date(n.date) + "</time> · " + esc(n.source) + "</span></li>";
-          }).join("") + "</ul>") +
-        section("ex-title", "Top 10 exchanges",
+          }).join("") + "</ul>" : "")) : "") +
+        (exchanges.length ? section("ex-title", "Top 10 exchanges",
           UI.summary("exchanges", { name: a.name }) +
           '<div class="dash-table-wrap"><table class="dash-table dash-table--simple"><thead><tr><th scope="col" class="is-num">#</th><th scope="col">Exchange</th>' +
           '<th scope="col">Pair</th><th scope="col"><span class="dash-sr">Link</span></th></tr></thead><tbody>' +
           exchanges.map(function (x) {
             return '<tr><td class="is-num">' + x.rank + '</td><th scope="row">' + esc(x.exchange) + "</th><td>" + esc(x.pair) +
-              '</td><td>' + UI.cta(x.url, 'Visit<span class="dash-sr"> ' + esc(x.exchange) + "</span>") + "</td></tr>";
+              '</td><td>' + (x.url ? UI.cta(x.url, 'Visit<span class="dash-sr"> ' + esc(x.exchange) + " (opens in a new tab)</span>", "", ' rel="noopener nofollow" target="_blank"') : "") + "</td></tr>";
           }).join("") + "</tbody></table></div>" +
-          '<p class="dash-note">Listed for convenience. Not an endorsement or financial advice.</p>') +
+          '<p class="dash-note">Listed for convenience. Not an endorsement or financial advice. Ranked by 24-hour trading volume on spot markets rated trustworthy by CoinGecko or CoinPaprika.</p>') : "") +
         (proData ? proSections(a, proData) : "") +
         (L ? L.learnAbout(a) : "") +
-        '<p class="dash-report">' + UI.cta("#", "Read the full report") + "</p>";
+        '<p class="dash-report">' + UI.cta(window.CA_DASH_ASSETS.reportHref(a), "Read the full report") + "</p>";
       container.innerHTML = html;
       UI.sampleNote(container.querySelector("[data-sample-note]"));
     });

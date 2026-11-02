@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- STAGING build of f2f3923a59083b56857bedb98c77543b8af871e7 (tools/build-staging.py) -->
+  <!-- STAGING build of d3920e7ed1f71422b8faac519f7b4c2d0ee0ff35 (tools/build-staging.py) -->
   <meta name="robots" content="noindex, nofollow">
-  <meta name="ca-staging-build" content="f2f3923a59083b56857bedb98c77543b8af871e7">
+  <meta name="ca-staging-build" content="d3920e7ed1f71422b8faac519f7b4c2d0ee0ff35">
   <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -31,20 +31,17 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
-  <link rel="stylesheet" href="styles.css?v=68">
-  <link rel="stylesheet" href="components/site-header.css?v=43">
+  <link rel="stylesheet" href="styles.css?v=70">
+  <link rel="stylesheet" href="components/site-header.css?v=45">
   <!-- Old hero globe, unused; to bring it back, restore these two tags and the
        globe markup and scripts below, and remove the hero-visuals ones.
   <link rel="stylesheet" href="components/dotted-globe.css?v=34"> -->
-  <!-- Hero animations, unused: the hero is text only. To bring one back,
-       restore this tag, the hero__stage markup and the hero-visuals scripts
-       below, and remove the hero--text class from the hero.
-  <link rel="stylesheet" href="components/hero-visuals.css?v=4"> -->
+  <link rel="stylesheet" href="components/hero-visuals.css?v=4">
   <link rel="stylesheet" href="components/feature-visuals.css?v=12">
-  <link rel="stylesheet" href="components/learn/learn.css?v=2">
+  <link rel="stylesheet" href="components/learn/learn.css?v=4">
   <!-- Site settings and production mode: load first. -->
-  <script src="components/site.config.js?v=2"></script>
-  <script src="components/site-mode.js?v=1"></script>
+  <script src="components/site.config.js?v=3"></script>
+  <script src="components/site-mode.js?v=2"></script>
   <!-- Applies a saved theme before first paint (no flash). -->
   <script>
     (function () {
@@ -112,18 +109,18 @@
     },
     {
       "@type": "Question",
-      "name": "Can I cancel Pro anytime?",
+      "name": "Can I cancel Pro or Enterprise anytime?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes. Cancel anytime and you keep access until the end of the period you’ve paid for. Monthly plans aren’t refundable. On a yearly plan, you can get a refund for the full months you haven’t used if you ask within 30 days of purchase or renewal. See our Terms of Service."
+        "text": "Yes. Cancel Pro or Enterprise anytime and you keep access until the end of the period you’ve paid for. Monthly plans aren’t refundable. On a yearly plan, you can get a refund for the full months you haven’t used if you ask within 30 days of purchase or renewal. See our Terms of Service."
       }
     },
     {
       "@type": "Question",
-      "name": "How do custom reports work?",
+      "name": "How do bespoke reports work?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Custom reports are a one-time payment. Your report is delivered in 2–3 business days, it’s yours to keep, and it includes one month of full platform access."
+        "text": "Enterprise includes 3 bespoke reports every billing month, on monthly and yearly plans alike. Request one from your dashboard: name the token or project and add notes. Each report takes 2–3 business days, and your dashboard shows its progress and estimated delivery. Unused reports don’t carry over to the next month."
       }
     },
     {
@@ -139,7 +136,7 @@
       "name": "Do you hold the tokens you research?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Sometimes. Canary Alpha Research and its founder may hold tokens we research. We disclose whether we hold a token, never how much, right after the report on it is published, on the report and on our Company Holdings page. We don't buy or sell a token for 48 hours after publishing a report on it, so readers can act on the research first. Holding a token is not a recommendation to buy it."
+        "text": "Sometimes. Canary Alpha Research and its founder may hold tokens we research. When we publish a report on a token we hold, we disclose that we hold it, on the report and on our Company Holdings page. For our safety, we never disclose amounts. We also update that page when we close a position. We don't buy or sell a token for 48 hours after publishing a report on it, so readers see the research before we trade. Holding a token is not a recommendation to buy it."
       }
     },
     {
@@ -153,30 +150,30 @@
   ]
 }
   </script>
-  <!-- Demo login (DEMO ONLY, see components/auth.js). -->
-  <script src="components/auth.config.js?v=1"></script>
-  <script src="components/auth.js?v=2"></script>
+  <!-- Accounts (Clerk), see components/auth.js. -->
+  <script src="components/auth.js?v=3"></script>
 </head>
 <body>
-  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build f2f3923 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build d3920e7 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
   <header class="site-header" data-site-header data-home="#top" data-root=""></header>
-  <script src="components/site-links.js?v=8"></script>
-  <script src="components/site-header.js?v=42"></script>
+  <script src="components/site-links.js?v=10"></script>
+  <script src="components/site-header.js?v=43"></script>
   <main>
-    <!-- Section 1: one screen, text only: the slogan and supporting text,
-         centred, with the scroll-down arrow below. -->
-    <section class="hero hero--text" aria-labelledby="hero-title">
+    <!-- Section 1: one screen. The hero visual (components/hero-visuals.*;
+         which option shows is heroVariant in hero-visuals.config.js) is
+         centred in the area under the menu bar; the slogan (top-left) and supporting text (lower-left, on
+         the slogan's left edge) are separate overlay layers, so they never move it. -->
+    <section class="hero" aria-labelledby="hero-title">
       <h1 id="hero-title" class="hero__title">Crypto research built to institutional standards.</h1>
       <p class="hero__text">Deep-dive token reports scored on an 80-point framework and backed by on-chain forensics. Know what you hold before the market tells you.</p>
-      <!-- Hero visual, unused (see the <head>); either one goes back here:
       <div class="hero__stage">
         <div data-hero-visual></div>
-        or the old globe:
+        <!-- Old globe, unused:
         <div class="dotted-globe" data-dotted-globe role="img"
              aria-label="A slowly rotating globe made of dots that outline the world's continents. Drag to spin it.">
           <canvas></canvas>
-        </div>
-      </div> -->
+        </div> -->
+      </div>
       <a class="scroll-hint" href="#our-process" aria-label="Scroll to content">
         <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -257,7 +254,7 @@
               <span class="steps__num" aria-hidden="true">3</span>
               <div>
                 <h3 class="steps__step-title">Unlock everything with Pro</h3>
-                <p class="steps__text">Upgrade for the full coverage list, whale-wallet forensics, and quarterly updates as they publish.</p>
+                <p class="steps__text">Pro, coming soon, adds the full coverage list, whale-wallet forensics, and quarterly updates as they publish.</p>
               </div>
             </li>
           </ol>
@@ -300,12 +297,14 @@
       </ul>
     </section>
 
-    <!-- Section 6: pricing. Free and Pro on one shared 50/50 grid (features
-         start at the page centre). Button links: the href on each plan (Go Pro is still "#"). -->
+    <!-- Section 6: pricing. Free, Pro and Enterprise, the same card each, on one
+         shared 50/50 grid (features start at the page centre). Button links: the href on each plan. Pro and Enterprise say
+         "Coming soon. Join the list" until paid plans open
+         (components/paid-plans.js, PAID_PLANS_ENABLED). -->
     <section class="pricing" id="pricing" aria-labelledby="pricing-title">
       <header class="pricing__intro">
         <h2 id="pricing-title" class="pricing__title">Serious research, simple pricing.</h2>
-        <p class="pricing__text">Sign up free; upgrade when you want the full picture.</p>
+        <p class="pricing__text">Sign up free today. Pro and Enterprise are coming soon.</p>
       </header>
 
       <div class="pricing__plans">
@@ -378,20 +377,26 @@
               </li>
             </ul>
           </div>
-          <a class="button button--ghost plan__cta" href="signup/">Go Pro <svg class="button__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+          <a class="button button--ghost plan__cta plan__cta--soon" href="waitlist/?plan=pro" data-paid-href="account/" data-paid-label="Go Pro"><span>Coming soon. Join the list</span> <svg class="button__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
         </article>
 
         <article class="plan plan--enterprise" aria-labelledby="plan-enterprise">
           <div class="plan__info">
             <h3 id="plan-enterprise" class="plan__name">Enterprise</h3>
-            <p class="plan__alt">Custom reports</p>
-            <p class="plan__price">$300<span class="plan__period">/report</span></p>
-            <p class="plan__alt">One-time payment. Includes 1 month of full platform access.</p>
+            <p class="plan__price">$300<span class="plan__period">/month</span><span class="plan__sep">or</span><span class="plan__yearly"><span>$2,700<span class="plan__period">/year</span></span><span class="plan__save">Save 25%</span></span></p>
             <p class="plan__desc">For funds, teams, and serious investors who need research on a specific token, delivered privately.</p>
           </div>
           <div class="plan__body">
             <p class="plan__label">Features</p>
             <ul class="plan__features">
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="9"/><path d="M8 12.25l2.75 2.75L16 9.5"/></svg>
+                <span>Everything in Pro</span>
+              </li>
+              <li>
+                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14.5l2 2 4-4"/></svg>
+                <span>3 bespoke reports per month</span>
+              </li>
               <li>
                 <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3"/><path d="M12 19v3"/><path d="M2 12h3"/><path d="M19 12h3"/></svg>
                 <span>Choose any token or project</span>
@@ -404,17 +409,9 @@
                 <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/><path d="M12 13.5v4.5"/><path d="M9.75 15.75 12 18l2.25-2.25"/></svg>
                 <span>Private report delivery &amp; downloadables</span>
               </li>
-              <li>
-                <svg class="plan__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14.5l2 2 4-4"/></svg>
-                <span>Your report is yours to keep</span>
-              </li>
-            </ul>
-            <ul class="plan__fine">
-              <li>Multiple reports extend your access by 1 month each. Access ends after that, with no automatic renewal.</li>
-              <li>Already a Pro subscriber? You&rsquo;ll receive the custom report; your subscription continues as normal.</li>
             </ul>
           </div>
-          <a class="button button--ghost plan__cta" href="contact/">Contact Us <svg class="button__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
+          <a class="button button--ghost plan__cta plan__cta--soon" href="waitlist/?plan=enterprise" data-paid-href="account/#enterprise" data-paid-label="Go Enterprise"><span>Coming soon. Join the list</span> <svg class="button__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a>
         </article>
       </div>
     </section>
@@ -452,12 +449,12 @@
             <div class="faq__a"><p>Our full Bitcoin and Ethereum reports, free forever. No credit card required.</p></div>
           </details>
           <details class="faq__item" name="faq">
-            <summary class="faq__q"><span>Can I cancel Pro anytime?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
-            <div class="faq__a"><p>Yes. Cancel anytime and you keep access until the end of the period you’ve paid for. Monthly plans aren’t refundable. On a yearly plan, you can get a refund for the full months you haven’t used if you ask within 30 days of purchase or renewal. <a class="faq__link" href="terms/#s6">See our Terms of Service</a>.</p></div>
+            <summary class="faq__q"><span>Can I cancel Pro or Enterprise anytime?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>Yes. Cancel Pro or Enterprise anytime and you keep access until the end of the period you’ve paid for. Monthly plans aren’t refundable. On a yearly plan, you can get a refund for the full months you haven’t used if you ask within 30 days of purchase or renewal. <a class="faq__link" href="terms/#s6">See our Terms of Service</a>.</p></div>
           </details>
           <details class="faq__item" name="faq">
-            <summary class="faq__q"><span>How do custom reports work?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
-            <div class="faq__a"><p>Custom reports are a one-time payment. Your report is delivered in 2–3 business days, it’s yours to keep, and it includes one month of full platform access.</p></div>
+            <summary class="faq__q"><span>How do bespoke reports work?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
+            <div class="faq__a"><p>Enterprise includes 3 bespoke reports every billing month, on monthly and yearly plans alike. Request one from your dashboard: name the token or project and add notes. Each report takes 2–3 business days, and your dashboard shows its progress and estimated delivery. Unused reports don’t carry over to the next month.</p></div>
           </details>
           <details class="faq__item" name="faq">
             <summary class="faq__q"><span>Is this financial advice?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
@@ -465,7 +462,7 @@
           </details>
           <details class="faq__item" name="faq">
             <summary class="faq__q"><span>Do you hold the tokens you research?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
-            <div class="faq__a"><p>Sometimes. Canary Alpha Research and its founder may hold tokens we research. We disclose whether we hold a token, never how much, right after the report on it is published, on the report and on our <a class="faq__link" href="holdings/">Company Holdings page</a>. We don&rsquo;t buy or sell a token for 48 hours after publishing a report on it, so readers can act on the research first. Holding a token is not a recommendation to buy it.</p></div>
+            <div class="faq__a"><p>Sometimes. Canary Alpha Research and its founder may hold tokens we research. When we publish a report on a token we hold, we disclose that we hold it, on the report and on our <a class="faq__link" href="/canaryalpha-staging/holdings/">Company Holdings page</a>. For our safety, we never disclose amounts. We also update that page when we close a position. We don&rsquo;t buy or sell a token for 48 hours after publishing a report on it, so readers see the research before we trade. Holding a token is not a recommendation to buy it.</p></div>
           </details>
           <details class="faq__item" name="faq">
             <summary class="faq__q"><span>Who is behind Canary Alpha Research?</span><svg class="faq__icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><path d="M5 12h14"/><path class="faq__icon-v" d="M12 5v14"/></svg></summary>
@@ -504,13 +501,13 @@
   <script src="components/learn/explain.js?v=2"></script>
   <script src="components/feature-visuals.config.js?v=9"></script>
   <script src="components/feature-visuals.js?v=8"></script>
-  <!-- Hero animations, unused (see the <head>):
   <script src="components/hero-visuals.config.js?v=1"></script>
   <script src="components/hero-early-warning.js?v=1"></script>
   <script src="components/hero-verdict.js?v=1"></script>
   <script src="components/hero-noise.js?v=1"></script>
-  <script src="components/hero-visuals.js?v=2"></script> -->
-  <script src="script.js?v=40"></script>
+  <script src="components/hero-visuals.js?v=2"></script>
+  <script src="components/paid-plans.js?v=1"></script>
+  <script src="script.js?v=41"></script>
 
   <!-- DEV FONT PANEL START ====================================================
        Temporary: live font controls for Section 1 (the hero). Shows only

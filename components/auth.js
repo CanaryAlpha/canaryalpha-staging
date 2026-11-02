@@ -1,84 +1,150 @@
 /*
- * DEMO ONLY: replace with a real auth provider (e.g. Supabase Auth or
- * Clerk) and server-side subscription checks before launch. This is not
- * secure.
+ * Accounts (Clerk), as the pages see them. Every page asks THIS module who
+ * is logged in; nothing else talks to Clerk or reads its cookies.
  *
- * Everything here runs in the browser: anyone can edit the stored session
- * and give themselves any tier. It exists so the demo's login, paywalls
- * and menu can be tried end to end. Every page asks THIS module who is
- * logged in and what they may see, so swapping in a real provider means
- * changing this file (and auth-gate.js's redirect), not the pages.
+ * What the browser knows is for display only (the menu, the greeting). What
+ * a member may see is decided on the server: middleware.js guards the
+ * members' pages and every api/ function checks the session and the plan
+ * itself. Editing anything here can change what the menu says, never what
+ * the server sends.
  *
- * Load after components/auth.config.js (the demo accounts), in <head>.
+ * Load after components/site.config.js, in <head>.
  *
- *   CA_AUTH.signIn(email, password)       -> Promise {ok, user} | {ok:false, error}
- *   CA_AUTH.signUp(name, email, password) -> Promise {ok, user} | {ok:false, error}
- *                                            (always a demo free-tier session)
- *   CA_AUTH.signOut()
- *   CA_AUTH.getCurrentUser()  -> { name, email, tier } | null
- *   CA_AUTH.getUserTier()     -> "free" | "pro" | "enterprise" | null (logged out)
- *   CA_AUTH.hasTier(tier)     -> true when the user's tier is that tier or higher
- *   CA_AUTH.dashboardUrl(tier), CA_AUTH.urls { home, login, signup, pricing, contact }
+ *   CA_AUTH.getCurrentUser()  -> { name, email, tier } | null   (sync: last
+ *                                known, from this tab's sessionStorage)
+ *   CA_AUTH.getUserTier()     -> "free" | "pro" | "enterprise" | null
+ *   CA_AUTH.hasTier(tier)     -> true for that tier or higher
+ *   CA_AUTH.ready             -> Promise of the user as the server sees it
+ *                                (or null); refreshes the stored copy
+ *   CA_AUTH.clerk()           -> Promise of the loaded Clerk object
+ *   CA_AUTH.fetch(path, opts) -> fetch() with the session token attached
+ *   CA_AUTH.config()          -> Promise { paidPlans, clerkPublishableKey }
+ *   CA_AUTH.remember(user)    -> stores what /api/me returned
+ *   CA_AUTH.signOut()         -> Promise; ends the session everywhere
+ *   CA_AUTH.dashboardUrl(), CA_AUTH.urls { home, login, signup, account,
+ *                                pricing, contact, waitlist }
  *
- * The session (name, email, tier; never a password) is kept in
- * localStorage "ca-demo-session".
+ * The Clerk paths (log in, sign up, after logging out) are set in code:
+ * here in Clerk.load, in clerk-forms.js and in middleware.js, so nothing
+ * depends on the paths in Clerk's dashboard.
+ *
+ * Clerk's own script (clerk-js) is loaded only when needed: on the account
+ * pages, and for anyone who is logged in. A logged-out visitor's page loads
+ * nothing from Clerk. "Logged in" is first judged from Clerk's __client_uat
+ * cookie (a timestamp, 0 when logged out), then confirmed by /api/me.
  */
 window.CA_AUTH = (function () {
-  var KEY = "ca-demo-session";
   var TIERS = ["free", "pro", "enterprise"];
+  var KEY = "ca-user";
   var src = document.currentScript && document.currentScript.src;
   var ROOT = src ? new URL("../", src).href : "/";
-  var DASHBOARDS = { free: "dashboard/", pro: "dashboard/pro/", enterprise: "dashboard/enterprise/" };
-  var accounts = (window.CA_AUTH_DEMO && window.CA_AUTH_DEMO.accounts) || [];
-  // Production mode (components/site.config.js): no accounts exist yet, so
-  // nobody is ever logged in and the demo accounts don't work.
-  var OFF = !!(window.CA_SITE && window.CA_SITE.productionMode);
-  var CLOSED = { ok: false, error: "Accounts open soon." };
+  var API = new URL("/api/", ROOT).href;
+  // clerk-js major version; Clerk serves it from the instance's own domain.
+  var CLERK_JS = "@clerk/clerk-js@5/dist/clerk.browser.js";
 
-  function read() {
-    if (OFF) return null;
+  function hint() {
+    var m = document.cookie.match(/(?:^|;\s*)__client_uat=(\d+)/);
+    return !!m && m[1] !== "0";
+  }
+  function cached() {
+    if (!hint()) return null;
     try {
-      var s = JSON.parse(localStorage.getItem(KEY));
-      return s && s.email && TIERS.indexOf(s.tier) !== -1 ? { name: String(s.name || ""), email: String(s.email), tier: s.tier } : null;
+      var u = JSON.parse(sessionStorage.getItem(KEY));
+      return u && u.email && TIERS.indexOf(u.tier) !== -1 ? u : null;
     } catch (e) { return null; }
   }
-  function write(user) {
+  function remember(me) {
+    var u = me ? { name: String(me.user.name || ""), email: String(me.user.email || ""), tier: me.tier } : null;
     try {
-      if (user) localStorage.setItem(KEY, JSON.stringify({ name: user.name, email: user.email, tier: user.tier }));
-      else localStorage.removeItem(KEY);
-      return true;
-    } catch (e) { return false; }
-  }
-  function norm(email) { return String(email || "").trim().toLowerCase(); }
-  function result(user) {
-    if (!write(user)) return { ok: false, error: "This browser is blocking storage, so the demo can't keep you logged in." };
-    return { ok: true, user: read() };
+      if (u) sessionStorage.setItem(KEY, JSON.stringify(u));
+      else sessionStorage.removeItem(KEY);
+    } catch (e) {}
+    return u;
   }
 
-  function signIn(email, password) {
-    if (OFF) return Promise.resolve(CLOSED);
-    var e = norm(email);
-    var match = accounts.filter(function (a) { return a.email === e && a.password === password; })[0];
-    return Promise.resolve(match
-      ? result({ name: match.name, email: match.email, tier: match.tier })
-      : { ok: false, error: "That email and password don't match. Check them and try again, or use one of the demo accounts below." });
+  var configP = null;
+  function config() {
+    if (!configP) configP = fetch(API + "config/").then(function (r) {
+      if (!r.ok) throw new Error("config " + r.status);
+      return r.json();
+    }).catch(function () { configP = null; return { paidPlans: false, clerkPublishableKey: "" }; });
+    return configP;
   }
 
-  // The demo can't create real accounts: it starts a free-tier session for
-  // the name and email given. The password is checked, never kept.
-  function signUp(name, email, password) {
-    if (OFF) return Promise.resolve(CLOSED);
-    var e = norm(email);
-    if (accounts.some(function (a) { return a.email === e; })) {
-      return Promise.resolve({ ok: false, error: "That email belongs to a demo account. Log in with it instead." });
-    }
-    if (!password) return Promise.resolve({ ok: false, error: "Please choose a password." });
-    return Promise.resolve(result({ name: String(name || "").trim(), email: e, tier: "free" }));
+  // The Frontend API host is inside the publishable key: pk_(test|live)_
+  // then base64 of "<host>$".
+  function frontendApi(pk) {
+    try { return atob(pk.split("_")[2]).replace(/\$$/, ""); } catch (e) { return ""; }
   }
 
-  function signOut() { write(null); }
-  function getCurrentUser() { return read(); }
-  function getUserTier() { var u = read(); return u ? u.tier : null; }
+  var clerkP = null;
+  function clerk() {
+    if (!clerkP) clerkP = config().then(function (cfg) {
+      var host = frontendApi(cfg.clerkPublishableKey || "");
+      if (!host) throw new Error("Accounts aren't set up on this address.");
+      return new Promise(function (resolve, reject) {
+        if (window.Clerk) return resolve(window.Clerk);
+        var s = document.createElement("script");
+        s.src = "https://" + host + "/npm/" + CLERK_JS;
+        s.async = true;
+        s.crossOrigin = "anonymous";
+        s.setAttribute("data-clerk-publishable-key", cfg.clerkPublishableKey);
+        s.onload = function () { resolve(window.Clerk); };
+        s.onerror = function () { reject(new Error("Couldn't load the login service.")); };
+        document.head.appendChild(s);
+      });
+    }).then(function (Clerk) {
+      return Clerk.load({
+        signInUrl: ROOT + "login/",
+        signUpUrl: ROOT + "signup/",
+        afterSignOutUrl: ROOT
+      }).then(function () { return Clerk; });
+    });
+    clerkP.catch(function () { clerkP = null; });
+    return clerkP;
+  }
+
+  // fetch() to the site's api/, with the current session token.
+  function authFetch(path, opts) {
+    opts = opts || {};
+    return clerk().then(function (Clerk) {
+      return Clerk.session ? Clerk.session.getToken() : null;
+    }).then(function (token) {
+      var headers = new Headers(opts.headers || {});
+      if (token) headers.set("Authorization", "Bearer " + token);
+      if (opts.body && !headers.has("content-type")) headers.set("content-type", "application/json");
+      // vercel.json has trailingSlash: true, so every api/ address ends in
+      // "/" (without it, a redirect first).
+      var parts = path.replace(/^\/?(api\/)?/, "").split("?");
+      var url = API + parts[0].replace(/\/?$/, "/") + (parts[1] ? "?" + parts[1] : "");
+      return fetch(url, {
+        method: opts.method || "GET", headers: headers, body: opts.body, credentials: "same-origin"
+      });
+    });
+  }
+
+  function me() {
+    return authFetch("me").then(function (r) {
+      if (r.status === 401) return null;
+      if (!r.ok) throw new Error("me " + r.status);
+      return r.json();
+    });
+  }
+
+  // Logged-in visitors: confirm with the server, and keep the copy fresh.
+  // Rejects when the server can't be reached (callers decide what to show).
+  var ready = hint()
+    ? me().then(function (m) { return remember(m); })
+    : Promise.resolve(remember(null));
+  ready.catch(function () {});
+
+  function signOut() {
+    remember(null);
+    return clerk().then(function (Clerk) { return Clerk.signOut(); }, function () {});
+  }
+
+  function getCurrentUser() { return cached(); }
+  function getUserTier() { var u = cached(); return u ? u.tier : null; }
   function hasTier(tier) {
     var t = getUserTier();
     return !!t && TIERS.indexOf(t) >= TIERS.indexOf(tier || "free");
@@ -86,12 +152,13 @@ window.CA_AUTH = (function () {
 
   return {
     TIERS: TIERS,
-    signIn: signIn, signUp: signUp, signOut: signOut,
     getCurrentUser: getCurrentUser, getUserTier: getUserTier, hasTier: hasTier,
-    dashboardUrl: function (tier) { return ROOT + (DASHBOARDS[tier] || DASHBOARDS.free); },
+    ready: ready, clerk: clerk, fetch: authFetch, config: config, me: me,
+    remember: remember, signOut: signOut, loggedInHint: hint,
+    dashboardUrl: function () { return ROOT + "dashboard/"; },
     urls: {
-      home: ROOT, login: ROOT + "login/", signup: ROOT + "signup/",
-      pricing: ROOT + "#pricing", contact: ROOT + "contact/"
+      home: ROOT, login: ROOT + "login/", signup: ROOT + "signup/", account: ROOT + "account/",
+      pricing: ROOT + "#pricing", contact: ROOT + "contact/", waitlist: ROOT + "waitlist/"
     }
   };
 })();

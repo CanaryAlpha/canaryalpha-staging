@@ -103,7 +103,14 @@
   function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
   var headers = document.querySelectorAll("header[data-site-header]");
-  Array.prototype.forEach.call(headers, function (header) {
+  // Logged in, but this tab hasn't asked the server who yet (the first page
+  // after logging in): build once the answer is in (components/auth.js),
+  // rather than show Log in for a moment.
+  var auth0 = window.CA_AUTH;
+  if (auth0 && auth0.loggedInHint() && !auth0.getCurrentUser()) {
+    auth0.ready.then(build, build);
+  } else build();
+  function build() { Array.prototype.forEach.call(headers, function (header) {
     var home = header.getAttribute("data-home") || "./";
     var root = header.getAttribute("data-root");
     var site = window.CA_SITE_LINKS;
@@ -120,11 +127,10 @@
     var dashGroup = user && root !== null && site && site.dashboards
       ? '<li class="site-header__group"><button type="button" class="site-header__group-btn" aria-expanded="false" aria-controls="site-header-dashboards">' +
           "Dashboard" + ICONS.chevron + "</button>" +
-          '<ul class="site-header__sub" id="site-header-dashboards" hidden>' + site.dashboards.map(function (d) {
-            var locked = !auth.hasTier(d.tier);
-            return '<li><a href="' + root + d.href + '"' + (locked ? ' class="is-locked"' : "") + ">" + d.label +
-              (locked ? '<span class="site-header__plan">' + ICONS.lock + TIER_NAMES[d.tier] +
-                '<span class="site-header__sr"> plan required</span></span>' : "") + "</a></li>";
+          '<ul class="site-header__sub" id="site-header-dashboards" hidden>' + site.dashboards.filter(function (d) {
+            return !d.tier || auth.hasTier(d.tier);
+          }).map(function (d) {
+            return '<li><a href="' + root + d.href + '">' + d.label + "</a></li>";
           }).join("") + "</ul></li>"
       : "";
     var placed = false;
@@ -145,7 +151,8 @@
             '<p class="site-header__who"><span class="site-header__name">' + esc(user.name || user.email) + "</span>" +
               '<span class="site-header__email">' + esc(user.email) + "</span></p>" +
             '<p class="site-header__tier"><span class="site-header__tier-badge">' + TIER_NAMES[user.tier] + "</span> plan</p>" +
-            '<button type="button" class="site-header__logout">Log out</button>' +
+            (root !== null ? '<a class="site-header__logout" href="' + root + 'account/">Your account</a>' : "") +
+            '<button type="button" class="site-header__logout" data-logout>Log out</button>' +
           "</div></div>"
       : "";
     header.innerHTML =
@@ -180,11 +187,13 @@
     }
     if (accountBtn) {
       accountBtn.addEventListener("click", function () { setAccount(accountPanel.hidden); });
-      header.querySelector(".site-header__logout").addEventListener("click", function () {
-        auth.signOut();
-        // Off a members-only page (auth-gate.js ran) to the home page.
-        if (window.CA_ACCESS) location.href = auth.urls.home;
-        else location.reload();
+      header.querySelector("[data-logout]").addEventListener("click", function () {
+        // Ends the session (Clerk), then off a members-only page (auth-gate.js
+        // ran) to the home page.
+        auth.signOut().then(function () {
+          if (window.CA_ACCESS) location.href = auth.urls.home;
+          else location.reload();
+        });
       });
       document.addEventListener("click", function (e) {
         if (!accountPanel.hidden && !e.target.closest(".site-header__account")) setAccount(false);
@@ -249,7 +258,7 @@
       window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
       history.replaceState(null, "", location.pathname + location.search);
     });
-  });
+  }); }
 
   // Faint shadow once the page is scrolled, so content sliding under the bar
   // has an edge. Nothing shows at the top of the page.

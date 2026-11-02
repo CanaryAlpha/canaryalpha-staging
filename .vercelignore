@@ -1,0 +1,7 @@
+# Not part of the site: kept in the repo, never deployed.
+/tools
+/tests
+/docs
+/README.md
+/STAGING.md
+/CNAME

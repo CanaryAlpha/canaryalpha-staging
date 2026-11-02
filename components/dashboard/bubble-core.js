@@ -46,12 +46,23 @@ window.CA_BUBBLES = (function () {
     var token = v > 0 ? "var(--success)" : "var(--danger)";
     return { fill: "color-mix(in srgb, " + token + " " + Math.round(12 + 46 * t) + "%, var(--ground))", stroke: token };
   }
+  // Verdict families (the research reports word verdicts freely, e.g.
+  // "Staged DCA — Speculative"): the legend names the family.
   var VERDICT_TOKENS = {
-    "Deploy Investment": "var(--dash-v-deploy)", "Conditional Hold": "var(--dash-v-hold)",
+    "Deploy": "var(--dash-v-deploy)", "Hold / staged DCA": "var(--dash-v-hold)",
     "Watch List": "var(--dash-v-watch)", "Avoid": "var(--dash-v-avoid)"
   };
+  function family(v) {
+    var d = String(v || "").toLowerCase();
+    if (VERDICT_TOKENS[v]) return v;
+    if (/avoid/.test(d)) return "Avoid";
+    if (/watch/.test(d)) return "Watch List";
+    if (/deploy|buy|accumulate/.test(d)) return "Deploy";
+    if (/hold|dca/.test(d)) return "Hold / staged DCA";
+    return "Watch List";
+  }
   function verdictColor(v) {
-    var token = VERDICT_TOKENS[v] || "var(--muted)";
+    var token = VERDICT_TOKENS[family(v)] || "var(--muted)";
     return { fill: "color-mix(in srgb, " + token + " 30%, var(--ground))", stroke: token };
   }
   function directionColor(v) {
@@ -223,7 +234,7 @@ window.CA_BUBBLES = (function () {
     function label(a) {
       var tf = current.tf;
       return a.name + " (" + a.ticker + "): " + UI.price(a.price) + ", " + UI.tfLabel(tf) + " " + UI.signedPrice(a.priceChangeUsd[tf]) + " (" + UI.pct(a.priceChange[tf]) + ")" +
-        ", market cap " + UI.usd(a.marketCap) + ", Canary score " + a.canaryScore + " of 80, " + a.verdict + ". Press Enter for details.";
+        ", market cap " + UI.usd(a.marketCap) + ", Canary score " + a.canaryScore + " of " + (a.scoreMax || 10) + ", " + a.verdict + ". Press Enter for details.";
     }
 
     function show(assetId) {
@@ -236,7 +247,7 @@ window.CA_BUBBLES = (function () {
           "<div><dt>Market cap</dt><dd>" + UI.usd(a.marketCap) + "</dd></div>" +
           "<div><dt>24h volume</dt><dd>" + UI.usd(a.volume24h) + "</dd></div>" +
           (current.extra ? current.extra(a) : "") +
-          "<div><dt>Canary score</dt><dd>" + a.canaryScore + " / 80 · " + UI.esc(a.verdict) + "</dd></div>" +
+          "<div><dt>Canary score</dt><dd>" + a.canaryScore + " / " + (a.scoreMax || 10) + " · " + UI.esc(a.verdict) + "</dd></div>" +
         "</dl>" +
         '<a class="bubbles__tip-open" href="' + opts.href(a) + '">Open details</a>';
       tip.hidden = false;
@@ -270,6 +281,8 @@ window.CA_BUBBLES = (function () {
     });
 
     return window.CA_DASH_API.getAssets().then(function (list) {
+      // Only assets with market data can be placed on a market map.
+      list = list.filter(function (a) { return a.market && a.marketCap > 0; });
       assets = opts.only ? list.filter(function (a) { return opts.only.indexOf(a.id) !== -1; }) : list;
       build();
       update();

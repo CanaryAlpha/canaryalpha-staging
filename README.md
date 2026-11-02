@@ -15,10 +15,14 @@ Serve the repo folder over HTTP (opening the file directly with `file://`
 drops some styles, and the glossary can't load its data):
 
 ```bash
-python3 -m http.server 8765 --directory /path/to/canaryalpha-research-beta
+python3 -m http.server 8765 --directory /path/to/Canary-Alpha-Research-Live
 ```
 
 Then open <http://localhost:8765/index.html>.
+
+Before publishing, run `npm run lint`: it fails if any served file contains
+`localhost` or `127.0.0.1`, so a link copied from a local preview can't go
+live. `npm test` and both deploy commands run the same check.
 
 ## Pages
 
@@ -251,10 +255,14 @@ The menu bar's copy of the logo is inline in `components/site-header.js`
 - `dashboard/` — the Free dashboard, its `btc/` and `eth/` detail
   pages, the Pro dashboard (`pro/`, `pro/asset/`), the Enterprise
   dashboard (`enterprise/`, `enterprise/asset/`) and `bubble-options/`
-- `components/dashboard/dashboard-reports.js` — Enterprise "Your custom
-  reports" (progress bars, stage tracker, access panel); stages in
+- `components/dashboard/dashboard-reports.js` — Enterprise "Your bespoke
+  reports" (this month's allowance of 3 and the request form, progress
+  bars, stage tracker); stages in
   `components/dashboard/report-stages.config.js`; live updates only through
-  `subscribeToReportProgress` in `dashboard-api.js` (simulated for now)
+  `subscribeToReportProgress` in `dashboard-api.js` (polls the server)
+- `components/dashboard/dashboard-assets.js` — the asset list (Cards,
+  Carousel, List) and, for Pro and Enterprise, the custom order (drag,
+  Move up / Move down, saved to the account by `api/dashboard/order.js`)
 - `brand/` — logo, favicon and the script that builds them
 - `components/site-links.js` — every menu and footer link and label, in one
   place; the header and footer both read it

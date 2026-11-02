@@ -21,6 +21,12 @@ REDIRECTS.update({
     "sign-in/": "login/",
     "sign-up/": "signup/",
     "pricing/": "#pricing",  # the Pricing section on the home page
+    # Sample-data dashboards replaced by the real ones (item 404).
+    "dashboard/pro/": "dashboard/",
+    "dashboard/pro/asset/": "dashboard/",
+    "dashboard/enterprise/asset/": "dashboard/enterprise/",
+    "dashboard/btc/": "dashboard/report/?slug=btc",
+    "dashboard/eth/": "dashboard/report/?slug=eth",
 })
 
 # Old beta site: everything lived under /demo/.

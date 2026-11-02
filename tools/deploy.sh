@@ -59,8 +59,9 @@ checks() {
   while IFS= read -r f; do
     python3 -c 'import json,sys; json.load(open(sys.argv[1]))' "$f" 2>/dev/null || { echo "   invalid JSON: $f"; bad=1; }
   done < <(git ls-files '*.json' | grep -v '^marketing-animations/')
+  node tools/check-local-links.mjs >/dev/null || bad=1
   [ "$bad" = 0 ] || die "checks failed; nothing was deployed"
-  echo "   JavaScript and JSON are valid"
+  echo "   JavaScript and JSON are valid; no localhost links"
 }
 
 deploy_staging() {

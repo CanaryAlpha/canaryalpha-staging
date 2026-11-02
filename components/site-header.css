@@ -49,7 +49,6 @@
 /* The logo keeps the cap height of the outlined logo it replaced (10.7px,
    12.1px from 768px). It never shrinks, so it stays on one line. */
 .site-header__logo { --logo-cap: 0.67rem; flex: none; }
-.site-header__brand:hover .ca-logo::after { visibility: visible; }
 
 /* The menu is a drop-down panel at every width: the menu button opens it
    under the bar. On phones it spans the bar; from 768px it hangs from the
@@ -91,9 +90,8 @@
   text-decoration: none;
   font-size: 0.9375rem;
   white-space: nowrap; /* a label never breaks over two lines */
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.15s ease, text-shadow 0.15s ease;
 }
-.site-header__links a:hover { color: var(--ink); }
 .site-header__links a[aria-current] { background: var(--selected-bg); color: var(--selected-ink); }
 @media (prefers-reduced-motion: reduce) {
   .site-header__links a { transition: none; }
@@ -132,7 +130,6 @@
   .site-header__modes { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .site-header__mode[data-mode="show"] { display: none; }
 }
-.site-header__mode:hover { color: var(--ink); }
 .site-header__mode[aria-pressed="true"] { background: var(--selected-bg); color: var(--selected-ink); }
 @media (min-width: 768px) {
   .site-header__nav { position: relative; align-self: center; }
@@ -159,7 +156,6 @@
   cursor: pointer;
   place-items: center;
 }
-.site-header__toggle:hover,
 .site-header.is-open .site-header__toggle { color: var(--ink); }
 
 @media (max-width: 479px) {
@@ -176,7 +172,7 @@
   border: 0;
 }
 /* One icon button: a 44px square touch target with a 20px icon, in the
-   dimmer --muted colour until hovered. */
+   dimmer --muted colour (Canary Yellow on hover, styles.css). */
 .site-header .themes button {
   position: relative;
   width: 44px;
@@ -247,7 +243,7 @@
   text-align: left;
   cursor: pointer;
 }
-.site-header__group-btn:hover, .site-header__group-btn[aria-expanded="true"] { color: var(--ink); }
+.site-header__group-btn[aria-expanded="true"] { color: var(--ink); }
 .site-header__chevron { width: 16px; height: 16px; flex: none; }
 .site-header__group-btn[aria-expanded="true"] .site-header__chevron { transform: rotate(180deg); }
 .site-header__sub { list-style: none; margin: 0 0 0.25rem; padding: 0 0 0 0.75rem; }
@@ -294,7 +290,7 @@
   border-radius: 50%;
   line-height: 1;
 }
-.site-header__account-btn:hover, .site-header__account-btn[aria-expanded="true"] { color: var(--muted); }
+.site-header__account-btn[aria-expanded="true"] { color: var(--muted); }
 .site-header__account-panel {
   position: absolute;
   top: 100%;
@@ -337,7 +333,6 @@
   text-align: left;
   cursor: pointer;
 }
-.site-header__logout:hover { color: var(--muted); }
 @media (min-width: 768px) {
   .site-header__account { position: relative; align-self: center; }
   .site-header__account-panel {

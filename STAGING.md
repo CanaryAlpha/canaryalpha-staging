@@ -5,7 +5,7 @@ Two copies of the site, built from the same commits:
 | | Production | Staging |
 |---|---|---|
 | Address | https://canaryalpha.co/ | https://canaryalpha.github.io/canaryalpha-staging/ |
-| Repo (git remote) | `CanaryAlpha/Canary-Alpha-Research-Beta` (`origin`), branch `main` | `CanaryAlpha/canaryalpha-staging` (`staging`), branch `main` |
+| Repo (git remote) | `CanaryAlpha/Canary-Alpha-Research-Live` (`origin`), branch `main` | `CanaryAlpha/canaryalpha-staging` (`staging`), branch `main` |
 | Search engines | Indexed | `noindex, nofollow` on every page; `robots.txt` disallows all |
 | Banner | None | Yellow **STAGING** pill at the bottom of every page, with the build's commit |
 | Custom domain | `CNAME` = canaryalpha.co | None: the staging build removes `CNAME` |

@@ -88,7 +88,7 @@
         };
       });
       var minV = Math.min.apply(null, vals), maxV = Math.max.apply(null, vals);
-      var fmt = v.size === "score" ? function (x) { return x + " / 80"; } : UI.usd;
+      var fmt = v.size === "score" ? function (x) { return x + " / 10"; } : UI.usd;
       return {
         nodes: nodes, tf: tf,
         legend: '<p class="bubbles__legend-row"><span class="dash-label">Size</span>' + SIZE[v.size] + ": " +
