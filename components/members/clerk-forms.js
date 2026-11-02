@@ -52,7 +52,7 @@
     };
   }
 
-  // Log in sits on the Canary panel (members.css .auth-panel), which is
+  // Log in sits on the Canary panel (styles.css .auth-panel), which is
   // the same in both themes, so every Clerk colour is fixed for yellow
   // rather than read from the site theme. Contrast on #FFEF00: text
   // #0A0A0A 16.6:1, secondary #3D3D3D 9.1:1, errors #A30000 6.9:1; the
@@ -61,7 +61,17 @@
   var INK = "#0A0A0A", CANARY = "#FFEF00", WHITE = "#FFFFFF";
   function panelAppearance() {
     var font = getComputedStyle(document.documentElement).getPropertyValue("--font-body").trim();
-    var control = { backgroundColor: WHITE, color: INK, border: "1px solid " + INK, boxShadow: "none" };
+    // Clerk's own [data-variant] rule outranks a plain element style: it set
+    // the border to 0 and drew an 11% black ring instead, which looked faint
+    // and olive on the yellow. Repeating the border under "&[data-variant]"
+    // keeps a solid #0A0A0A border on every control.
+    var edge = { borderWidth: "1px", borderStyle: "solid", borderColor: INK, boxShadow: "none" };
+    var control = { backgroundColor: WHITE, color: INK, border: "1px solid " + INK, boxShadow: "none", "&[data-variant]": edge };
+    // Focus: a solid 2px #0A0A0A ring. "&&" doubles the class so it beats
+    // Clerk's own [data-variant="default"]:focus-within ring (28% black);
+    // the code boxes mark the active box with data-focus-within="true".
+    var ring = { borderColor: INK, boxShadow: "0 0 0 2px " + INK };
+    var focus = { "&:focus": ring, "&&[data-variant]:focus, &&[data-variant]:focus-within, &&[data-variant][data-focus-within=\"true\"]": ring };
     return {
       layout: { socialButtonsVariant: "blockButton", socialButtonsPlacement: "top" },
       variables: {
@@ -73,9 +83,19 @@
         fontFamily: font, borderRadius: "6px", fontSize: "1rem"
       },
       elements: {
+        // Clerk's cardBox clips its contents (overflow: hidden) and pulls the
+        // card 1px past it on the left, right and top (margin -1px) to tuck
+        // the card under the box's own 1px border. With that border and the
+        // card's padding removed here, the inputs and button touched the
+        // card's edges and lost 1px of border, plus their focus ring, to the
+        // clip. So: nothing clips, the card has no negative margins, and
+        // every control is the card's full width; the panel's own padding
+        // (.auth-panel) is the only inset, equal on both sides.
         rootBox: { width: "100%" },
-        cardBox: { width: "100%", maxWidth: "100%", boxShadow: "none", border: "0", borderRadius: "0", background: "transparent" },
-        card: { boxShadow: "none", border: "0", padding: "0", background: "transparent", color: INK },
+        cardBox: { width: "100%", maxWidth: "100%", boxShadow: "none", border: "0", borderRadius: "0", background: "transparent", overflow: "visible" },
+        card: { boxShadow: "none", border: "0", padding: "0", margin: "0", width: "100%", background: "transparent", color: INK, overflow: "visible" },
+        form: { width: "100%" },
+        formField: { width: "100%" },
         header: { display: "none" },
         footerAction: { display: "none" },
         // The "Development mode" strip (development instance only) spans the
@@ -83,6 +103,7 @@
         footer: { background: "transparent", marginTop: "1rem", "& > div": { background: "transparent" } },
         main: { gap: "1.25rem" },
         formButtonPrimary: {
+          width: "100%", boxSizing: "border-box", margin: "0",
           backgroundColor: INK, color: CANARY, boxShadow: "none", border: "1px solid " + INK, textTransform: "none", fontSize: "1rem",
           "&:hover, &:focus": { backgroundColor: "#333333", color: CANARY },
           "&:focus-visible": { outline: "2px solid " + INK, outlineOffset: "2px" }
@@ -93,7 +114,7 @@
         dividerLine: { backgroundColor: INK, opacity: 1 },
         dividerText: { color: INK },
         formFieldLabel: { color: INK, fontWeight: 500 },
-        formFieldInput: Object.assign({ "&:focus": { borderColor: INK, boxShadow: "0 0 0 2px " + INK } }, control),
+        formFieldInput: Object.assign({}, control, focus, { width: "100%", boxSizing: "border-box", margin: "0" }),
         formFieldInputShowPasswordButton: { color: INK },
         formFieldAction: { color: INK, textDecoration: "underline" },
         formFieldHintText: { color: "#3D3D3D" },
@@ -103,8 +124,10 @@
         identityPreviewText: { color: INK },
         identityPreviewEditButton: { color: INK },
         identityPreviewEditButtonIcon: { color: INK },
-        otpCodeFieldInput: Object.assign({}, control),
-        formResendCodeLink: { color: INK, textDecoration: "underline" },
+        otpCodeFieldInput: Object.assign({}, control, focus),
+        // While the resend countdown runs, Clerk fades it to 50%: too faint
+        // on yellow. Shown solid in the muted ink instead (9.1:1).
+        formResendCodeLink: { color: INK, textDecoration: "underline", "&&:disabled, &&[data-disabled]": { opacity: 1, color: "#3D3D3D" } },
         alternativeMethodsBlockButton: control,
         backLink: { color: INK, textDecoration: "underline" },
         footerActionLink: { color: INK },

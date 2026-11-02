@@ -12,43 +12,7 @@
 .clerk-slot__note { margin: 0; color: var(--muted); }
 .clerk-slot__note a { color: var(--ink); text-underline-offset: 0.15em; }
 /* Clerk's own look is set in clerk-forms.js (appearance): no card frame. */
-/* ---- The Canary panel (login/ and signup/) ----------------------------------
-   Clerk's sign-in form and our sign-up form sit on a Canary Yellow panel
-   that looks the same in both themes. Inside it the theme tokens are
-   pinned to fixed colours, so every control is drawn for yellow whatever
-   the site theme. Contrast on #FFEF00: #0A0A0A text 16.6:1, #3D3D3D muted
-   text 9.1:1, #A30000 errors 6.9:1; #FFEF00 on the #0A0A0A button 16.6:1
-   (dimmed on #4A4A4A while disabled);
-   white inputs with a #0A0A0A border (19.8:1 against white, 16.6:1 against
-   the yellow). Clerk's own colours are set in clerk-forms.js to match. */
-.auth-panel {
-  --ink: #0A0A0A;
-  --muted: #3D3D3D;
-  --rule: #0A0A0A;
-  --ground: #FFEF00;
-  --selected-bg: #0A0A0A;
-  --selected-ink: #FFEF00;
-  --danger: #A30000;
-  --success: #0A5C2A;
-  max-width: 30rem;
-  margin: 2rem auto 0;
-  padding: clamp(1.25rem, 5vw, 2rem);
-  border-radius: 12px;
-  background: var(--canary);
-  color: var(--ink);
-}
-.auth-panel .clerk-slot { margin-top: 0; min-height: 6rem; }
-.auth-panel .consent-form { margin: 0 0 1.5rem; }
-.auth-panel .field__input { background: #ffffff; border-color: #0A0A0A; color: #0A0A0A; }
-.auth-panel .field__pw-toggle.field__pw-toggle { color: #3D3D3D; }
-.auth-panel .field__pw-toggle:hover { color: #0A0A0A; }
-.auth-panel :focus-visible { outline-color: #0A0A0A; }
-.auth-panel a { color: #0A0A0A; }
-.auth-panel button.form__submit { background: #0A0A0A; border-color: #0A0A0A; color: #FFEF00; }
-.auth-panel button.form__submit:hover:not(:disabled) { background: #333333; border-color: #333333; }
-.auth-panel button.form__submit:disabled { cursor: not-allowed; background: #4A4A4A; border-color: #4A4A4A; opacity: 0.85; color: #FFEF00; }
-.auth-panel .form__hint { margin: 0; color: #3D3D3D; font-size: 0.9375rem; }
-.auth-panel .form__hint[hidden] { display: none; }
+/* The Canary panel (.auth-panel) is in styles.css: Contact us uses it too. */
 /* The panel sits under the heading; the switch link stays outside it,
    in the page's own colours. */
 .form-page--panel .form__switch { text-align: center; }

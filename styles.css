@@ -245,29 +245,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
-/* Text-only hero (the homepage): the slogan and supporting text stack in
-   normal flow, centred across and down the one screen, clear of the
-   scroll-down arrow. The supporting text is capped at ~70 characters a line
-   so it doesn't run too wide. */
-.hero.hero--text {
-  height: auto;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(1rem, 3vh, 2rem);
-  padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) var(--arrow-clear);
-}
-.hero--text .hero__title,
-.hero--text .hero__text {
-  position: static;
-  margin-inline: auto;
-  text-align: center;
-  text-shadow: none;
-}
-.hero--text .hero__text { max-width: min(36em, 100%); }
-
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
   position: absolute;
@@ -1246,7 +1223,8 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 }
 
 /* ---- Forms (contact/, signup/; components/form-fields.js) ----
-   One centred column (~560px) on the page itself: no panels, no fills.
+   One centred column (~560px). The form itself sits on the Canary panel
+   (.auth-panel, below); the heading and intro stay on the page.
    Fields have a 1px --muted outline (>= 3:1 against the page in both
    themes), 16px+ text so phones don't zoom, and 48px height. Errors use
    --danger text (AA in both themes). No transitions or animation. */
@@ -1477,6 +1455,50 @@ html:not([data-production]) [data-production-only] { display: none !important; }
 .form-page__cta { margin: 1.75rem 0 0; }
 .form-page .button.button--ghost { width: auto; padding: 0 0.25rem 0 0; white-space: nowrap; }
 
+/* ---- The Canary panel (login/, signup/, contact/) -------------------------
+   Clerk's sign-in form, our sign-up form and the Contact us form sit on a
+   Canary Yellow panel (--canary, #FFEF00, solid: no opacity or filter)
+   that looks the same in both themes. Inside it the theme tokens are
+   pinned to fixed colours, so every control is drawn for yellow whatever
+   the site theme. Contrast on #FFEF00: #0A0A0A text 16.6:1, #3D3D3D muted
+   text 9.1:1, #A30000 errors 6.9:1; #FFEF00 on the #0A0A0A button 16.6:1
+   (dimmed on #4A4A4A while disabled);
+   white inputs with a #0A0A0A border (19.8:1 against white, 16.6:1 against
+   the yellow). Clerk's own colours are set in clerk-forms.js to match. */
+.auth-panel {
+  --ink: #0A0A0A;
+  --muted: #3D3D3D;
+  --rule: #0A0A0A;
+  --ground: #FFEF00;
+  --selected-bg: #0A0A0A;
+  --selected-ink: #FFEF00;
+  --danger: #A30000;
+  --success: #0A5C2A;
+  max-width: 30rem;
+  margin: 2rem auto 0;
+  padding: clamp(1.25rem, 5vw, 2rem);
+  border-radius: 12px;
+  background: var(--canary);
+  color: var(--ink);
+}
+.auth-panel .clerk-slot { margin-top: 0; min-height: 6rem; }
+.auth-panel > .form { margin-top: 0; }
+.auth-panel .consent-form { margin: 0 0 1.5rem; }
+.auth-panel .field__input { background: #ffffff; border-color: #0A0A0A; color: #0A0A0A; }
+.auth-panel .field__pw-toggle.field__pw-toggle { color: #3D3D3D; }
+.auth-panel .field__pw-toggle:hover { color: #0A0A0A; }
+.auth-panel :focus-visible { outline-color: #0A0A0A; }
+.auth-panel a { color: #0A0A0A; }
+.auth-panel button.form__submit { background: #0A0A0A; border-color: #0A0A0A; color: #FFEF00; }
+.auth-panel button.form__submit:hover:not(:disabled) { background: #333333; border-color: #333333; }
+.auth-panel button.form__submit:disabled { cursor: not-allowed; background: #4A4A4A; border-color: #4A4A4A; opacity: 0.85; color: #FFEF00; }
+.auth-panel .form__hint { margin: 0; color: #3D3D3D; font-size: 0.9375rem; }
+.auth-panel .form__hint[hidden] { display: none; }
+/* Contact us: field errors, the counter and the sent / failed line use the
+   pinned tokens above (#A30000, #3D3D3D, #0A0A0A), all AA on yellow; the
+   success line is bold so it reads as a result, not a hint. */
+.auth-panel .field.is-invalid .field__input { border-color: #A30000; }
+.auth-panel .field__error, .auth-panel .form__status { font-weight: 500; }
 /* ---- Button hover (every button on the site) ------------------------------
    Hover and keyboard focus turn a button's label and icon (icons draw in
    currentColor) Canary Yellow, in both themes, over 0.15s. In Light the
@@ -1488,8 +1510,8 @@ html:not([data-production]) [data-production-only] { display: none !important; }
    the dashboard drop-downs, the menu's links, the members' action links,
    the Learn tier links and the homepage scroll arrow. Not included: Clerk's
    own controls (class "cl-..."), styled through its appearance settings,
-   and the Canary panel on login/ and signup/, drawn for yellow
-   (components/members/members.css). The logo has its own rule above. */
+   and the Canary panel on login/, signup/ and contact/, drawn for yellow
+   (.auth-panel, above). The logo has its own rule above. */
 /* No weight (:where), so a button with its own transition list keeps it
    (and lists color and text-shadow 0.15s itself: .back-to-top, the menu
    links, glossary chips; the arrow icon, .button__icon, lists filter). */
