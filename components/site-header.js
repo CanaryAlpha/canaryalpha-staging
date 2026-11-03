@@ -100,6 +100,24 @@
   // The footer (site-footer.js) shows the same logo.
   window.CA_SITE_LOGO = LOGO;
 
+  // Hover outline for icons (styles.css --canary-halo-icon): an SVG filter
+  // that traces a crisp black edge around the icon's shape, the same weight
+  // as the labels' text outline. CSS can't draw that on a stroked icon by
+  // itself (blurred drop-shadows were nearly invisible on the thin arrows),
+  // so the filter is defined once per page here, and <html
+  // class="has-halo-filter"> tells styles.css it can use it. Pages without
+  // this script keep the old soft outline.
+  if (!document.getElementById("ca-halo-defs") && document.body) {
+    document.body.insertAdjacentHTML("afterbegin",
+      '<svg id="ca-halo-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden">' +
+        '<filter id="ca-halo-icon" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">' +
+          '<feMorphology in="SourceAlpha" operator="dilate" radius="1" result="edge"/>' +
+          '<feFlood flood-color="#000"/><feComposite in2="edge" operator="in"/>' +
+          '<feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>' +
+        "</filter></svg>");
+    document.documentElement.classList.add("has-halo-filter");
+  }
+
   function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
   var headers = document.querySelectorAll("header[data-site-header]");
