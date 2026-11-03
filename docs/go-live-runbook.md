@@ -76,8 +76,8 @@ Names only; never put a value in this repo.
 |---|---|---|
 | `pro_monthly` | Canary Alpha Pro | $30.00 / month, recurring |
 | `pro_yearly` | Canary Alpha Pro | $288.00 / year, recurring |
-| `enterprise_monthly` | Canary Alpha Enterprise | $300.00 / month, recurring |
-| `enterprise_yearly` | Canary Alpha Enterprise | $2,700.00 / year, recurring |
+| `enterprise_monthly` | Canary Alpha Enterprise | $1,000.00 / month, recurring (from 2026-11-03; replaces $300.00: archive that price, see "Changing a price") |
+| `enterprise_yearly` | Canary Alpha Enterprise | $8,400.00 / year, recurring (from 2026-11-03; replaces $2,700.00: archive that price, see "Changing a price") |
 | `enterprise_report` | Canary Alpha custom report | $300.00, one time. **Archived** 2026-11-02 when Enterprise became a subscription; older orders still show in the tracker |
 
 Products carry `metadata.ca_plan`. Checkout sessions and payments carry
@@ -145,7 +145,7 @@ Card numbers are Stripe's published test cards.
 9. **Failed renewal**: new Pro subscription with `4000 0000 0000 0341`
    (attaches, then fails), or advance a test clock: status `past_due`,
    the account page asks to update the card.
-10. **Enterprise**: "Enterprise monthly, $300" on the account page (and,
+10. **Enterprise**: "Enterprise monthly, $1,000" on the account page (and,
     separately, yearly): Enterprise until the renewal date. The Enterprise
     dashboard shows "3 of 3 reports left this month" and the reset date.
     Request a report (token + notes): its card appears "In progress" and the
@@ -162,6 +162,47 @@ Card numbers are Stripe's published test cards.
     nothing (the result is recomputed, not added).
 
 `npm test` runs the plan rules and the token format offline.
+
+## Changing a price (Enterprise to $1,000 / $8,400, 2026-11-03)
+
+Stripe prices can't be edited. The site finds prices by lookup key
+(`api/_lib/billing.js`, `priceFor`), so a price change needs no code: create
+the new price with the same lookup key and `transfer_lookup_key=true` (Stripe
+moves the key off the old price), then archive the old price. Nothing is
+deleted. TEST mode first (`stripe login`, no `--live`):
+
+1. Find the Enterprise product and the current prices:
+   ```bash
+   stripe get /v1/prices -d "lookup_keys[]=enterprise_monthly" -d "lookup_keys[]=enterprise_yearly"
+   ```
+   Note each price's `id` and its `product` (`prod_…`).
+2. Create the new prices, moving the lookup keys (replace `<prod>`):
+   ```bash
+   stripe prices create --product <prod> --currency usd --unit-amount 100000 -d "recurring[interval]=month" -d "lookup_key=enterprise_monthly" -d "transfer_lookup_key=true" -d "metadata[ca_plan]=enterprise"
+   stripe prices create --product <prod> --currency usd --unit-amount 840000 -d "recurring[interval]=year" -d "lookup_key=enterprise_yearly" -d "transfer_lookup_key=true" -d "metadata[ca_plan]=enterprise"
+   ```
+3. Check: step 1's command now lists the two new prices ($1,000.00 and
+   $8,400.00) and nothing else.
+4. Archive the old prices (use the ids from step 1):
+   ```bash
+   stripe prices update <old $300 price id> -d "active=false"
+   stripe prices update <old $2,700 price id> -d "active=false"
+   ```
+5. Customer portal (Dashboard, TEST mode: Settings → Billing → Customer
+   portal → Subscriptions → products customers can switch between): for
+   Canary Alpha Enterprise, select the two new prices and remove the old
+   ones. Save.
+6. Existing subscribers keep the old price until moved; nobody is moved
+   automatically. To move one: Dashboard → the subscription → Update
+   subscription → change the price to the new one (choose the proration).
+   Paid plans aren't open yet, so in TEST mode there is normally no one to
+   move.
+7. Run test step 10 and 11 above (checkout and Pro → Enterprise upgrade)
+   and check the amounts.
+
+For live mode, repeat steps 1–7 with `--live` added to each command (and the
+live Dashboard) only when going live; the Go-live commands below already
+create the new amounts.
 
 ## Go-live: switching Stripe to live mode
 
@@ -180,8 +221,8 @@ test above passes on production in TEST mode.
    stripe prices create --live --product <prod> --currency usd --unit-amount 3000 -d "recurring[interval]=month" -d "lookup_key=pro_monthly" -d "metadata[ca_plan]=pro"
    stripe prices create --live --product <prod> --currency usd --unit-amount 28800 -d "recurring[interval]=year" -d "lookup_key=pro_yearly" -d "metadata[ca_plan]=pro"
    stripe products create --live --name "Canary Alpha Enterprise" -d "metadata[ca_plan]=enterprise"
-   stripe prices create --live --product <prod> --currency usd --unit-amount 30000 -d "recurring[interval]=month" -d "lookup_key=enterprise_monthly" -d "metadata[ca_plan]=enterprise"
-   stripe prices create --live --product <prod> --currency usd --unit-amount 270000 -d "recurring[interval]=year" -d "lookup_key=enterprise_yearly" -d "metadata[ca_plan]=enterprise"
+   stripe prices create --live --product <prod> --currency usd --unit-amount 100000 -d "recurring[interval]=month" -d "lookup_key=enterprise_monthly" -d "metadata[ca_plan]=enterprise"
+   stripe prices create --live --product <prod> --currency usd --unit-amount 840000 -d "recurring[interval]=year" -d "lookup_key=enterprise_yearly" -d "metadata[ca_plan]=enterprise"
    ```
    Then check Settings → Managed Payments (live mode): checkout turns it
    off per session either way, so a live checkout must open with Canary

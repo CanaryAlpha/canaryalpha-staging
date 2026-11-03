@@ -32,7 +32,7 @@
   }
 
   var SOON = function (plan) { return '<p><a class="members__button" href="../waitlist/?plan=' + plan + '">Coming soon. Join the list</a></p>'; };
-  var ENTERPRISE_TEXT = "Everything in Pro, plus 3 bespoke reports a month on any token or project you choose, delivered privately. $300 a month, or $2,700 a year (save 25%).";
+  var ENTERPRISE_TEXT = "Everything in Pro, plus 3 bespoke reports a month on any token or project you choose, delivered privately. $1,000 a month, or $8,400 a year (save 30%).";
 
   function render(me) {
     var b = me.billing, tier = me.tier, paid = me.paidPlans;
@@ -50,14 +50,14 @@
         : '<p class="members__muted">Every report we publish.</p>' + SOON("pro")) + "</div>");
       actions.push('<div class="account__offer" id="enterprise"><p class="account__offer-title">Enterprise</p>' + (paid
         ? '<p class="members__muted">' + ENTERPRISE_TEXT + "</p>" +
-          '<p class="account__buttons"><button type="button" class="members__button" data-checkout="enterprise_monthly">Enterprise monthly, $300</button>' +
-          '<button type="button" class="members__button" data-checkout="enterprise_yearly">Enterprise yearly, $2,700</button></p>'
+          '<p class="account__buttons"><button type="button" class="members__button" data-checkout="enterprise_monthly">Enterprise monthly, $1,000</button>' +
+          '<button type="button" class="members__button" data-checkout="enterprise_yearly">Enterprise yearly, $8,400</button></p>'
         : '<p class="members__muted">Everything in Pro, plus 3 bespoke reports a month on any token or project you choose.</p>' + SOON("enterprise")) + "</div>");
     } else if (b.plan === "pro") {
       actions.push('<div class="account__offer" id="enterprise"><p class="account__offer-title">Upgrade to Enterprise</p>' + (paid
         ? '<p class="members__muted">' + ENTERPRISE_TEXT + " You pay only the difference for the rest of this billing period; Stripe shows the amount before you confirm.</p>" +
-          '<p class="account__buttons"><button type="button" class="members__button" data-upgrade="enterprise_monthly">Enterprise monthly, $300</button>' +
-          '<button type="button" class="members__button" data-upgrade="enterprise_yearly">Enterprise yearly, $2,700</button></p>'
+          '<p class="account__buttons"><button type="button" class="members__button" data-upgrade="enterprise_monthly">Enterprise monthly, $1,000</button>' +
+          '<button type="button" class="members__button" data-upgrade="enterprise_yearly">Enterprise yearly, $8,400</button></p>'
         : '<p class="members__muted">Everything in Pro, plus 3 bespoke reports a month on any token or project you choose.</p>' + SOON("enterprise")) + "</div>");
     }
     if (b.customer) {
