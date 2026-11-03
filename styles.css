@@ -78,11 +78,15 @@
   --canary-halo: 0.5px 0 #000, -0.5px 0 #000, 0 0.5px #000, 0 -0.5px #000,
     0.5px 0.5px #000, -0.5px 0.5px #000, 0.5px -0.5px #000, -0.5px -0.5px #000;
   --canary-halo-icon: drop-shadow(0 0 0.6px #000) drop-shadow(0 0 0.6px #000) drop-shadow(0 0 0.6px #000);
+  /* Filled SVG shapes (the logo's α): a crisp black edge that matches the
+     text outline; the blurred drop-shadows above are almost invisible on
+     its thin strokes. */
+  --canary-halo-stroke: #000;
   --canary-halo-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'%3E%3Cpath d='M.5.5h10l-5 5z' fill='%23FFEF00' stroke='%23000' stroke-linejoin='round' paint-order='stroke'/%3E%3C/svg%3E");
 }
-:root[data-theme="dark"] { --canary-halo: none; --canary-halo-icon: none; --canary-halo-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'%3E%3Cpath d='M.5.5h10l-5 5z' fill='%23FFEF00'/%3E%3C/svg%3E"); }
+:root[data-theme="dark"] { --canary-halo: none; --canary-halo-icon: none; --canary-halo-stroke: transparent; --canary-halo-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'%3E%3Cpath d='M.5.5h10l-5 5z' fill='%23FFEF00'/%3E%3C/svg%3E"); }
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) { --canary-halo: none; --canary-halo-icon: none; --canary-halo-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'%3E%3Cpath d='M.5.5h10l-5 5z' fill='%23FFEF00'/%3E%3C/svg%3E"); }
+  :root:not([data-theme]) { --canary-halo: none; --canary-halo-icon: none; --canary-halo-stroke: transparent; --canary-halo-arrow: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 11 6'%3E%3Cpath d='M.5.5h10l-5 5z' fill='%23FFEF00'/%3E%3C/svg%3E"); }
 }
 .ca-logo {
   --logo-cap: 0.67rem;
@@ -120,21 +124,26 @@
    No highlight or underline; the focus outline stays. */
 .site-header__brand .ca-logo,
 .site-footer__home .ca-logo { transition: color 0.15s ease, text-shadow 0.15s ease; }
-.site-header__brand .ca-logo__alpha,
-.site-footer__home .ca-logo__alpha { transition: filter 0.15s ease; }
+/* The α's edge: a 1.5px stroke drawn under the fill (paint-order), so
+   0.75px shows outside the shape, at every logo size (non-scaling-stroke).
+   Measured against the letters' text outline, it matches their weight on
+   standard and high-density screens (1px left the α unoutlined at 1x). */
+.ca-logo__alpha path { stroke: transparent; stroke-width: 1.5px; vector-effect: non-scaling-stroke; paint-order: stroke fill; stroke-linejoin: round; }
+.site-header__brand .ca-logo__alpha path,
+.site-footer__home .ca-logo__alpha path { transition: stroke 0.15s ease; }
 @media (hover: hover) {
   .site-header__brand:hover .ca-logo,
   .site-footer__home:hover .ca-logo { color: var(--canary); text-shadow: var(--canary-halo); }
-  .site-header__brand:hover .ca-logo__alpha,
-  .site-footer__home:hover .ca-logo__alpha { filter: var(--canary-halo-icon); }
+  .site-header__brand:hover .ca-logo__alpha path,
+  .site-footer__home:hover .ca-logo__alpha path { stroke: var(--canary-halo-stroke); }
 }
 .site-header__brand:focus-visible .ca-logo,
 .site-footer__home:focus-visible .ca-logo { color: var(--canary); text-shadow: var(--canary-halo); }
-.site-header__brand:focus-visible .ca-logo__alpha,
-.site-footer__home:focus-visible .ca-logo__alpha { filter: var(--canary-halo-icon); }
+.site-header__brand:focus-visible .ca-logo__alpha path,
+.site-footer__home:focus-visible .ca-logo__alpha path { stroke: var(--canary-halo-stroke); }
 @media (prefers-reduced-motion: reduce) {
   .site-header__brand .ca-logo, .site-footer__home .ca-logo,
-  .site-header__brand .ca-logo__alpha, .site-footer__home .ca-logo__alpha { transition: none; }
+  .site-header__brand .ca-logo__alpha path, .site-footer__home .ca-logo__alpha path { transition: none; }
 }
 
 /* Display heading: used by the Section 1 slogan (.hero__title); the
@@ -245,38 +254,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
-/* STAGING ONLY. Text-only hero (the homepage): the slogan, the supporting
-   text and the hero buttons stack in normal flow, centred across and down
-   the one screen, clear of the scroll-down arrow. The supporting text is
-   capped at ~70 characters a line so it doesn't run too wide. */
-.hero.hero--text {
-  height: auto;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(1rem, 3vh, 2rem);
-  padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) var(--arrow-clear);
-}
-.hero--text .hero__title,
-.hero--text .hero__text {
-  position: static;
-  margin-inline: auto;
-  text-align: center;
-  text-shadow: none;
-}
-.hero--text .hero__text { max-width: min(36em, 100%); }
-.hero--text .hero__foot { position: static; align-items: center; }
-.hero--text .hero__actions { justify-content: center; }
-@media (max-width: 1099px) {
-  .hero--text .hero__foot { width: min(36rem, 100%); margin-inline: auto; }
-}
-@media (min-width: 1100px) {
-  /* Centred under the text here (the live hero puts them to its right). */
-  .hero--text .hero__foot { flex-direction: column; align-items: center; gap: 1.25rem; }
-}
-
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
   position: absolute;
