@@ -254,38 +254,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
-/* STAGING ONLY. Text-only hero (the homepage): the slogan, the supporting
-   text and the hero buttons stack in normal flow, centred across and down
-   the one screen, clear of the scroll-down arrow. The supporting text is
-   capped at ~70 characters a line so it doesn't run too wide. */
-.hero.hero--text {
-  height: auto;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(1rem, 3vh, 2rem);
-  padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) var(--arrow-clear);
-}
-.hero--text .hero__title,
-.hero--text .hero__text {
-  position: static;
-  margin-inline: auto;
-  text-align: center;
-  text-shadow: none;
-}
-.hero--text .hero__text { max-width: min(36em, 100%); }
-.hero--text .hero__foot { position: static; align-items: center; }
-.hero--text .hero__actions { justify-content: center; margin-inline: 0; }
-@media (max-width: 1099px) {
-  .hero--text .hero__foot { width: min(36rem, 100%); margin-inline: auto; }
-}
-@media (min-width: 1100px) {
-  /* Centred under the text here (the live hero puts them to its right). */
-  .hero--text .hero__foot { flex-direction: column; align-items: center; gap: 1.25rem; }
-}
-
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
   position: absolute;
@@ -313,8 +281,11 @@ table, .is-num { font-variant-numeric: tabular-nums; }
    Spacing: each button is as wide as its label and arrow plus the ghost
    button's own side padding (1.25rem), so every pair of labels has the
    same space between it (2 x 1.25rem + the 0.5rem gap = 3rem), whatever
-   the label lengths. The row is pulled out by that padding at its outer
-   edge, so the first or last label lines up with the text margin.
+   the label lengths. On tablets the row is pulled out by that padding on
+   the left, so the first label lines up with the text. On desktop the row
+   is held in instead: the last label ends 5rem (80px) from the right
+   edge, twice the text's 2.5rem left margin (its own 1.25rem padding plus
+   1.25rem), so the buttons don't crowd the edge.
    Desktop (1100px+): the foot is the bottom overlay layer the text was,
    with the buttons in a row to the right of the text, centred on it. */
 .hero__foot {
@@ -346,7 +317,7 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 @media (min-width: 1100px) {
   .hero__foot { flex-direction: row; align-items: center; justify-content: space-between; gap: 2.5rem; }
   .hero__foot .hero__text { flex: 0 1 auto; }
-  .hero__actions { flex: none; flex-wrap: nowrap; margin-right: -1.25rem; }
+  .hero__actions { flex: none; flex-wrap: nowrap; margin-right: 1.25rem; }
 }
 /* Below 1100px: the slogan, the visual and the foot stack in normal flow
    (no overlap at any height; the hero grows past one screen if it must),
