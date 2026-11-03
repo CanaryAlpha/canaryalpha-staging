@@ -254,38 +254,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
-/* STAGING ONLY. Text-only hero (the homepage): the slogan, the supporting
-   text and the hero buttons stack in normal flow, centred across and down
-   the one screen, clear of the scroll-down arrow. The supporting text is
-   capped at ~70 characters a line so it doesn't run too wide. */
-.hero.hero--text {
-  height: auto;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(1rem, 3vh, 2rem);
-  padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) var(--arrow-clear);
-}
-.hero--text .hero__title,
-.hero--text .hero__text {
-  position: static;
-  margin-inline: auto;
-  text-align: center;
-  text-shadow: none;
-}
-.hero--text .hero__text { max-width: min(36em, 100%); }
-.hero--text .hero__foot { position: static; align-items: center; }
-.hero--text .hero__actions { justify-content: center; margin-inline: 0; }
-@media (max-width: 1099px) {
-  .hero--text .hero__foot { width: min(36rem, 100%); margin-inline: auto; }
-}
-@media (min-width: 1100px) {
-  /* Centred under the text here (the live hero puts them to its right). */
-  .hero--text .hero__foot { flex-direction: column; align-items: center; gap: 1.25rem; }
-}
-
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
   position: absolute;
@@ -310,14 +278,15 @@ table, .is-num { font-variant-numeric: tabular-nums; }
    Hover and focus: the shared rule (label and arrow turn Canary Yellow).
    Here the thin black outline (--canary-halo) shows in Dark too, not only
    in Light, so every hero button gets yellow with a black outline.
-   Spacing: each button is as wide as its label and arrow plus the ghost
-   button's own side padding (1.25rem), so every pair of labels has the
-   same space between it (2 x 1.25rem + the 0.5rem gap = 3rem), whatever
-   the label lengths. On tablets the row is pulled out by that padding on
-   the left, so the first label lines up with the text. On desktop the row
-   is held in instead: the last label ends 5rem (80px) from the right
-   edge, twice the text's 2.5rem left margin (its own 1.25rem padding plus
-   1.25rem), so the buttons don't crowd the edge.
+   Spacing (chosen on staging with the Hero spacing panel): 40px between
+   every pair of labels, and on desktop the last label ends 200px from the
+   right edge. Each button is as wide as its label and arrow plus 19px of
+   side padding (1px under the ghost button's 1.25rem, so two paddings and
+   the arrow's ~1px of built-in space make exactly 40px, with no extra
+   gap), whatever the label lengths. Desktop: the row is held in by 140px
+   (40px page margin + 140 + 19 + 1 = 200px). Tablets: the row is pulled
+   out by the padding on the left, so the first label lines up with the
+   text.
    Desktop (1100px+): the foot is the bottom overlay layer the text was,
    with the buttons in a row to the right of the text, centred on it. */
 .hero__foot {
@@ -337,19 +306,19 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0;
   pointer-events: auto;
   --canary-halo: 0.5px 0 #000, -0.5px 0 #000, 0 0.5px #000, 0 -0.5px #000,
     0.5px 0.5px #000, -0.5px 0.5px #000, 0.5px -0.5px #000, -0.5px -0.5px #000;
   --canary-halo-icon: drop-shadow(0 0 0.6px #000) drop-shadow(0 0 0.6px #000) drop-shadow(0 0 0.6px #000);
 }
-.hero__actions .button.button { min-width: 0; justify-content: center; }
+.hero__actions .button.button { min-width: 0; justify-content: center; padding-inline: 19px; }
 :root:not([data-auth-state="in"]) .hero__actions [data-auth="in"],
 :root[data-auth-state="in"] .hero__actions [data-auth="out"] { display: none; }
 @media (min-width: 1100px) {
   .hero__foot { flex-direction: row; align-items: center; justify-content: space-between; gap: 2.5rem; }
   .hero__foot .hero__text { flex: 0 1 auto; }
-  .hero__actions { flex: none; flex-wrap: nowrap; margin-right: 1.25rem; }
+  .hero__actions { flex: none; flex-wrap: nowrap; margin-right: 140px; }
 }
 /* Below 1100px: the slogan, the visual and the foot stack in normal flow
    (no overlap at any height; the hero grows past one screen if it must),
@@ -370,14 +339,14 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero__stage { position: static; grid-row: 2; }
   .hero__foot { position: static; grid-row: 3; }
   /* Never further than the page margin, so no button reaches off screen. */
-  .hero__actions { margin-left: calc(-1 * min(1.25rem, var(--pad))); }
+  .hero__actions { margin-left: calc(-1 * min(19px, var(--pad))); }
   .hero__btn--main { order: -1; }
 }
 @media (min-width: 768px) and (max-width: 1099px) {
   .hero { padding-top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
 @media (max-width: 599px) {
-  .hero__actions { flex-direction: column; align-items: stretch; width: 100%; margin-left: 0; }
+  .hero__actions { flex-direction: column; align-items: stretch; gap: 0.5rem; width: 100%; margin-left: 0; }
   .hero__actions .button.button { flex: none; width: 100%; }
 }
 /* The hero visual (components/hero-visuals.css) gives up the buttons'
