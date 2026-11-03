@@ -29,12 +29,13 @@
   var css = document.createElement("style");
   css.textContent = [
     /* Each button has 1.25rem (20px) side padding; the page margin is
-       2.5rem (40px) on desktop. Right distance = 40 + 20 + margin-right.
-       Label gap = 2 x 20 + flex gap. */
-    '@media (min-width: 1100px) { html[data-hs] .hero__actions { margin-right: calc(var(--hs-right) - 60px); } }',
-    'html[data-hs] .hero__actions { gap: calc(var(--hs-gap) - 40px); }',
+       2.5rem (40px) on desktop; the arrow icon has ~1px of space built in.
+       Right distance = 40 + 20 + 1 + margin-right; label gap = 2 x 20 +
+       2 x 1 + flex gap. Measured, so the panel's numbers are what shows. */
+    '@media (min-width: 1100px) { html[data-hs] .hero:not(.hero--text) .hero__actions { margin-right: calc(var(--hs-right) - 61px); } }',
+    'html[data-hs] .hero__actions { gap: calc(var(--hs-gap) - 42px); }',
     '@media (max-width: 599px) { html[data-hs] .hero__actions { gap: 0.5rem; } }',
-    '.hs { position: fixed; z-index: 2147483646; right: 12px; bottom: 64px; width: min(16.5rem, calc(100vw - 24px)); max-height: calc(100vh - 140px); overflow: auto;',
+    '.hs { position: fixed; z-index: 2147483646; right: 12px; top: calc(var(--site-header-h, 64px) + 8px); width: min(16.5rem, calc(100vw - 24px)); max-height: calc(100vh - var(--site-header-h, 64px) - 80px); overflow: auto;',
     '  background: #fff; color: #0A0A0A; border: 1px solid #0A0A0A; border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.25);',
     '  font: 13px/1.35 system-ui, -apple-system, sans-serif; text-shadow: none; }',
     '.hs[data-closed] { width: auto; }',
@@ -62,7 +63,7 @@
     '<div class="hs__body" id="hs-body">' +
       (textOnly ? '<div class="hs__row"><button type="button" data-hs-live>Live layout</button></div>' : "") +
       '<div><label class="hs__label" for="hs-right">From the right edge: <span data-hs-rightval></span></label>' +
-        '<input type="range" id="hs-right" data-hs-right min="40" max="240" step="5">' +
+        '<input type="range" id="hs-right" data-hs-right min="40" max="240" step="1">' +
         '<div class="hs__row" style="margin-top:4px" role="group" aria-label="Presets">' +
           '<button type="button" data-hs-preset="40" title="Same as the text\'s left margin (the first live version)">40</button>' +
           '<button type="button" data-hs-preset="60">60</button>' +
