@@ -9,10 +9,10 @@
  * CA_HOLDINGS.date("2026-10-29") -> "29 October 2026"
  * CA_HOLDINGS.root     the site root, from this file's address
  *
- * The policy is to disclose WHETHER a position is held, never how much. Only
- * the fields above are ever read, and an entry carrying an amount-like field
- * is left out entirely (with a console warning), so a slip in the data file
- * cannot publish a figure.
+ * The page shows whether each position is held. Only the fields above are
+ * ever read, and an entry carrying an amount-like field is left out entirely
+ * (with a console warning), so a slip in the data file cannot publish a
+ * figure.
  */
 window.CA_HOLDINGS = (function () {
   var src = document.currentScript && document.currentScript.src;
@@ -34,7 +34,7 @@ window.CA_HOLDINGS = (function () {
     var bad = Object.keys(entry).filter(function (k) { return FORBIDDEN.test(k); });
     if (bad.length) {
       console.warn("data/holdings.json: " + kind + " entry for \"" + str(entry.ticker) +
-        "\" left out: it has " + bad.join(", ") + ". Holdings never show amounts.");
+        "\" left out: it has " + bad.join(", ") + ". Holdings show only whether a token is held.");
       return null;
     }
     return entry;

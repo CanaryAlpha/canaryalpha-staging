@@ -373,9 +373,9 @@ written by `tools/make-redirects.py`; edit its list and run it again.
 explains every field. It feeds the Company Holdings page (`holdings/`) and the
 Disclosure line for future report pages (`components/holdings/disclosure.js`:
 `<p data-disclosure="BTC" data-name="Bitcoin"></p>`, not used yet). The policy
-(Disclaimer, section 8) is to disclose whether a position is held, never how
-much: the page reads only token, status, date and report link, and leaves out
-any entry that carries an amount-like field. Update `lastUpdated` with every
+(Disclaimer, section 8) is to disclose whether a position is held: the page
+reads only token, status, date and report link, and leaves out any entry that
+carries an amount-like field. Update `lastUpdated` with every
 edit, and add to `changes` rather than deleting from it.
 
 ## Placeholders still to fill

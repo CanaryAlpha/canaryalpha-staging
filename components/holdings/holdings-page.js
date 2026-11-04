@@ -1,8 +1,8 @@
 /*
  * Company Holdings page (holdings/): fills the table, the changes log and the
  * "Last updated" date from data/holdings.json through holdings-data.js.
- * No amounts, sizes, values or prices: the data file never carries them and
- * nothing here would show them.
+ * It shows whether each token is held, with its dates and report link, and
+ * reads no other field.
  */
 (function () {
   var H = window.CA_HOLDINGS;
@@ -49,7 +49,7 @@
     else updated.hidden = true;
 
     table.innerHTML = d.holdings.length
-      ? '<table class="legal__table holdings-table"><caption class="holdings-sr">Company holdings: whether each token is held. Amounts are never disclosed.</caption>' +
+      ? '<table class="legal__table holdings-table"><caption class="holdings-sr">Company holdings: whether each token is held.</caption>' +
         '<thead><tr><th scope="col">Token</th><th scope="col">Status</th><th scope="col">Disclosed</th><th scope="col">Related report</th></tr></thead>' +
         "<tbody>" + d.holdings.map(row).join("") + "</tbody></table>"
       : '<p class="holdings-empty">No positions to disclose at this time.</p>';
