@@ -266,38 +266,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
-/* STAGING ONLY. Text-only hero (the homepage): the slogan, the supporting
-   text and the hero buttons stack in normal flow, centred across and down
-   the one screen, clear of the scroll-down arrow. The supporting text is
-   capped at ~70 characters a line so it doesn't run too wide. */
-.hero.hero--text {
-  height: auto;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(1rem, 3vh, 2rem);
-  padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) var(--arrow-clear);
-}
-.hero--text .hero__title,
-.hero--text .hero__text {
-  position: static;
-  margin-inline: auto;
-  text-align: center;
-  text-shadow: none;
-}
-.hero--text .hero__text { max-width: min(36em, 100%); }
-.hero--text .hero__foot { position: static; align-items: center; }
-.hero--text .hero__actions { justify-content: center; margin-inline: 0; }
-@media (max-width: 1099px) {
-  .hero--text .hero__foot { width: min(36rem, 100%); margin-inline: auto; }
-}
-@media (min-width: 1100px) {
-  /* Centred under the text here (the live hero puts them to its right). */
-  .hero--text .hero__foot { flex-direction: column; align-items: center; gap: 1.25rem; }
-}
-
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
   position: absolute;
@@ -707,14 +675,21 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 }
 
 /* Blinking numbers: 1, then 2, then 3, then repeat; one lit at a time.
-   Each number gets a third of the cycle: 0.2s fade in, held, 0.2s fade out
-   (on for ~0.6s of its 0.8s slot). "On" = the circle fills with
-   --selected-bg (the text colour) and the number turns --selected-ink
-   (the background colour), the theme's existing inverted pair; "off" =
-   the normal style above (just the --ink number; no fill or outline). Speed:
-   --steps-blink-cycle (the whole 1-2-3 loop); the fades scale with it.
-   steps-blink.js adds .is-offscreen to pause it off screen. */
-.steps { --steps-blink-cycle: 2.4s; }
+   Speed: --steps-step-duration, the time each number gets before the next
+   (default 2000ms, so one 1-2-3 loop takes 6s). Within its slot each
+   number fades in over the first quarter, stays lit for half, and fades
+   out over the last quarter, then the next one fades in; the fades
+   scale with the duration. "On" = the circle fills with --selected-bg (the
+   text colour) and the number turns --selected-ink (the background
+   colour), the theme's existing inverted pair; "off" = the normal style
+   above (just the --ink number; no fill or outline). Only colours change,
+   so nothing moves. steps-blink.js adds .is-paused while the section is
+   off screen or the tab is hidden; it resumes where it stopped. With
+   reduced motion there is no animation: all three show as plain numbers. */
+.steps {
+  --steps-step-duration: 2000ms;
+  --steps-blink-cycle: calc(var(--steps-step-duration) * 3);
+}
 @keyframes steps-blink {
   0%, 33.334%, 100% { background-color: var(--ground); border-color: transparent; color: var(--ink); }
   8.333%, 25% { background-color: var(--selected-bg); border-color: var(--selected-bg); color: var(--selected-ink); }
@@ -723,9 +698,9 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .steps__num {
     animation: steps-blink var(--steps-blink-cycle) ease-in-out infinite;
   }
-  .steps__item:nth-child(2) .steps__num { animation-delay: calc(var(--steps-blink-cycle) / 3); }
-  .steps__item:nth-child(3) .steps__num { animation-delay: calc(var(--steps-blink-cycle) * 2 / 3); }
-  .steps.is-offscreen .steps__num { animation-play-state: paused; }
+  .steps__item:nth-child(2) .steps__num { animation-delay: var(--steps-step-duration); }
+  .steps__item:nth-child(3) .steps__num { animation-delay: calc(var(--steps-step-duration) * 2); }
+  .steps.is-paused .steps__num { animation-play-state: paused; }
 }
 
 @media (max-width: 767px) {
