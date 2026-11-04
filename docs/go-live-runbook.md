@@ -204,6 +204,46 @@ For live mode, repeat steps 1–7 with `--live` added to each command (and the
 live Dashboard) only when going live; the Go-live commands below already
 create the new amounts.
 
+**Done in TEST mode, 2026-11-03** (sandbox "Canary Alpha 404",
+`acct_1UW9l54EnXS06W2y`; done and checked by the owner with the Stripe CLI;
+live mode not touched):
+
+| What | Id | State |
+|---|---|---|
+| Canary Alpha Enterprise (the product the site uses) | `prod_VYNPhdAh7CrtOu` | active |
+| Enterprise $1,000.00 / month, lookup key `enterprise_monthly`, `ca_plan` enterprise | `price_1UXofT4EnXS06W2yx55XFXsn` | active |
+| Enterprise $8,400.00 / year, lookup key `enterprise_yearly`, `ca_plan` enterprise | `price_1UXofs4EnXS06W2ypI6d2jNW` | active |
+| Old Enterprise $300.00 / month | `price_1UXGfB4EnXS06W2y8q20BXuo` | archived, no lookup key |
+| Old Enterprise $2,700.00 / year | `price_1UXGfG4EnXS06W2yWGRrTct1` | archived, no lookup key |
+| Two earlier $1,000 / $8,400 prices on `prod_VYNPhdAh7CrtOu` (replaced by the two above) | `price_1UXoY64EnXS06W2yt0syOT7I`, `price_1UXoYF4EnXS06W2yiBFIqHSY` | archived |
+| Duplicate product "Canary Alpha Enterprise", made in the Dashboard by mistake (no lookup keys; was the one in the portal) | `prod_VYwIhF90muayyQ` | archived, with its prices `price_1UXoPh4EnXS06W2y0Z4cABOQ`, `price_1UXoQP4EnXS06W2yE2hUeGmC` |
+| Customer portal (default configuration) | `bpc_1UW9rX4EnXS06W2yquXLEYxL` | lists Pro `prod_VXEKFm2O8OWWCE` (unchanged) and Enterprise `prod_VYNPhdAh7CrtOu` with the two new prices; adjustable quantity off for both |
+
+Lessons: make prices on the existing product with the CLI commands above, not
+a new product in the Dashboard (a second product with the same name gets no
+lookup keys, and the portal can end up pointing at it); and after any price
+change, check the portal with
+`stripe get /v1/billing_portal/configurations/<bpc_…> -d "expand[]=features.subscription_update.products"`
+(the plain list doesn't show which prices the portal offers). Also check the
+product itself is still active (`stripe products retrieve <prod_…>`, look for
+`"active": true`): an archived product blocks Checkout for all of its prices,
+even active ones ("Price … is not available to be purchased because its
+product is not active", seen in the Vercel logs as a 500 on
+`/api/billing/checkout`; the member only sees "Something went wrong").
+`prod_VYNPhdAh7CrtOu` was archived by mistake during this clean-up and
+reactivated on 2026-11-04 with
+`stripe products update prod_VYNPhdAh7CrtOu -d active=true`.
+
+**Tested on the `enterprise-pricing` preview, 2026-11-04** (TEST mode, by the
+owner): Checkout for Enterprise monthly showed $1,000.00 / month and the
+account page and Enterprise dashboard (3 of 3 reports, reset date) updated;
+in Stripe the subscription was on `price_1UXofT4EnXS06W2yx55XFXsn` with a paid
+$1,000.00 invoice, and webhook deliveries returned 200. The portal offered
+Pro and Enterprise yearly with no quantity field; monthly to yearly charged
+$7,400 (prorated) and moved the renewal to a year out; cancelling kept
+Enterprise until the period end. A Pro monthly member upgrading to
+Enterprise monthly paid $970 (prorated) and became Enterprise (monthly).
+
 ## Go-live: switching Stripe to live mode
 
 Only after items 129–131 are done (LLC, EIN, bank account), and after the
