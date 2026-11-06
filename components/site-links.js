@@ -34,6 +34,7 @@ window.CA_SITE_LINKS = {
   dashboards: [
     { label: "Home", href: "./" },
     { label: "Dashboard", href: "dashboard/" },
+    { label: "Reports", href: "reports/" },
     { label: "Bespoke reports", href: "dashboard/enterprise/", tier: "enterprise" },
     { label: "Account", href: "account/" }
   ],

@@ -1,14 +1,16 @@
 /*
- * A small Markdown reader for the research reports (dashboard/report/).
+ * A small Markdown reader for the research reports, run on the server
+ * (api/_lib/report-html.js renders /reports/<slug>/ with it).
  * Safe by construction: every character of the source is HTML-escaped
  * first, and only these are turned back into markup: headings, rules,
  * lists, tables, paragraphs, **bold**, *italic*, `code` and links to
  * http(s) addresses or paths on this site.
  *
- *   CA_MARKDOWN.render(text, { shift }) -> HTML string
+ *   render(text, { shift }) -> HTML string
+ *   inline(text)            -> HTML string for one line (no blocks)
  *     shift: how many levels to push headings down (1: "#" becomes <h2>)
  */
-window.CA_MARKDOWN = (function () {
+const md = (function () {
   function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 
   function inline(t) {
@@ -80,5 +82,8 @@ window.CA_MARKDOWN = (function () {
     return out.join("\n");
   }
 
-  return { render: render };
+  return { render: render, inline: inline };
 })();
+
+export const render = md.render;
+export const inline = md.inline;

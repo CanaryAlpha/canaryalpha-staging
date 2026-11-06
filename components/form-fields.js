@@ -49,7 +49,8 @@ window.CA_FORM = (function () {
     password: function (value) { return value ? "" : "Please enter your password."; },
     newPassword: function (value) {
       if (!value) return "Please choose a password.";
-      return value.length >= 8 ? "" : "Use at least 8 characters.";
+      // Clerk's rule (dashboard, Passwords): 15 or more.
+      return value.length >= 15 ? "" : "Use at least 15 characters.";
     },
     length: function (label, min, max) {
       return function (value) {

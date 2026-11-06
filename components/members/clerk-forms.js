@@ -6,8 +6,8 @@
  *   <div class="clerk-slot" data-clerk="sign-in|sign-up|profile"></div>
  *
  * Clerk runs the whole flow: passwords, email verification codes, "Forgot
- * password?" and account deletion. After logging in or signing up it goes
- * to ?next= (a path on this site only) or the dashboard.
+ * password?" and account deletion. After logging in or signing up it always
+ * goes to the dashboard (next() below).
  *
  * Sign up shows under the consent box (components/consent-checkbox.js);
  * it can't be sent until the box is ticked, and the time it was ticked is
@@ -24,10 +24,11 @@
   if (!slot) return;
   var kind = slot.getAttribute("data-clerk");
 
-  function next() {
-    var n = new URLSearchParams(location.search).get("next") || "";
-    return /^\/(?!\/)/.test(n) ? n : "/dashboard/";
-  }
+  // After logging in or signing up, always the member's dashboard (item
+  // 407): /dashboard/ sends Pro and Enterprise members on to theirs. A
+  // ?next= on the address (members' pages still add one) is ignored, so a
+  // report link never lands a new login on the report.
+  function next() { return "/dashboard/"; }
   function note(html) { slot.innerHTML = '<p class="clerk-slot__note">' + html + "</p>"; }
 
   function appearance() {
@@ -73,7 +74,7 @@
     var ring = { borderColor: INK, boxShadow: "0 0 0 2px " + INK };
     var focus = { "&:focus": ring, "&&[data-variant]:focus, &&[data-variant]:focus-within, &&[data-variant][data-focus-within=\"true\"]": ring };
     return {
-      layout: { socialButtonsVariant: "blockButton", socialButtonsPlacement: "top" },
+      options: { socialButtonsVariant: "blockButton", socialButtonsPlacement: "top" },
       variables: {
         colorPrimary: INK, colorText: INK, colorTextSecondary: "#3D3D3D",
         colorTextOnPrimaryBackground: CANARY, colorPrimaryForeground: CANARY,

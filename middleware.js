@@ -1,7 +1,7 @@
 /*
  * Vercel Routing Middleware: members' pages need a login.
  *
- * Runs before /dashboard/ and /account/ are served. A visitor without a
+ * Runs before /dashboard/, /account/ and /reports/ are served. A visitor without a
  * valid Clerk session goes to the login page, which brings them back after.
  * This only guards the pages; every piece of members' data comes from the
  * api/ functions, which check the session (and the plan) themselves.
@@ -10,7 +10,7 @@
  */
 import { createClerkClient } from "@clerk/backend";
 
-export const config = { matcher: ["/dashboard/:path*", "/account/:path*"] };
+export const config = { matcher: ["/dashboard/:path*", "/account/:path*", "/reports", "/reports/:path*"] };
 
 let clerk;
 

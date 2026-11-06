@@ -693,8 +693,8 @@ window.CA_DASH_ASSETS = (function () {
     if (a.canaryScore == null) return '<span class="dash-muted">n/a</span>';
     return (Math.round(a.canaryScore * 100) / 100) + ' <span class="dash-muted">/ ' + (a.scoreMax || 10) + "</span>";
   }
-  // The full written report (dashboard/report/).
-  function reportHref(a) { return "/dashboard/report/?slug=" + encodeURIComponent(a.id); }
+  // The full written report (/reports/<slug>/, item 407).
+  function reportHref(a) { return "/reports/" + encodeURIComponent(a.id) + "/"; }
   // Verdict colour by family: deploy, hold (incl. staged DCA), watch, avoid.
   function verdictFamily(v) {
     var d = String(v || "").toLowerCase();

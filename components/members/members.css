@@ -1,6 +1,7 @@
 /*
  * Members' pages: login/ and signup/ (Clerk's forms), account/, and the
- * dashboard (dashboard/, dashboard/report/, dashboard/enterprise/). Theme
+ * dashboard (dashboard/, dashboard/enterprise/) and the report pages
+ * (/reports/, rendered by api/_lib/report-html.js). Theme
  * tokens from styles.css, so Light and Dark both work; the verdict colours
  * come from components/dashboard/dashboard.css. Same look as the rest of
  * the site: no panels, sections divided by thin rules.
@@ -70,7 +71,7 @@
 .verdict--watch { color: var(--dash-v-watch); }
 .verdict--avoid { color: var(--dash-v-avoid); }
 
-/* ---- Report list (dashboard/) ------------------------------------------------ */
+/* ---- Report list (/reports/) -------------------------------------------------- */
 .reports { list-style: none; margin: 0; padding: 0; }
 .reports__item { padding: 1.25rem 0; border-bottom: 1px solid var(--rule); }
 .reports__item:first-child { padding-top: 0.25rem; }
@@ -112,6 +113,41 @@
 .report__locked p { margin: 0.5rem 0 0; }
 .report__disclaimer { margin: 2.5rem 0 0; color: var(--muted); font-size: 0.875rem; }
 .report__disclaimer a { color: var(--ink); text-underline-offset: 0.15em; }
+
+/* ---- Report pages (/reports/, /reports/<slug>/; api/_lib/report-html.js) ---- */
+/* Logo beside the name. Image logos keep their own shape in a round frame;
+   tokens without one show their ticker in a ring (.dash-logo). */
+.dash-logo--md { width: 2.5rem; height: 2.5rem; font-size: 0.75rem; }
+.report-logo { border-radius: 50%; overflow: hidden; }
+.report-card__id, .report-head__id { display: flex; align-items: center; gap: 0.875rem; }
+.report-card__id > div, .report-head__id > div { min-width: 0; }
+.report-card__cat { margin-top: 0.125rem; }
+.report-card .reports__rating { margin-top: 0.625rem; }
+.report-head__id .members__title { font-size: clamp(2rem, 1.4rem + 2.4vw, 2.75rem); }
+.disclosure { margin: 0.75rem 0 0; color: var(--muted); font-size: 0.9375rem; }
+.disclosure strong { color: var(--ink); font-weight: 600; }
+.disclosure a { color: var(--ink); text-underline-offset: 0.15em; }
+.report__margin { margin: 0.5rem 0 0; font-size: 0.9375rem; }
+.report__why { margin-top: 0.75rem; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.report__why summary { display: flex; align-items: center; min-height: 44px; cursor: pointer; font-weight: 500; }
+.report__why .report__doc { padding-bottom: 0.75rem; font-size: 0.9375rem; }
+/* The market snapshot taken for the report. */
+.report-market { margin-top: 1.5rem; }
+.report-market__title { margin: 0 0 0.75rem; font-family: var(--font-heading); font-weight: 500; font-size: 1.0625rem; }
+.report-market__grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(9.5rem, 100%), 1fr)); gap: 0.875rem 1.25rem; margin: 0; }
+.report-market__grid dt { color: var(--muted); font-size: 0.875rem; }
+.report-market__grid dd { margin: 0.125rem 0 0; font-weight: 600; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+/* A report's structured sections, drawn by the general renderer. */
+.rv-section > :first-child, .rv-part > h3:first-child { margin-top: 0.5rem; }
+.rv-part h3 { font-family: var(--font-heading); font-weight: 500; font-size: 1.125rem; margin: 1.5rem 0 0.5rem; }
+.rv { margin: 0.5rem 0; }
+.rv dt { margin-top: 0.75rem; font-weight: 600; font-size: 0.9375rem; }
+.rv dd { margin: 0.125rem 0 0; padding-left: 0.875rem; border-left: 2px solid var(--rule); }
+.rv dd > p:first-child, .rv dd > ul:first-child { margin-top: 0; }
+.rv dd > p:last-child { margin-bottom: 0; }
+.rv-list { margin: 0.5rem 0; padding-left: 1.25rem; }
+.rv-list > li + li { margin-top: 0.75rem; }
+.report__more summary { gap: 0.5rem; }
 
 /* ---- Custom-report orders (dashboard/enterprise/) --------------------------- */
 .orders { list-style: none; margin: 0 0 1.25rem; padding: 0; }

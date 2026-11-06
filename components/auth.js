@@ -39,8 +39,13 @@ window.CA_AUTH = (function () {
   var src = document.currentScript && document.currentScript.src;
   var ROOT = src ? new URL("../", src).href : "/";
   var API = new URL("/api/", ROOT).href;
-  // clerk-js major version; Clerk serves it from the instance's own domain.
-  var CLERK_JS = "@clerk/clerk-js@5/dist/clerk.browser.js";
+  // clerk-js major version, and its prebuilt forms (a separate script since
+  // clerk-js 6); Clerk serves both from the instance's own domain. clerk-js
+  // 6.39 or later is needed for Clerk Protect: on a challenged sign-up it
+  // shows the challenge over the page (clerk-js 5 couldn't, and the
+  // sign-up never finished).
+  var CLERK_JS = "@clerk/clerk-js@6/dist/clerk.browser.js";
+  var CLERK_UI = "@clerk/ui@1/dist/ui.browser.js";
 
   function hint() {
     var m = document.cookie.match(/(?:^|;\s*)__client_uat=(\d+)/);
@@ -82,19 +87,26 @@ window.CA_AUTH = (function () {
     if (!clerkP) clerkP = config().then(function (cfg) {
       var host = frontendApi(cfg.clerkPublishableKey || "");
       if (!host) throw new Error("Accounts aren't set up on this address.");
-      return new Promise(function (resolve, reject) {
-        if (window.Clerk) return resolve(window.Clerk);
-        var s = document.createElement("script");
-        s.src = "https://" + host + "/npm/" + CLERK_JS;
-        s.async = true;
-        s.crossOrigin = "anonymous";
-        s.setAttribute("data-clerk-publishable-key", cfg.clerkPublishableKey);
-        s.onload = function () { resolve(window.Clerk); };
-        s.onerror = function () { reject(new Error("Couldn't load the login service.")); };
-        document.head.appendChild(s);
-      });
+      function script(path, ready, attrs) {
+        return new Promise(function (resolve, reject) {
+          if (ready()) return resolve();
+          var s = document.createElement("script");
+          s.src = "https://" + host + "/npm/" + path;
+          s.async = true;
+          s.crossOrigin = "anonymous";
+          Object.keys(attrs || {}).forEach(function (k) { s.setAttribute(k, attrs[k]); });
+          s.onload = function () { resolve(); };
+          s.onerror = function () { reject(new Error("Couldn't load the login service.")); };
+          document.head.appendChild(s);
+        });
+      }
+      return Promise.all([
+        script(CLERK_UI, function () { return !!window.__internal_ClerkUICtor; }),
+        script(CLERK_JS, function () { return !!window.Clerk; }, { "data-clerk-publishable-key": cfg.clerkPublishableKey })
+      ]).then(function () { return window.Clerk; });
     }).then(function (Clerk) {
       return Clerk.load({
+        ui: { ClerkUI: window.__internal_ClerkUICtor },
         signInUrl: ROOT + "login/",
         signUpUrl: ROOT + "signup/",
         afterSignOutUrl: ROOT

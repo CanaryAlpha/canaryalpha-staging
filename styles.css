@@ -266,38 +266,6 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
-/* STAGING ONLY. Text-only hero (the homepage): the slogan, the supporting
-   text and the hero buttons stack in normal flow, centred across and down
-   the one screen, clear of the scroll-down arrow. The supporting text is
-   capped at ~70 characters a line so it doesn't run too wide. */
-.hero.hero--text {
-  height: auto;
-  min-height: 100vh;
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: clamp(1rem, 3vh, 2rem);
-  padding: calc(var(--site-header-h, 0px) + 1.5rem) var(--pad) var(--arrow-clear);
-}
-.hero--text .hero__title,
-.hero--text .hero__text {
-  position: static;
-  margin-inline: auto;
-  text-align: center;
-  text-shadow: none;
-}
-.hero--text .hero__text { max-width: min(36em, 100%); }
-.hero--text .hero__foot { position: static; align-items: center; }
-.hero--text .hero__actions { justify-content: center; margin-inline: 0; }
-@media (max-width: 1099px) {
-  .hero--text .hero__foot { width: min(36rem, 100%); margin-inline: auto; }
-}
-@media (min-width: 1100px) {
-  /* Centred under the text here (the live hero puts them to its right). */
-  .hero--text .hero__foot { flex-direction: column; align-items: center; gap: 1.25rem; }
-}
-
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
   position: absolute;
@@ -1663,6 +1631,21 @@ html:not([data-production]) [data-production-only] { display: none !important; }
 .auth-panel button.form__submit:disabled { cursor: not-allowed; background: #4A4A4A; border-color: #4A4A4A; opacity: 0.85; color: #FFEF00; }
 .auth-panel .form__hint { margin: 0; color: #3D3D3D; font-size: 0.9375rem; }
 .auth-panel .form__hint[hidden] { display: none; }
+.auth-panel .field__hint { color: #3D3D3D; font-size: 0.9375rem; }
+/* Sign-up password rules (signup-form.js): an open circle, filled with a
+   tick once the rule is met. Met rules are #0A5C2A on the panel (6.8:1). */
+.pw-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.25rem; }
+.pw-rules li { display: flex; align-items: center; gap: 0.5rem; }
+.pw-rules__icon { width: 1rem; height: 1rem; flex: none; }
+.pw-rules__icon circle { fill: none; stroke: currentColor; stroke-width: 1.5; }
+.pw-rules__icon path { fill: none; stroke: transparent; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.pw-rules li.is-met { color: var(--success); }
+.pw-rules li.is-met .pw-rules__icon circle { fill: currentColor; }
+.pw-rules li.is-met .pw-rules__icon path { stroke: var(--ground); }
+.auth-panel .pw-rules li.is-met { color: #0A5C2A; }
+.auth-panel .pw-rules li.is-met .pw-rules__icon path { stroke: #FFFFFF; }
+.pw-rules__state { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pw-rules__note { margin: 0.375rem 0 0; }
 /* Contact us: field errors, the counter and the sent / failed line use the
    pinned tokens above (#A30000, #3D3D3D, #0A0A0A), all AA on yellow; the
    success line is bold so it reads as a result, not a hint. */

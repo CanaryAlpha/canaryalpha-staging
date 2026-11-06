@@ -13,9 +13,10 @@ import os
 
 SITE = "https://canaryalpha.co/"
 
-# Old live site (canaryalpha.co before the 2026 cutover).
-REPORT_SLUGS = ["mega", "dot", "eigenlayer", "zro", "strato", "prove", "aztec", "btc", "eth", "aave"]
-REDIRECTS = {"reports/" + s + "/": "reports/" for s in REPORT_SLUGS}
+# Old live site (canaryalpha.co before the 2026 cutover). Its report
+# addresses, /reports/<slug>/, are real pages again since item 407
+# (api/pages/report.js), so they are no longer redirected.
+REDIRECTS = {}
 REDIRECTS.update({
     "glossary/": "learn/glossary/",
     "sign-in/": "login/",
