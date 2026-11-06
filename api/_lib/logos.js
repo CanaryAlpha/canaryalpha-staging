@@ -10,5 +10,8 @@ export const LOGOS = {
   dot: "assets/logos/polkadot",
   eigenlayer: "assets/logos/eigenlayer",
   mega: "assets/logos/megaeth",
-  zro: "assets/logos/layerzero"
+  zro: "assets/logos/layerzero",
+  aztec: "assets/logos/aztec",
+  prove: "assets/logos/succinct",
+  strato: "assets/logos/strato"
 };

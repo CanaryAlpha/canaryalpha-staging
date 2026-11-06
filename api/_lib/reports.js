@@ -6,8 +6,13 @@
  * (plans.js apiTier: Free -> free, Pro -> pro, Enterprise -> institutional),
  * with the entitlement token minted in research.js; the API decides what
  * each tier gets. Bitcoin and Ethereum declare free: ["*"], so a Free member
- * gets them in full without any special case here; for every other token
- * the free tier is the headline, identity and market snapshot only.
+ * gets them in full without any special case here.
+ *
+ * Free members see Bitcoin and Ethereum ONLY (coins.js FREE_SLUGS, the same
+ * list the dashboard uses, dashboard.js allowed()): every other report is
+ * a COUNT, never its name, ticker, logo, score or verdict, and its page is
+ * refused before the API is asked (canRead), the same answer whether the
+ * token exists or not, so a Free member can't probe which tokens we cover.
  *
  * Nothing from here reaches a browser as JSON. The pages render HTML, and a
  * logged-out visitor gets a redirect to /login/ before anything is fetched.
@@ -19,7 +24,8 @@
  */
 import { research, SLUG } from "./research.js";
 import { cached, MIN } from "./cache.js";
-import { apiTier } from "./plans.js";
+import { apiTier, hasTier } from "./plans.js";
+import { FREE_SLUGS } from "./coins.js";
 
 const TTL = 10 * MIN;
 
@@ -33,6 +39,11 @@ async function api(path, siteTier) {
 }
 
 export { SLUG };
+
+// May this plan open this report? Free: Bitcoin and Ethereum only.
+export function canRead(slug, siteTier) {
+  return hasTier(siteTier, "pro") || FREE_SLUGS.includes(slug);
+}
 
 /*
  * One report at this reader's tier, or null when the API has no such
@@ -55,21 +66,24 @@ export async function reportFor(slug, siteTier) {
 }
 
 /*
- * Every report the API serves, as the free tier sees it (the fields the
- * index shows are all free-tier fields, so every logged-in reader is
- * entitled to them), newest first by publication date.
+ * The reports this plan may see, newest first by publication date, and
+ * how many others there are: { items, hidden }. The index's fields are
+ * all free-tier fields, so they are read at the free tier. Free: Bitcoin
+ * and Ethereum, and the rest only as a number.
  */
-export async function catalogue() {
+export async function catalogue(siteTier) {
   const list = await api("/api/tokens", "free");
-  const tokens = (list.body && Array.isArray(list.body.tokens)) ? list.body.tokens : [];
-  const views = await Promise.all(tokens
-    .filter((t) => SLUG.test(t.slug || ""))
-    .map(async (t) => {
-      const r = await reportFor(t.slug, "free");
-      return r && { slug: t.slug, report: r.report, fullOnFree: r.full };
-    }));
+  const all = ((list.body && Array.isArray(list.body.tokens)) ? list.body.tokens : []).filter((t) => SLUG.test(t.slug || ""));
+  const shown = all.filter((t) => canRead(t.slug, siteTier));
+  const views = await Promise.all(shown.map(async (t) => {
+    const r = await reportFor(t.slug, "free");
+    return r && { slug: t.slug, report: r.report, fullOnFree: r.full };
+  }));
   const when = (v) => Date.parse((v.report.web_meta || {}).published_at || "") || 0;
-  return views.filter(Boolean).sort((a, b) => when(b) - when(a) || a.slug.localeCompare(b.slug));
+  return {
+    items: views.filter(Boolean).sort((a, b) => when(b) - when(a) || a.slug.localeCompare(b.slug)),
+    hidden: all.length - shown.length
+  };
 }
 
 /* ---- The curated identity and market fields ------------------------------ */

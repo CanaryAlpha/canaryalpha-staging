@@ -23,7 +23,7 @@ export const ASSET_VERSIONS = {
   "styles.css": 84,
   "components/site-header.css": 45,
   "components/dashboard/dashboard.css": 21,
-  "components/members/members.css": 7,
+  "components/members/members.css": 8,
   "components/site.config.js": 3,
   "components/site-mode.js": 2,
   "components/auth.js": 4,
@@ -194,9 +194,9 @@ function disclosure(name, ticker) {
 
 const ADVICE = '<p class="report__disclaimer">Research for information only, not investment advice. <a href="/disclaimer/">Read our disclaimer.</a></p>';
 
-function proPanel(paidPlans) {
+function proPanel(paidPlans, heading = "The full report is part of Pro") {
   return `<section class="members__section report__locked" aria-labelledby="locked-title">
-      <h2 class="members__h2" id="locked-title">The full report is part of Pro</h2>
+      <h2 class="members__h2" id="locked-title">${heading}</h2>
       <p>Pro includes every report we publish, with the full analysis behind each rating: tokenomics, team, on-chain data, whale-wallet forensics, the trading plan and what we&rsquo;re watching next.</p>
       <p>${paidPlans
         ? '<a class="members__button" href="/account/">Upgrade to Pro</a>'
@@ -206,7 +206,19 @@ function proPanel(paidPlans) {
 
 /* ---- /reports/ ----------------------------------------------------------- */
 
-export function indexPage({ items, tier, paidPlans }) {
+// A report the Free plan doesn't include: no name, no ticker, no logo, no
+// score (the dashboard's locked row, components/dashboard/dashboard-assets.js).
+const LOCK = '<svg class="dash-lock" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>';
+function lockedItem() {
+  return `<li class="reports__item report-card report-card--locked">
+        <div class="report-card__id"><span class="dash-logo dash-logo--md" aria-hidden="true">${LOCK}</span>
+          <div><h2 class="reports__name">Token hidden <span class="reports__ticker">Pro</span></h2>
+          <p class="reports__meta report-card__cat">Researched token &middot; included with Pro</p></div>
+        </div>
+      </li>`;
+}
+
+export function indexPage({ items, hidden = 0, tier, paidPlans }) {
   const paid = tier === "pro" || tier === "enterprise";
   const rows = items.map(({ slug, report, fullOnFree }) => {
     const id = identityOf(report, slug), h = report.headline || {}, d = datesOf(report), m = marketOf(report);
@@ -227,13 +239,15 @@ export function indexPage({ items, tier, paidPlans }) {
           : `<a href="${href}">Summary</a> &middot; the full report is part of Pro`}</p>
       </li>`;
   }).join("\n");
+  const locked = paid ? "" : Array.from({ length: hidden }, lockedItem).join("\n");
   const body = `    <header class="members__head">
       <h1 class="members__title">Reports</h1>
-      <p class="members__sub">Every token we research, newest first. ${paid
-        ? "Your plan includes every full report."
-        : "Bitcoin and Ethereum are free in full; every other full report is part of Pro."}</p>
+      <p class="members__sub">${paid
+        ? "Every token we research, newest first. Your plan includes every full report."
+        : `Bitcoin and Ethereum are free in full.${hidden ? ` ${hidden === 1 ? "One more report is" : hidden + " more reports are"} part of Pro.` : ""}`}</p>
     </header>
-    ${items.length ? `<ol class="reports report-list">\n${rows}\n    </ol>` : '<p class="members__muted">No reports are available right now. Please try again shortly.</p>'}
+    ${items.length || locked ? `<ol class="reports report-list">\n${rows}${locked ? "\n" + locked : ""}\n    </ol>` : '<p class="members__muted">No reports are available right now. Please try again shortly.</p>'}
+    ${!paid && hidden ? proPanel(paidPlans, "Every other report is part of Pro") : ""}
     ${ADVICE}`;
   return page({
     title: "Reports — Canary Alpha Research",
@@ -435,6 +449,23 @@ function downloadsBlock(slug, tier, d) {
   if (!items.length) return "";
   return `<section class="members__section" aria-labelledby="files-title"><h2 class="members__h2" id="files-title">Downloads</h2><ul class="report__files">${items.join("")}</ul>` +
     ((d.documents || []).length ? '<p class="members__muted">Download links expire after a few minutes; reload the page for new ones.</p>' : "") + "</section>";
+}
+
+/* ---- A report this plan doesn't include ---------------------------------- */
+
+// Free members asking for any report but Bitcoin's or Ethereum's: the same
+// page whether the report exists or not, naming nothing.
+export function lockedPage({ paidPlans }) {
+  return page({
+    title: "Pro report — Canary Alpha Research",
+    description: "This report is part of Pro.",
+    canonical: SITE + "/reports/",
+    body: `    <header class="members__head"><h1 class="members__title">This report is part of Pro</h1>
+      <p class="members__sub">Your Free plan includes the full Bitcoin and Ethereum reports.</p></header>
+    ${proPanel(paidPlans)}
+    ${ADVICE}`,
+    back: { href: "/reports/", label: "All reports" }
+  });
 }
 
 /* ---- Errors -------------------------------------------------------------- */

@@ -100,19 +100,24 @@ test("Free: Bitcoin in full", async () => {
   assert.doesNotMatch(r.html, /part of Pro/);
 });
 
-test("Free: any other token is the free-tier slice plus the Pro panel (paid plans off)", async () => {
+// Every name, figure and verdict the ZRO fixture carries, free tier included:
+// none may reach a Free member, on any page.
+const ZRO_ANYTHING = ["LayerZero", "ZRO", "3.85", "Avoid", "Bridge", "384", "Moves value", "PRO-EXEC-SUMMARY", "PRO-SUMMARY-DOC",
+  "PRO-ANSWER-1", "PRO-RATIONALE", "Binance", "r2.example", "Watch List floor", "/reports/zro/"];
+
+test("Free: any report but Bitcoin's and Ethereum's is refused, naming nothing (paid plans off)", async () => {
   delete process.env.PAID_PLANS_ENABLED;
-  const r = await getReport("zro", "free");
-  assert.equal(r.status, 200);
-  assert.match(r.html, /The full report is part of Pro/);
-  assert.match(r.html, /href="\/waitlist\/\?plan=pro">Coming soon\. Join the list/);
-  for (const gated of ["PRO-EXEC-SUMMARY", "PRO-SUMMARY-DOC", "PRO-ANSWER-1", "PRO-RATIONALE", "Binance", "Downloads", "r2.example"]) {
-    assert.ok(!r.html.includes(gated), gated + " must not reach a Free member");
+  const calls = research.mock.callCount();
+  for (const slug of ["zro", "nope", "../etc"]) {
+    const r = await getReport(slug, "free");
+    assert.equal(r.status, 403, slug);
+    assert.match(r.html, /This report is part of Pro/);
+    assert.match(r.html, /href="\/waitlist\/\?plan=pro">Coming soon\. Join the list/);
+    for (const s of ZRO_ANYTHING) assert.ok(!r.html.includes(s), s + " must not reach a Free member (" + slug + ")");
   }
-  // What the free tier does carry: the curated header.
-  assert.match(r.html, /LayerZero <span class="reports__ticker">ZRO/);
-  assert.match(r.html, /Avoid<\/span> <span class="reports__score">3.85\/10/);
-  assert.match(r.html, /\$384\.04 million/);
+  assert.equal(research.mock.callCount(), calls, "the API is not even asked");
+  const real = await getReport("zro", "free"), fake = await getReport("nope", "free");
+  assert.equal(real.html, fake.html, "same answer whether the report exists or not");
 });
 
 test("Free, paid plans on: the panel offers the upgrade", async () => {
@@ -120,6 +125,7 @@ test("Free, paid plans on: the panel offers the upgrade", async () => {
   try {
     const r = await getReport("zro", "free");
     assert.match(r.html, /href="\/account\/">Upgrade to Pro/);
+    assert.match((await getIndex("free")).html, /href="\/account\/">Upgrade to Pro/);
   } finally { delete process.env.PAID_PLANS_ENABLED; }
 });
 
@@ -144,7 +150,7 @@ test("pipeline notes and production sections never reach the page", async () => 
 });
 
 test("every report page: disclosure, not-advice note, dates, noindex, no caching", async () => {
-  for (const [slug, tier] of [["zro", "free"], ["zro", "pro"], ["btc", "free"]]) {
+  for (const [slug, tier] of [["zro", "pro"], ["zro", "enterprise"], ["btc", "free"]]) {
     const r = await getReport(slug, tier);
     assert.match(r.html, /<strong>Disclosure:<\/strong> Canary Alpha Research (holds|does not hold) /);
     assert.match(r.html, /href="\/holdings\/">Company Holdings/);
@@ -159,24 +165,51 @@ test("every report page: disclosure, not-advice note, dates, noindex, no caching
 });
 
 test("a rating close to a band boundary always shows its margin (JC-12)", async () => {
-  const idx = await getIndex("free");
-  const page = await getReport("zro", "free");
+  const idx = await getIndex("pro");
+  const page = await getReport("zro", "pro");
   for (const html of [idx.html, page.html]) {
     assert.match(html, /The composite is 3\.85 against a Watch List floor of 4\.00/);
     assert.match(html, /0\.15 below the floor/);
   }
 });
 
-test("/reports/: every report, newest first, with what each tier may open", async () => {
+test("/reports/ on Free: Bitcoin and Ethereum, the rest as locked rows with no name", async () => {
   const free = await getIndex("free");
   assert.equal(free.status, 200);
-  assert.ok(free.html.indexOf('href="/reports/zro/"') < free.html.indexOf('href="/reports/btc/"'), "newest first");
   assert.match(free.html, /href="\/reports\/btc\/">Read the report/);
-  assert.match(free.html, /the full report is part of Pro/);
-  const pro = await getIndex("pro");
-  assert.doesNotMatch(pro.html, /the full report is part of Pro/);
-  assert.match(pro.html, /href="\/reports\/zro\/">Read the report/);
-  for (const html of [free.html, pro.html]) assert.ok(!html.includes("PRO-EXEC-SUMMARY"));
+  assert.equal((free.html.match(/report-card--locked/g) || []).length, 1, "one locked row for the one hidden report");
+  assert.match(free.html, /Token hidden <span class="reports__ticker">Pro<\/span>/);
+  assert.match(free.html, /One more report is part of Pro/);
+  for (const s of ZRO_ANYTHING) assert.ok(!free.html.includes(s), s + " must not reach a Free member");
+});
+
+test("/reports/ on Pro and Enterprise: every report, newest first, all open", async () => {
+  for (const tier of ["pro", "enterprise"]) {
+    const r = await getIndex(tier);
+    assert.ok(r.html.indexOf('href="/reports/zro/"') < r.html.indexOf('href="/reports/btc/"'), "newest first");
+    assert.match(r.html, /href="\/reports\/zro\/">Read the report/);
+    assert.doesNotMatch(r.html, /report-card--locked|part of Pro/);
+    assert.ok(!r.html.includes("PRO-EXEC-SUMMARY"), "the index carries headline fields only");
+  }
+});
+
+test("the JSON endpoints refuse Free the same way: 403, no name, whether the report exists or not", async () => {
+  const reportApi = await import("../api/research/report.js");
+  const docsApi = await import("../api/research/documents.js");
+  for (const fn of [reportApi, docsApi]) {
+    for (const slug of ["zro", "nope"]) {
+      who = { id: "u1", tier: "free" };
+      const r = await fn.GET(req("/api/research/x/?slug=" + slug));
+      const body = await r.text();
+      assert.equal(r.status, 403, slug);
+      assert.match(body, /"error":"locked"/);
+      assert.ok(!body.includes("LayerZero") && !body.includes("available_slugs"), slug);
+    }
+    who = { id: "u1", tier: "free" };
+    assert.equal((await fn.GET(req("/api/research/x/?slug=btc"))).status, 200, "BTC stays open on Free");
+    who = { id: "u1", tier: "pro" };
+    assert.equal((await fn.GET(req("/api/research/x/?slug=zro"))).status, 200, "Pro reads ZRO");
+  }
 });
 
 test("an unknown or malformed slug is a 404, without the API's slug list", async () => {

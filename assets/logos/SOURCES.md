@@ -14,12 +14,16 @@ report covers.
 | EigenLayer (EIGEN) | `eigenlayer-*` | Trust Wallet assets, `blockchains/ethereum/assets/0xec53bF9167f50cDEB3Ae105f56099aaaB9061F83/logo.png` |
 | MegaETH (MEGA) | `megaeth-*` | Trust Wallet assets, `blockchains/megaeth/assets/0x28B7E77f82B25B95953825F1E3eA0E36c1c29861/logo.png` |
 | LayerZero (ZRO) | `layerzero-*` | Trust Wallet assets, `blockchains/ethereum/assets/0x6985884C4392D348587B19cb9eAAf157F13271cd/logo.png` |
+| Aztec (AZTEC) | `aztec-*` | supplied by Clinton, 2026-11-06 (`originals/aztec-logo.png`); the mark on white |
+| Succinct (PROVE) | `succinct-*` | supplied by Clinton, 2026-11-06 (`originals/succinct-logo.png`, the full logo); the "S" mark only, on white |
+| Ethereum STRATO (STRATO) | `strato-*` | supplied by Clinton, 2026-11-06 (`originals/strato-logo.png`, the full logo); the hexagon mark only, on white |
 
 Trust Wallet assets: https://github.com/trustwallet/assets (MIT License;
 logos are submitted by each project for its own token). Downloaded
 2026-11-04, resized only (no other change).
 
-**Not found, waiting for a file:** Aztec (AZTEC), Succinct (PROVE), Ethereum
-STRATO (STRATO). Until then their pages show a ticker monogram. To add one,
-put a square PNG of at least 128 px in `originals/`, make the four sizes the
-same way, and add it to `LOGOS` in `api/_lib/logos.js`.
+Every report has a logo. Logos are shown in a circle, so a supplied logo
+that includes a wordmark is cut down to its symbol, centred on white with
+room to fit the circle. To add one, put the file in `originals/`, make the
+four sizes the same way, and add it to `LOGOS` in `api/_lib/logos.js`; a
+report with no entry shows a ticker monogram.

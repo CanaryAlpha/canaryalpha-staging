@@ -122,6 +122,9 @@
 .report-card__id, .report-head__id { display: flex; align-items: center; gap: 0.875rem; }
 .report-card__id > div, .report-head__id > div { min-width: 0; }
 .report-card__cat { margin-top: 0.125rem; }
+/* A report the Free plan doesn't include: the dashboard's locked row. */
+.report-card--locked, .report-card--locked .reports__name { color: var(--muted); }
+.report-card--locked .dash-logo { border-color: var(--rule); }
 .report-card .reports__rating { margin-top: 0.625rem; }
 .report-head__id .members__title { font-size: clamp(2rem, 1.4rem + 2.4vw, 2.75rem); }
 .disclosure { margin: 0.75rem 0 0; color: var(--muted); font-size: 0.9375rem; }
