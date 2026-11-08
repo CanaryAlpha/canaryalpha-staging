@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- STAGING build of 800b1630755ae9a227c4ca259bfe0fdbf2faef55 (tools/build-staging.py) -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="ca-staging-build" content="800b1630755ae9a227c4ca259bfe0fdbf2faef55">
+  <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Demo page: hidden by not being linked anywhere, by noindex and by
+       staying out of the sitemap. It is NOT marked data-page="dev", because
+       production mode (components/site-mode.js) would send visitors home,
+       and the demo has to work on staging and on the Vercel preview. -->
+  <meta name="robots" content="noindex, nofollow">
+  <title>Globe demo | Canary Alpha Research</title>
+  <meta name="description" content="A monochrome 3D globe demo: NASA imagery, drifting clouds and storms, and any city drawn as dots along its streets.">
+  <link rel="icon" type="image/svg+xml" href="../brand/favicon.svg">
+  <!-- Site fonts: Satoshi (headings and logo), Work Sans (body). -->
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+  <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&amp;display=swap">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
+  <link rel="stylesheet" href="../styles.css?v=84">
+  <link rel="stylesheet" href="../components/site-header.css?v=45">
+  <link rel="stylesheet" href="globe.css?v=1">
+  <!-- Site settings and production mode: load first. -->
+  <script src="../components/site.config.js?v=3"></script>
+  <script src="../components/site-mode.js?v=2"></script>
+  <!-- Applies a saved theme before first paint (no flash). -->
+  <script>
+    (function () {
+      try {
+        var r = document.documentElement;
+        var t = localStorage.getItem("ca-demo-theme");
+        if (t === "night") { t = "dark"; localStorage.setItem("ca-demo-theme", t); }
+        if (t === "light" || t === "dark") r.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
+  <!-- Accounts (Clerk), see components/auth.js. -->
+  <script src="../components/auth.js?v=4"></script>
+</head>
+<body>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build 800b163 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <header class="site-header" data-site-header data-home="../" data-root="../"></header>
+  <script src="../components/site-links.js?v=12"></script>
+  <script src="../components/site-header.js?v=45"></script>
+
+  <main class="globe-page">
+    <div class="globe-page__intro">
+      <p class="globe-page__kicker">Demo &middot; not linked from the site</p>
+      <h1 class="globe-page__title">The world, in monochrome</h1>
+      <p class="globe-page__lead">Drag to turn the planet; scroll, pinch or use the buttons to zoom. Find a city and the globe flies there and draws its streets as dots.</p>
+    </div>
+
+    <div class="globe-layout">
+      <!--
+        The stage keeps its box from the first paint (no layout shift). The
+        poster is a lit still of the globe (textures/poster-1200.*): shown
+        while the renderer loads, and kept when WebGL is unavailable. The
+        renderer (globe.js, globe-engine.js, textures/) loads only once the
+        stage scrolls into view.
+      -->
+      <div class="globe-stage" data-globe-stage>
+        <picture class="globe-stage__poster" data-globe-poster>
+          <source type="image/webp" srcset="textures/poster-1200.webp">
+          <img src="textures/poster-1200.png" width="1200" height="1200" alt="Earth in black, white and grey, lit from the upper right, with the Atlantic, Europe and Africa facing the viewer and clouds across the oceans." decoding="async" fetchpriority="high">
+        </picture>
+        <canvas class="globe-stage__canvas" tabindex="0" aria-label="Interactive globe. Drag to turn it; arrow keys turn, plus and minus zoom."></canvas>
+        <p class="globe-stage__attrib">Imagery NASA &middot; Streets &copy; <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a> contributors &middot; Tiles <a href="https://openfreemap.org/" rel="noopener">OpenFreeMap</a> &copy; <a href="https://openmaptiles.org/" rel="noopener">OpenMapTiles</a></p>
+      </div>
+
+      <aside class="globe-panel" data-globe-panel aria-label="Globe controls">
+        <div class="globe-panel__row">
+          <button type="button" class="globe-toggle" data-toggle="spin" aria-pressed="true">Spin</button>
+          <button type="button" class="globe-toggle" data-toggle="zoom" aria-pressed="true">Zoom</button>
+          <div class="globe-zoom" role="group" aria-label="Zoom in or out">
+            <button type="button" data-zoom="in" aria-label="Zoom in">+</button>
+            <button type="button" data-zoom="out" aria-label="Zoom out">&minus;</button>
+          </div>
+        </div>
+
+        <form class="globe-search" data-city-form role="search">
+          <label for="globe-city">Find my city</label>
+          <div class="globe-search__row">
+            <input id="globe-city" data-city-input type="search" name="city" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="e.g. Tokyo" aria-describedby="globe-city-hint">
+            <button type="submit">Go</button>
+          </div>
+          <p class="globe-panel__hint" id="globe-city-hint">Searches run when you press Go. Big cities are built in; others are looked up on OpenStreetMap.</p>
+        </form>
+
+        <div class="globe-panel__row">
+          <button type="button" data-locate>Use my location</button>
+          <button type="button" data-back hidden>Back to globe</button>
+        </div>
+        <p class="globe-panel__hint">Your browser asks for permission only when you click. The position is used for the flight and the street lookup and is not stored.</p>
+
+        <p class="globe-panel__city" data-city-label aria-live="polite"></p>
+        <p class="globe-panel__status" data-globe-status role="status" aria-live="polite"></p>
+        <p class="globe-panel__fps" data-fps hidden></p>
+      </aside>
+    </div>
+
+    <details class="globe-about">
+      <summary>About this demo: imagery, data and services</summary>
+      <h2>Imagery (NASA, public domain)</h2>
+      <p>All four maps are NASA imagery, which is not copyrighted; NASA asks for a credit. They were converted to greyscale and compressed by <code>tools/globe-textures.py</code>, which records the exact source files.</p>
+      <ul>
+        <li>Land and ocean: <a href="https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/" rel="noopener">Blue Marble: Next Generation</a> with topography and bathymetry, August 2004 (NASA Earth Observatory, Reto St&ouml;ckli, NASA GSFC).</li>
+        <li>Relief: <a href="https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/topography-bathymetry-maps" rel="noopener">Topography</a> from the GEBCO_08 grid (NASA Earth Observatory, Jesse Allen). Imagery reproduced from the GEBCO_08 Grid, <a href="https://www.gebco.net/" rel="noopener">www.gebco.net</a>.</li>
+        <li>Clouds: Blue Marble 2002 cloud cover (<code>cloud_combined_2048</code>, NASA GSFC, Reto St&ouml;ckli and Robert Simmon, MODIS). The storm systems are drawn procedurally in the cloud layer and are not real weather.</li>
+        <li>Night lights: <a href="https://earthobservatory.nasa.gov/features/NightLights" rel="noopener">Black Marble 2016</a> (Suomi NPP VIIRS), rendered through <a href="https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api" rel="noopener">NASA GIBS</a>.</li>
+      </ul>
+      <h2>Streets and city search (OpenStreetMap)</h2>
+      <p>Street dots are built from OpenStreetMap data, &copy; <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap contributors</a>, available under the <a href="https://opendatacommons.org/licenses/odbl/" rel="noopener">Open Database License</a>. The streets around a chosen city come as vector tiles from <a href="https://openfreemap.org/" rel="noopener">OpenFreeMap</a> (&copy; <a href="https://openmaptiles.org/" rel="noopener">OpenMapTiles</a>): nine tiles on a desktop, four on a phone, fetched once per city. OpenFreeMap is free, needs no key, allows commercial use and asks only for this attribution; it runs on donations, with no service guarantee. If the tiles cannot be fetched, the page falls back to the public <a href="https://overpass-api.de/" rel="noopener">Overpass API</a>, which is much slower in dense cities. A typed city that is not in the built-in list is looked up with <a href="https://nominatim.org/" rel="noopener">Nominatim</a>, on submit only, as its usage policy requires (no autocomplete, at most one request a second).</p>
+      <h2>Privacy</h2>
+      <p>&ldquo;Use my location&rdquo; asks the browser for permission only when clicked. The coordinates are used to fly to the place and to fetch the streets around it, and are not stored or logged by this site.</p>
+      <h2>Rendering</h2>
+      <p>WebGL, written for this page (no framework). The globe loads once it is on screen, pauses when the tab is hidden or the globe scrolls away, uses smaller textures and fewer storms on phones, holds still when the system asks for reduced motion, and shows the still image above when WebGL is unavailable.</p>
+    </details>
+  </main>
+
+  <footer class="site-footer" data-site-footer data-root="../">
+    <p class="site-footer__disclaimer">Canary Alpha Research LLC provides research for informational purposes only, not investment advice. Crypto assets are high risk. <a href="../disclaimer/">Read our disclaimer.</a></p>
+  </footer>
+  <script src="../components/site-footer.js?v=1"></script>
+
+  <script src="cities.js?v=1"></script>
+  <script src="globe.js?v=1"></script>
+  <script src="../script.js?v=41"></script>
+</body>
+</html>

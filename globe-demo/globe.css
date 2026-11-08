@@ -1,0 +1,189 @@
+/*
+ * Globe demo page (globe-demo/). Theme tokens come from styles.css
+ * (--ground, --ink, --muted, --rule, --canary); buttons get the site's
+ * Canary Yellow hover and focus treatment from the global rule there.
+ */
+.globe-page {
+  width: min(100% - 2rem, 76rem);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 4vw, 3rem) 0 3rem;
+}
+.globe-page__intro { max-width: 46rem; margin: 0 0 1.5rem; }
+.globe-page__kicker {
+  margin: 0 0 0.5rem;
+  font: 600 0.75rem/1.4 var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.globe-page__title {
+  margin: 0 0 0.75rem;
+  font: 700 clamp(1.75rem, 4vw, 2.5rem)/1.1 var(--font-heading);
+  letter-spacing: -0.01em;
+}
+.globe-page__lead { margin: 0; font-size: 1.0625rem; line-height: 1.55; color: var(--muted); }
+
+/* Stage beside the panel on wide screens, panel below on narrow ones. */
+.globe-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+@media (min-width: 1000px) {
+  .globe-layout { grid-template-columns: minmax(0, 1fr) 19rem; gap: 2rem; }
+}
+
+/* The stage keeps a fixed box (no layout shift): square on phones, up to
+   a capped height on desktop. The poster fills it until the canvas is up. */
+.globe-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  max-height: min(78vh, 46rem);
+  margin: 0 auto;
+  border-radius: 12px;
+  background: var(--ground);
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+@media (min-width: 700px) { .globe-stage { aspect-ratio: 4 / 3; } }
+.globe-stage__poster,
+.globe-stage__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.globe-stage__poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.globe-stage__poster { transition: opacity 0.6s ease; }
+.globe-stage.is-ready .globe-stage__poster { opacity: 0; pointer-events: none; }
+.globe-stage__canvas { opacity: 0; transition: opacity 0.6s ease; cursor: grab; }
+.globe-stage.is-ready .globe-stage__canvas { opacity: 1; }
+.globe-stage__canvas.is-dragging { cursor: grabbing; }
+.globe-stage__canvas:focus-visible { outline: 2px solid var(--canary); outline-offset: -3px; border-radius: 12px; }
+.globe-stage.is-fallback .globe-stage__canvas { display: none; }
+.globe-stage.is-fallback .globe-stage__poster { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .globe-stage__poster, .globe-stage__canvas { transition: none; }
+}
+
+.globe-stage__attrib {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.5rem;
+  margin: 0;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--muted);
+  text-align: right;
+  pointer-events: none;
+}
+.globe-stage__attrib a { color: inherit; pointer-events: auto; text-underline-offset: 0.15em; }
+
+/* Control panel */
+.globe-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1rem 0 0;
+  border-top: 1px solid var(--rule);
+}
+@media (min-width: 1000px) {
+  .globe-panel { padding: 0.25rem 0 0; border-top: 0; }
+}
+.globe-panel__row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; }
+.globe-panel__heading {
+  margin: 0;
+  font: 600 0.75rem/1.4 var(--font-body);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* Shared control look: outlined, 44px tall, the site font; the global rule
+   in styles.css turns the text Canary Yellow on hover and keyboard focus. */
+.globe-panel button,
+.globe-panel input {
+  min-height: 44px;
+  font: 500 0.9375rem/1.2 var(--font-body);
+  color: var(--ink);
+  background: var(--ground);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.globe-panel button { padding: 0 0.875rem; cursor: pointer; }
+.globe-panel button:disabled { opacity: 0.45; cursor: default; }
+.globe-panel button:focus-visible,
+.globe-panel input:focus-visible { outline: 2px solid var(--canary); outline-offset: 2px; border-color: var(--ink); }
+@media (hover: hover) { .globe-panel button:not(:disabled):hover { border-color: var(--ink); } }
+
+/* Toggles: a small indicator square that fills while on, plus On/Off text
+   for anyone who cannot see the colour change. */
+.globe-toggle { display: inline-flex; align-items: center; gap: 0.5rem; }
+.globe-toggle::before {
+  content: "";
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  background: transparent;
+  flex: none;
+}
+.globe-toggle[aria-pressed="true"]::before { background: var(--canary); border-color: var(--ink); }
+.globe-toggle::after { content: " off"; color: var(--muted); font-weight: 400; }
+.globe-toggle[aria-pressed="true"]::after { content: " on"; }
+
+.globe-zoom { display: inline-flex; }
+.globe-zoom button { min-width: 44px; padding: 0; font-size: 1.25rem; line-height: 1; }
+.globe-zoom button:first-child { border-radius: 6px 0 0 6px; }
+.globe-zoom button:last-child { border-radius: 0 6px 6px 0; margin-left: -1px; }
+
+.globe-search { display: grid; gap: 0.5rem; }
+.globe-search label { font-weight: 600; font-size: 0.9375rem; }
+.globe-search__row { display: flex; gap: 0.5rem; }
+.globe-search input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0 0.75rem;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.globe-search input::placeholder { color: var(--muted); }
+.globe-panel__hint { margin: 0; font-size: 0.8125rem; line-height: 1.45; color: var(--muted); }
+
+.globe-panel__city { margin: 0; font: 700 1.125rem/1.3 var(--font-heading); }
+.globe-panel__city:empty { display: none; }
+.globe-panel__status { margin: 0; min-height: 1.5em; font-size: 0.875rem; line-height: 1.5; color: var(--muted); }
+.globe-panel__status.is-busy::after {
+  content: "";
+  display: inline-block;
+  width: 0.5em; height: 0.5em;
+  margin-left: 0.4em;
+  border-radius: 50%;
+  background: var(--canary);
+  vertical-align: middle;
+  animation: globe-pulse 1s ease-in-out infinite;
+}
+@keyframes globe-pulse { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .globe-panel__status.is-busy::after { animation: none; } }
+.globe-panel__fps { margin: 0; font: 500 0.75rem/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; color: var(--muted); }
+.globe-panel [data-back] { justify-self: start; }
+
+/* About / sources */
+.globe-about { margin-top: 2.5rem; max-width: 46rem; border-top: 1px solid var(--rule); padding-top: 1rem; }
+.globe-about summary { cursor: pointer; font-weight: 600; padding: 0.5rem 0; }
+.globe-about summary:focus-visible { outline: 2px solid var(--canary); outline-offset: 2px; }
+.globe-about h2 { font: 700 1.125rem/1.3 var(--font-heading); margin: 1.25rem 0 0.5rem; }
+.globe-about p, .globe-about li { font-size: 0.9375rem; line-height: 1.55; color: var(--muted); }
+.globe-about li { margin: 0.35rem 0; }
+.globe-about a { color: var(--ink); text-underline-offset: 0.15em; }
+.globe-about code { font-size: 0.875em; }
