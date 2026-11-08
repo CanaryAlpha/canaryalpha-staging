@@ -35,7 +35,7 @@
     if (!main) return;
     var plan = NAMES[need];
     var cta = paidPlans
-      ? '<a class="members__button" href="' + esc(auth.urls.account) + '">See plans on your account page</a>'
+      ? '<a class="members__button" href="' + esc(auth.urls.account) + '">See plans on your Settings page</a>'
       : '<a class="members__button" href="' + esc(auth.urls.waitlist + "?plan=" + need) + '">Coming soon. Join the list</a>';
     main.className = "paywall";
     main.innerHTML =

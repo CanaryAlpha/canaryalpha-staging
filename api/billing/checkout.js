@@ -25,7 +25,7 @@ export async function POST(request) {
   if (!plan) return error(400, "bad_plan", "Unknown plan.");
 
   if (isLive(subscription(user.billing).status)) {
-    return error(409, "already_subscribed", "You already have a plan. Change it from your account page.");
+    return error(409, "already_subscribed", "You already have a plan. Change it from your Settings page.");
   }
 
   const customer = await ensureCustomer(user);

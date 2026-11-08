@@ -225,8 +225,8 @@
 }
 
 /* ---- Logged in (components/auth.js) --------------------------------------- */
-/* Dashboard group in the menu: a button that opens the three dashboards in
-   place. Locked ones carry a lock and the plan they need. */
+/* My account group in the menu: a button that opens its links (Dashboard,
+   Reports, Settings) in place. */
 .site-header__group-btn {
   display: flex;
   align-items: center;

@@ -30,7 +30,7 @@
  *
  * Logged in or out comes ONLY from CA_AUTH (components/auth.js, loaded in
  * <head>). Logged out, the menu shows Log in and Sign up. Logged in, they
- * give way to a Dashboard group (Free, Pro, Enterprise; locked ones marked)
+ * give way to a My account group (Dashboard, Reports, Settings)
  * and the bar gets an account button (name, plan, Log out).
  */
 (function () {
@@ -141,10 +141,10 @@
         var i = pair.indexOf("=");
         return [pair.slice(0, i), pair.slice(i + 1)];
       });
-    // Logged in: the Dashboard group takes the place of Log in / Sign up.
+    // Logged in: the My account group takes the place of Log in / Sign up.
     var dashGroup = user && root !== null && site && site.dashboards
       ? '<li class="site-header__group"><button type="button" class="site-header__group-btn" aria-expanded="false" aria-controls="site-header-dashboards">' +
-          "Dashboard" + ICONS.chevron + "</button>" +
+          "My account" + ICONS.chevron + "</button>" +
           '<ul class="site-header__sub" id="site-header-dashboards" hidden>' + site.dashboards.filter(function (d) {
             return !d.tier || auth.hasTier(d.tier);
           }).map(function (d) {
@@ -169,7 +169,7 @@
             '<p class="site-header__who"><span class="site-header__name">' + esc(user.name || user.email) + "</span>" +
               '<span class="site-header__email">' + esc(user.email) + "</span></p>" +
             '<p class="site-header__tier"><span class="site-header__tier-badge">' + TIER_NAMES[user.tier] + "</span> plan</p>" +
-            (root !== null ? '<a class="site-header__logout" href="' + root + 'account/">Your account</a>' : "") +
+            (root !== null ? '<a class="site-header__logout" href="' + root + 'account/">Settings</a>' : "") +
             '<button type="button" class="site-header__logout" data-logout>Log out</button>' +
           "</div></div>"
       : "";
@@ -221,7 +221,7 @@
       });
     }
 
-    // Dashboard group in the menu: opens and closes in place.
+    // My account group in the menu: opens and closes in place.
     var groupBtn = header.querySelector(".site-header__group-btn");
     if (groupBtn) groupBtn.addEventListener("click", function () {
       var open = groupBtn.getAttribute("aria-expanded") !== "true";

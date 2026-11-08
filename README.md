@@ -61,8 +61,8 @@ canonical address and link-preview tags (`brand/og-image.png`); `robots.txt`
 and `sitemap.xml` list them.
 
 The dashboards need a demo login (see Demo login below). Logged out, the
-menu shows Log in and Sign up; logged in, it shows a Dashboard group (Free,
-Pro, Enterprise; locked plans marked) and an account menu.
+menu shows Log in and Sign up; logged in, it shows a My account group
+(Dashboard, Reports, Settings) and an account menu.
 
 ### Homepage sections
 
