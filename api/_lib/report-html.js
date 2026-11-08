@@ -27,7 +27,7 @@ export const ASSET_VERSIONS = {
   "components/site.config.js": 3,
   "components/site-mode.js": 2,
   "components/auth.js": 4,
-  "components/site-links.js": 11,
+  "components/site-links.js": 12,
   "components/site-header.js": 44,
   "components/site-footer.js": 1,
   "script.js": 41

@@ -14,7 +14,7 @@
 window.CA_SITE_LINKS = {
   // Menu drop-down, top to bottom. loggedOut: only shown when logged out;
   // a logged-in user gets the Dashboard group (below) in their place.
-  // Home ("./", the root) comes first here and in the Dashboard group.
+  // Home ("./", the root) comes first here.
   menu: [
     { label: "Home", href: "./" },
     { label: "Our process", href: "#our-process" },
@@ -32,7 +32,6 @@ window.CA_SITE_LINKS = {
   // The menu's Dashboard group when logged in (site-header.js). An entry
   // with a tier shows only to members on that tier or higher.
   dashboards: [
-    { label: "Home", href: "./" },
     { label: "Dashboard", href: "dashboard/" },
     { label: "Reports", href: "reports/" },
     { label: "Bespoke reports", href: "dashboard/enterprise/", tier: "enterprise" },
