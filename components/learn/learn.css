@@ -508,12 +508,43 @@ select.learn-select {
 
 /* ---- Learn glossary ---------------------------------------------------------- */
 .learn-gloss__controls { display: grid; gap: 1rem; max-width: 46rem; margin-top: 2rem; }
-.learn-gloss__letters { display: flex; flex-wrap: wrap; gap: 0 0.25rem; margin: 0; padding: 0.25rem 0; list-style: none; border-block: 1px solid var(--rule); }
-.learn-gloss__letters a, .learn-gloss__letters span { display: grid; place-items: center; min-width: 2rem; min-height: 44px; text-decoration: none; }
-.learn-gloss__letters span { color: var(--rule); }
+/* A-Z bar: sticks under the menu bar while the terms scroll and lets go at
+   the end of .learn-gloss__body, so it never reaches the footer. Sticky
+   keeps its place in the page, so nothing moves when it catches. Solid
+   page ground: terms never show through. One row; where it is wider than
+   the screen (phones) it swipes sideways, with no scrollbar drawn, and
+   learn-pages.js keeps the current letter in view. --gloss-stop is just
+   under the bar: headings land there (scroll-margin-top), and the group
+   crossing it is the current letter. The body needs overflow-x: clip
+   (.glossary-page, styles.css) or sticky does nothing. */
+.learn-gloss__body {
+  --gloss-az-h: calc(44px + 2px);
+  --gloss-stop: calc(var(--site-header-h, 0px) + var(--gloss-az-h) + 1rem);
+  max-width: 46rem;
+  margin-top: 1rem;
+}
+.learn-gloss__az { position: sticky; top: var(--site-header-h, 0px); z-index: 5; margin-bottom: 1rem; background: var(--ground); border-block: 1px solid var(--rule); }
+.learn-gloss__letters { display: flex; margin: 0; padding: 0; list-style: none; overflow-x: auto; scrollbar-width: none; }
+.learn-gloss__letters::-webkit-scrollbar { display: none; }
+.learn-gloss__letters li { flex: 1 0 auto; }
+.learn-gloss__letters a { display: grid; place-items: center; min-width: 44px; min-height: 44px; text-decoration: none; transition: color 0.15s ease, text-shadow 0.15s ease; }
+@media (min-width: 768px) { .learn-gloss__letters a { min-width: 1.5rem; } }
+/* No terms (or none matching the search): dimmed text, not a link. */
+.learn-gloss__letters a:not([href]) { color: var(--rule); cursor: default; }
+/* The current letter, a hover and keyboard focus: the site's yellow, with
+   the thin black outline in Light (--canary-halo is none in Dark). The
+   focus ring sits inside the letter: the swiping row would clip it. */
+.learn-gloss__letters a[aria-current="true"],
+.learn-gloss__letters a[href]:focus-visible { color: var(--canary); text-shadow: var(--canary-halo); }
+.learn-gloss__letters a:focus-visible { outline: 2px solid var(--ink); outline-offset: -2px; border-radius: 4px; }
+@media (hover: hover) {
+  .learn-gloss__letters a[href]:hover { color: var(--canary); text-shadow: var(--canary-halo); }
+}
+@media (prefers-reduced-motion: no-preference) { html:has(.learn-gloss__body) { scroll-behavior: smooth; } }
+@media (prefers-reduced-motion: reduce) { .learn-gloss__letters a { transition: none; } }
 .learn-gloss__group { max-width: 46rem; }
-.learn-gloss__letter { margin: 2rem 0 0; font-size: 1.5rem; font-weight: 400; color: var(--muted); scroll-margin-top: calc(var(--site-header-h, 0px) + 1rem); }
-.learn-gloss__term { padding: 1rem 0 1.25rem; border-bottom: 1px solid var(--rule); scroll-margin-top: calc(var(--site-header-h, 0px) + 1rem); }
+.learn-gloss__letter { margin: 2rem 0 0; font-size: 1.5rem; font-weight: 400; color: var(--muted); scroll-margin-top: var(--gloss-stop); }
+.learn-gloss__term { padding: 1rem 0 1.25rem; border-bottom: 1px solid var(--rule); scroll-margin-top: var(--gloss-stop); }
 .learn-gloss__term:target { border-bottom-color: var(--ink); }
 .learn-gloss__name { display: flex; align-items: baseline; gap: 0.5rem; margin: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.3; }
 .learn-gloss__group-tag { color: var(--muted); font-family: var(--font-body); font-size: 0.8125rem; font-weight: 400; }

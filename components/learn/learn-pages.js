@@ -250,9 +250,12 @@
       if (a) return '<p class="learn-gloss__more"><a href="' + esc(L.url.article(a.id)) + '">Read: ' + esc(a.title) + "</a></p>";
       return "";
     }
-    q("[data-gloss-letters]").innerHTML = letters.map(function (l) {
-      return "<li>" + (groups[l] ? '<a href="#letter-' + l + '">' + l + "</a>" : '<span aria-hidden="true">' + l + "</span>") + "</li>";
-    }).join("");
+    // Every letter is an <a>; it gets its href (a link to its group) only
+    // while it has terms on show, see setLetter below.
+    var bar = q("[data-gloss-letters]");
+    bar.innerHTML = letters.map(function (l) { return '<li><a data-letter="' + l + '">' + l + "</a></li>"; }).join("");
+    var links = {};
+    Array.prototype.forEach.call(bar.querySelectorAll("a"), function (a) { links[a.getAttribute("data-letter")] = a; });
     q("[data-gloss-list]").innerHTML = letters.filter(function (l) { return groups[l]; }).map(function (l) {
       return '<section class="learn-gloss__group" data-letter="' + l + '" aria-labelledby="letter-' + l + '"><h2 class="learn-gloss__letter" id="letter-' + l + '">' + l + "</h2>" +
         groups[l].map(function (t) {
@@ -264,10 +267,96 @@
               part("How it changes the crypto space", e.changes) + "</dl>" + more(e) + "</article>";
         }).join("") + "</section>";
     }).join("");
+    var groupEls = Array.prototype.slice.call(main.querySelectorAll(".learn-gloss__group"));
+    var reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+    // Current letter (aria-current, yellow in learn.css): the first group on
+    // show that crosses --gloss-stop, the line just under the sticky bar
+    // where headings land. An IntersectionObserver keeps the list of groups
+    // below that line, so nothing runs on every scroll.
+    var current = null, held = null, settleTimer = 0, below = {}, observer = null;
+    function mark(l) {
+      if (l === current) return;
+      if (current) links[current].removeAttribute("aria-current");
+      current = l;
+      if (l) links[l].setAttribute("aria-current", "true");
+      waitForStill(150);
+    }
+    // Bar wider than the screen (phones): bring the current letter to the
+    // middle when it is out of sight. Only once the page is still: moving
+    // the bar while the page glides to a letter stops that glide (Chrome
+    // ends a scroll to an anchor when another scroll starts).
+    function reveal() {
+      if (!current) return;
+      var r = links[current].getBoundingClientRect(), b = bar.getBoundingClientRect();
+      if (bar.scrollWidth > bar.clientWidth && (r.left < b.left || r.right > b.right)) {
+        bar.scrollTo({ left: bar.scrollLeft + r.left - b.left - (b.width - r.width) / 2, behavior: reduce.matches ? "auto" : "smooth" });
+      }
+    }
+    function waitForStill(ms) {
+      clearTimeout(settleTimer);
+      settleTimer = setTimeout(function () { held = null; reveal(); }, ms);
+    }
+    window.addEventListener("scroll", function () { waitForStill(150); }, { passive: true });
+    function pick() {
+      if (held) return;
+      for (var i = 0; i < groupEls.length; i++) {
+        var l = groupEls[i].getAttribute("data-letter");
+        if (below[l]) return mark(l);
+      }
+      mark(null);
+    }
+    function watch() {
+      if (!("IntersectionObserver" in window) || !groupEls.length) return;
+      if (observer) observer.disconnect();
+      below = {};
+      // 2px under the line: the group above a heading that just landed
+      // ends exactly on it, and must not count.
+      var stop = parseFloat(getComputedStyle(groupEls[0].querySelector(".learn-gloss__letter")).scrollMarginTop) || 0;
+      observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) { below[e.target.getAttribute("data-letter")] = e.isIntersecting; });
+        pick();
+      }, { rootMargin: -(Math.round(stop) + 2) + "px 0px 0px 0px" });
+      groupEls.forEach(function (g) { observer.observe(g); });
+    }
+    // The menu bar is taller from 768px, which moves the line.
+    var wide = window.matchMedia("(min-width: 768px)");
+    if (wide.addEventListener) wide.addEventListener("change", watch);
+
+    // A letter that is chosen is marked at once and held while the page
+    // scrolls to it: the last groups can't reach the top of the screen, so
+    // the line alone would leave an earlier letter marked. The hold ends
+    // when the page is still (or after a second, if it never moves). The
+    // scroll itself is the link's own jump (smooth unless reduced motion is
+    // asked for, learn.css).
+    bar.addEventListener("click", function (e) {
+      var a = e.target.closest("a[href]");
+      if (!a) return;
+      held = null;
+      mark(a.getAttribute("data-letter"));
+      held = current;
+      waitForStill(1000);
+    });
+
+    function setLetter(l, on) {
+      var a = links[l];
+      if (on) {
+        a.setAttribute("href", "#letter-" + l);
+        a.removeAttribute("aria-hidden");
+      } else {
+        // Dimmed text: not a link, so Tab skips it; hidden from screen
+        // readers, as the letters with no terms always were.
+        a.removeAttribute("href");
+        a.setAttribute("aria-hidden", "true");
+        a.removeAttribute("aria-current");
+        if (current === l) current = null;
+      }
+    }
+
     var input = q("[data-gloss-search]"), count = q("[data-gloss-count]"), empty = q("[data-gloss-empty]");
     function filter() {
-      var s = input.value.trim().toLowerCase(), n = 0;
-      Array.prototype.forEach.call(main.querySelectorAll(".learn-gloss__group"), function (g) {
+      var s = input.value.trim().toLowerCase(), n = 0, shown = {};
+      groupEls.forEach(function (g) {
         var any = false;
         Array.prototype.forEach.call(g.querySelectorAll(".learn-gloss__term"), function (t) {
           var show = !s || t.getAttribute("data-search").indexOf(s) !== -1;
@@ -275,12 +364,17 @@
           if (show) { any = true; n++; }
         });
         g.hidden = !any;
+        if (any) shown[g.getAttribute("data-letter")] = true;
       });
+      // Hidden groups leave the observer's view by themselves, so the
+      // current letter follows the search too.
+      letters.forEach(function (l) { setLetter(l, !!shown[l]); });
       count.textContent = n + (n === 1 ? " term" : " terms");
       empty.hidden = n > 0;
     }
     input.addEventListener("input", filter);
     filter();
+    watch();
   }
 
   function notFound(what) {
