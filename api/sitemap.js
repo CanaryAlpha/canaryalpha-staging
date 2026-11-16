@@ -8,12 +8,12 @@
  * named in NOT_LISTED there.
  */
 export const PUBLIC_PAGES = [
-  { path: "/", lastmod: "2026-11-04" },
-  { path: "/learn/", lastmod: "2026-10-29" },
-  { path: "/learn/glossary/", lastmod: "2026-10-29" },
+  { path: "/", lastmod: "2026-11-16" },
+  { path: "/learn/", lastmod: "2026-11-16" },
+  { path: "/learn/glossary/", lastmod: "2026-11-16" },
   { path: "/contact/", lastmod: "2026-10-29" },
-  { path: "/signup/", lastmod: "2026-10-29" },
-  { path: "/terms/", lastmod: "2026-11-03" },
+  { path: "/signup/", lastmod: "2026-11-15" },
+  { path: "/terms/", lastmod: "2026-11-14" },
   { path: "/privacy/", lastmod: "2026-11-01" },
   { path: "/holdings/", lastmod: "2026-11-04" },
   { path: "/disclaimer/", lastmod: "2026-11-04" }
