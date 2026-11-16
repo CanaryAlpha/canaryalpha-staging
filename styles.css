@@ -266,6 +266,13 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
+/* Desktop (1100px+): fixed sizes chosen with the ?design=1 headline panel
+   (2026-11-16): headline 80px, subheading 25px. Tablet and phone keep the
+   scaling sizes above and below. */
+@media (min-width: 1100px) {
+  .hero__title { font-size: 80px; }
+  .hero__foot .hero__text { font-size: 25px; }
+}
 /* Phones: the slogan steps down from the 40px floor so its longest phrase
    ("fundamental analysis,") fits one line and the slogan stays at 4 lines. */
 @media (max-width: 599px) {
@@ -1086,8 +1093,7 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 /* As tall as a column heading, so the logo lines up with them. */
 .site-footer__home { display: inline-flex; align-items: center; height: 1.3125rem; color: var(--ink) !important; text-decoration: none; }
 .site-footer__logo { --logo-cap: 0.67rem; }
-/* Two balanced lines on desktop and phones; no word left alone on a line. */
-.site-footer__tagline { margin-top: 0.25rem !important; max-width: 20rem; text-wrap: balance; }
+.site-footer__tagline { margin-top: 0.25rem !important; max-width: 16rem; }
 /* Columns side by side, each as wide as it needs up to an even share. */
 .site-footer__nav {
   display: grid;
