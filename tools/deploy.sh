@@ -14,7 +14,7 @@
 #             https://canaryalpha.github.io/canaryalpha-staging/.
 #             Nothing is pushed to origin; canaryalpha.co is not touched.
 #
-# production  Pushes HEAD to origin's main, which GitHub Pages serves at
+# production  Pushes HEAD to origin's main, which Vercel deploys to
 #             https://canaryalpha.co/. Fast-forward only (never a force push).
 #             Refuses unless this exact commit was deployed to staging first,
 #             and asks you to type "deploy" to confirm. Then waits until the
@@ -126,19 +126,29 @@ deploy_production() {
   echo "== pushed $short to origin main; waiting for $PRODUCTION_URL"
 
   # Done when the live site serves the committed bytes of every changed page,
-  # stylesheet, script and data file (up to 8 of them).
+  # stylesheet, script and data file (up to 8 of them) that Vercel serves
+  # as a plain file. The query string skips any cached copy.
   local files f n=0 ok i
-  files=$(git diff --name-only --diff-filter=AM "$old" "$sha" | grep -E '\.(html|css|js|json|txt|xml)$' | grep -v '^marketing-animations/' | head -8 || true)
-  [ -n "$files" ] || { echo "   no page files changed; nothing to wait for"; return; }
+  files=$(git diff --name-only --diff-filter=AM "$old" "$sha" | grep -E '\.(html|css|js|json|txt|xml)$' | served_as_is | head -8 || true)
+  [ -n "$files" ] || { echo "   no publicly served page files changed; nothing to wait for"; return; }
   for i in $(seq 1 40); do
     ok=1
     for f in $files; do
-      cmp -s <(curl -s -m 20 "$PRODUCTION_URL$f") <(git show "$sha:$f") || { ok=0; break; }
+      cmp -s <(curl -s -m 20 "$PRODUCTION_URL$f?deploy=$short") <(git show "$sha:$f") || { ok=0; break; }
     done
     [ "$ok" = 1 ] && { echo "== live: canaryalpha.co serves $short ($(echo "$files" | wc -l | tr -d ' ') changed files checked)"; return; }
     sleep 15
   done
-  die "pushed, but canaryalpha.co was not serving the new files after 10 minutes. Check the repo's Pages build on GitHub."
+  die "pushed, but canaryalpha.co was not serving the new files after 10 minutes. Check the deployment in Vercel."
+}
+
+# Filters a list of repo paths down to the ones canaryalpha.co serves as the
+# committed file, unchanged, to anyone. Left out: server code (api/,
+# middleware.js) and config, paths .vercelignore keeps off the site, and the
+# members' pages that middleware.js sends signed-out visitors to log in from
+# (vercel.json also rewrites /reports/ to a server function).
+served_as_is() {
+  grep -v -E '^(api/|marketing-animations/|tools/|tests/|docs/|dashboard/|account/|reports/)|^(middleware\.js|vercel\.json|package(-lock)?\.json|README\.md|STAGING\.md|CNAME)$|(^|/)\.' || true
 }
 
 case "$target" in

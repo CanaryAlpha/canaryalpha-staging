@@ -1099,7 +1099,8 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 /* As tall as a column heading, so the logo lines up with them. */
 .site-footer__home { display: inline-flex; align-items: center; height: 1.3125rem; color: var(--ink) !important; text-decoration: none; }
 .site-footer__logo { --logo-cap: 0.67rem; }
-.site-footer__tagline { margin-top: 0.25rem !important; max-width: 16rem; }
+/* Two balanced lines on desktop and phones; no word left alone on a line. */
+.site-footer__tagline { margin-top: 0.25rem !important; max-width: 20rem; text-wrap: balance; }
 /* Columns side by side, each as wide as it needs up to an even share. */
 .site-footer__nav {
   display: grid;
