@@ -20,14 +20,14 @@ import { isHeld } from "./holdings.js";
 import { identityOf, marketOf, datesOf } from "./reports.js";
 
 export const ASSET_VERSIONS = {
-  "styles.css": 86,
+  "styles.css": 87,
   "components/site-header.css": 45,
   "components/dashboard/dashboard.css": 21,
   "components/members/members.css": 8,
   "components/site.config.js": 3,
   "components/site-mode.js": 2,
   "components/auth.js": 4,
-  "components/site-links.js": 14,
+  "components/site-links.js": 13,
   "components/site-header.js": 45,
   "components/site-footer.js": 1,
   "script.js": 41
@@ -83,7 +83,7 @@ export function page({ title, description, canonical, body, back }) {
   <meta property="og:image" content="${SITE}/brand/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Canary Alpha Research: in-depth cryptocurrency fundamental analysis, explained simply.">
+  <meta property="og:image:alt" content="Canary Alpha Research: institutional-grade crypto research.">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
   <link rel="icon" type="image/png" sizes="512x512" href="/brand/favicon-512.png">
