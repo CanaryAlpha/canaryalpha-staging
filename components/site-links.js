@@ -39,7 +39,7 @@ window.CA_SITE_LINKS = {
   ],
 
   footer: {
-    tagline: "In-depth cryptocurrency fundamental analysis, explained simply.",
+    tagline: "Institutional-grade crypto research.",
     columns: [
       {
         title: "Product",

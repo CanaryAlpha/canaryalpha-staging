@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- STAGING build of 51953bb214265a1f4d58ee0277d9ca419f460d22 (tools/build-staging.py) -->
+  <!-- STAGING build of 8aae1ac9b23ffccf96be8b52ce032297f8f8ce96 (tools/build-staging.py) -->
   <meta name="robots" content="noindex, nofollow">
-  <meta name="ca-staging-build" content="51953bb214265a1f4d58ee0277d9ca419f460d22">
+  <meta name="ca-staging-build" content="8aae1ac9b23ffccf96be8b52ce032297f8f8ce96">
   <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -38,7 +38,10 @@
   <!-- Old hero globe, unused; to bring it back, restore these two tags and the
        globe markup and scripts below, and remove the hero-visuals ones.
   <link rel="stylesheet" href="components/dotted-globe.css?v=34"> -->
-  <link rel="stylesheet" href="components/hero-visuals.css?v=4">
+  <!-- Hero animations, replaced by the dot globe (dot-globe branch). To bring
+       one back, restore this tag, its markup and scripts below.
+  <link rel="stylesheet" href="components/hero-visuals.css?v=4"> -->
+  <link rel="stylesheet" href="components/dot-globe.css?v=1">
   <link rel="stylesheet" href="components/feature-visuals.css?v=12">
   <link rel="stylesheet" href="components/learn/learn.css?v=5">
   <!-- Site settings and production mode: load first. -->
@@ -187,9 +190,9 @@
   <script src="components/auth.js?v=4"></script>
 </head>
 <body>
-  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build 51953bb &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build 8aae1ac &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
   <header class="site-header" data-site-header data-home="#top" data-root=""></header>
-  <script src="components/site-links.js?v=14"></script>
+  <script src="components/site-links.js?v=13"></script>
   <script src="components/site-header.js?v=45"></script>
   <main>
     <!-- Section 1: one screen. The hero visual (components/hero-visuals.*;
@@ -239,8 +242,12 @@
           }, function () {});
         })();
       </script>
-      <div class="hero__stage">
-        <div data-hero-visual></div>
+      <!-- The dot globe (components/dot-globe.*): its stage reserves the space,
+           the script fills it after the page has loaded. -->
+      <div class="hero__stage hero__stage--globe">
+        <div class="dot-globe" data-dot-globe></div>
+        <!-- Hero animation, replaced by the dot globe:
+        <div data-hero-visual></div> -->
         <!-- Old globe, unused:
         <div class="dotted-globe" data-dotted-globe role="img"
              aria-label="A slowly rotating globe made of dots that outline the world's continents. Drag to spin it.">
@@ -575,11 +582,34 @@
   <script src="components/learn/explain.js?v=2"></script>
   <script src="components/feature-visuals.config.js?v=9"></script>
   <script src="components/feature-visuals.js?v=8"></script>
+  <!-- Hero animations, replaced by the dot globe:
   <script src="components/hero-visuals.config.js?v=1"></script>
   <script src="components/hero-early-warning.js?v=1"></script>
   <script src="components/hero-verdict.js?v=1"></script>
   <script src="components/hero-noise.js?v=1"></script>
-  <script src="components/hero-visuals.js?v=2"></script>
+  <script src="components/hero-visuals.js?v=2"></script> -->
+  <!-- The dot globe loads once the page has (it never holds up the first
+       paint), and the design panels only with ?design=1 (kept for the tab's
+       session; ?design=0 turns them off). Visitors never get the panels. -->
+  <script>
+    (function () {
+      function add(src) { var s = document.createElement("script"); s.src = src; s.async = false; document.body.appendChild(s); }
+      function css(href) { var l = document.createElement("link"); l.rel = "stylesheet"; l.href = href; document.head.appendChild(l); }
+      var design = false;
+      try {
+        var m = /[?&]design=([01])(?:&|$)/.exec(location.search);
+        if (m) sessionStorage.setItem("ca-design", m[1]);
+        design = sessionStorage.getItem("ca-design") === "1";
+      } catch (e) { design = /[?&]design=1(?:&|$)/.test(location.search); }
+      function go() {
+        add("components/dot-globe.config.js?v=1");
+        add("components/dot-globe.js?v=1");
+        if (design) { css("components/design-panels.css?v=1"); add("components/design-panels.js?v=1"); }
+      }
+      if (document.readyState === "complete") go();
+      else window.addEventListener("load", go);
+    })();
+  </script>
   <script src="components/paid-plans.js?v=2"></script>
   <script src="script.js?v=41"></script>
 
