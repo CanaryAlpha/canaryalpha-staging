@@ -1,0 +1,187 @@
+/*
+ * Member reviews: the dashboard's "Leave a review" card (review-form.js),
+ * the homepage's "What members say" section and /reviews/ (reviews-list.js),
+ * and the owner's queue (review-queue.js). Theme tokens only, so every
+ * part follows Light and Dark. Stars are drawn in --ink; no images.
+ */
+
+/* Text for screen readers only. */
+.rv-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; }
+
+/* ---- Stars (shown) ---- */
+.rv-stars { display: inline-flex; gap: 0.125rem; color: var(--ink); line-height: 1; }
+.rv-stars svg { width: 1.125rem; height: 1.125rem; flex: none; }
+.rv-stars .rv-star--off { color: var(--rule); }
+
+/* ---- One review ---- */
+.rv-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 1.25rem;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  min-width: 0;
+}
+.rv-card__text {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.55;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.rv-card__meta {
+  margin: auto 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 0.625rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.rv-card__name { color: var(--ink); font-weight: 500; }
+.rv-badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.rv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 18rem), 1fr));
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.rv-grid > li { display: flex; min-width: 0; }
+.rv-grid > li > .rv-card { flex: 1; }
+.rv-summary { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.75rem; font-size: 1rem; }
+.rv-summary__avg { font-weight: 500; font-size: 1.25rem; }
+.rv-note { margin: 1.25rem 0 0; color: var(--muted); font-size: 0.875rem; }
+
+/* ---- Homepage section: hidden until there are 5 approved reviews. It
+   sits above the FAQ, below the first screen, so filling it in never
+   moves anything a reader is looking at. ---- */
+.reviews {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: clamp(3rem, 8vw, 6rem) 2.5rem 0;
+  scroll-margin-top: var(--site-header-h, 0px);
+}
+.reviews[hidden] { display: none; }
+.reviews__head { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 1rem 2rem; margin-bottom: 2rem; }
+.reviews__title {
+  margin: 0;
+  font-weight: 400;
+  font-size: var(--section-title-size);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.reviews__all { margin: 1.25rem 0 0; }
+@media (max-width: 767px) {
+  .reviews { padding-left: 1rem; padding-right: 1rem; }
+}
+
+/* ---- /reviews/ page ---- */
+.rv-page { max-width: 72rem; margin: 0 auto; padding: calc(var(--site-header-h, 0px) + 2.5rem) 2.5rem 4rem; }
+.rv-page__title { margin: 0 0 0.75rem; font-weight: 400; font-size: var(--section-title-size); line-height: 1.1; letter-spacing: -0.01em; }
+.rv-page__sub { margin: 0 0 2rem; color: var(--muted); max-width: 40rem; }
+.rv-page__body { min-height: 12rem; }
+.rv-page__empty { margin: 0; color: var(--muted); }
+@media (max-width: 767px) {
+  .rv-page { padding-left: 1rem; padding-right: 1rem; }
+}
+
+/* ---- Dashboard card: Leave a review ---- */
+.rv-form { display: grid; gap: 1.25rem; max-width: 40rem; min-height: 22rem; margin-top: 1.25rem; }
+.rv-form fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.rv-form legend, .rv-form__label { display: block; margin: 0 0 0.5rem; padding: 0; font-weight: 500; }
+.rv-form__hint { margin: 0.375rem 0 0; color: var(--muted); font-size: 0.875rem; }
+.rv-form__status { margin: 0; padding: 0.75rem 1rem; border: 1px solid var(--rule); border-radius: 6px; }
+.rv-form__status[hidden] { display: none; }
+.rv-form__error { margin: 0; color: var(--danger); font-weight: 500; }
+.rv-form__error:empty { display: none; }
+.rv-form__ok { margin: 0; color: var(--success); font-weight: 500; }
+.rv-form__ok:empty { display: none; }
+
+/* Star picker: five radios (1 to 5, in order, so arrow keys move the
+   expected way), drawn as stars. review-form.js marks a star and every
+   star before it .is-on for the chosen rating and while hovering. */
+.rv-pick { display: inline-flex; gap: 0.125rem; }
+.rv-pick input { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+.rv-pick label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  cursor: pointer;
+  color: var(--rule);
+  border-radius: 4px;
+}
+.rv-pick label.is-on { color: var(--ink); }
+.rv-pick svg { width: 1.75rem; height: 1.75rem; }
+.rv-pick input:focus-visible + label { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+.rv-form textarea {
+  width: 100%;
+  min-height: 8rem;
+  padding: 0.625rem 0.75rem;
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--ink);
+  background: transparent;
+  border: 1px solid var(--muted);
+  border-radius: 4px;
+  resize: vertical;
+}
+.rv-form__count { font-variant-numeric: tabular-nums; }
+.rv-form__count.is-bad { color: var(--danger); }
+.rv-choice { display: flex; align-items: center; gap: 0.625rem; min-height: 44px; cursor: pointer; }
+.rv-choice input { width: 1.125rem; height: 1.125rem; margin: 0; accent-color: var(--ink); flex: none; }
+.rv-choice.is-off { color: var(--muted); cursor: not-allowed; }
+.rv-choice__eg { color: var(--muted); font-size: 0.875rem; }
+.rv-consent { display: grid; grid-template-columns: auto 1fr; gap: 0.75rem; align-items: start; cursor: pointer; }
+.rv-consent input { width: 1.25rem; height: 1.25rem; margin: 0.125rem 0 0; accent-color: var(--ink); }
+.rv-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; }
+.rv-btn {
+  min-height: 44px;
+  padding: 0 1.25rem;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+/* Outlined, like every button on the site, so the shared hover (Canary
+   Yellow text with a black edge) reads in both themes. */
+.rv-btn--quiet { border-color: var(--rule); }
+.rv-btn--danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+.rv-btn[disabled] { opacity: 0.55; cursor: progress; }
+
+/* ---- Owner's queue ---- */
+.rv-queue__rule { margin: 0 0 1.5rem; padding: 0.875rem 1rem; border-left: 3px solid var(--ink); background: transparent; font-size: 0.9375rem; max-width: 46rem; }
+.rv-queue__count { margin: 0 0 1.5rem; font-size: 1.125rem; }
+.rv-queue__tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0 0 1.25rem; }
+.rv-queue__tabs button[aria-pressed="true"] { border-color: var(--ink); font-weight: 600; }
+.rv-queue__tabs button { border: 1px solid var(--rule); border-radius: 999px; padding: 0 1rem; }
+.rv-queue__list { display: grid; gap: 1rem; margin: 0; padding: 0; list-style: none; max-width: 46rem; }
+.rv-queue__item .rv-card__meta { margin-top: 0; }
+.rv-queue__status { font-weight: 600; text-transform: capitalize; color: var(--ink); }
+.rv-queue__msg { margin: 0; color: var(--danger); font-size: 0.875rem; }
+.rv-queue__msg:empty { display: none; }
+
+/* "Read all reviews" lines up with the cards' left edge, like the other
+   link buttons sit on the page margin. */
+.reviews__all .button.button--ghost { margin-left: -1.25rem; }
+.rv-page__summary .rv-summary { margin-bottom: 1.5rem; }

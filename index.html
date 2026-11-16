@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- STAGING build of 2d546d46a3d039278e72384b177a343ad6c779f1 (tools/build-staging.py) -->
+  <!-- STAGING build of 1dfb7105cb5137998dd59d454d741020e1ad815e (tools/build-staging.py) -->
   <meta name="robots" content="noindex, nofollow">
-  <meta name="ca-staging-build" content="2d546d46a3d039278e72384b177a343ad6c779f1">
+  <meta name="ca-staging-build" content="1dfb7105cb5137998dd59d454d741020e1ad815e">
   <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,7 +16,7 @@
   <meta property="og:title" content="Cryptocurrency Fundamental Analysis, Explained Simply | Canary Alpha Research">
   <meta property="og:description" content="In-depth crypto fundamental analysis in plain English. Every token scored on our 80-point framework, backed by on-chain forensics. Start free with Bitcoin and Ethereum.">
   <meta property="og:url" content="https://canaryalpha.co/">
-  <meta property="og:image" content="https://canaryalpha.co/brand/og-image.png?v=2">
+  <meta property="og:image" content="https://canaryalpha.co/brand/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Canary Alpha Research: in-depth cryptocurrency fundamental analysis, explained simply.">
@@ -35,6 +35,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
   <link rel="stylesheet" href="styles.css?v=88">
   <link rel="stylesheet" href="components/site-header.css?v=45">
+  <link rel="stylesheet" href="components/reviews/reviews.css?v=1">
   <!-- Old hero globe, unused; to bring it back, restore these two tags and the
        globe markup and scripts below, and remove the hero-visuals ones.
   <link rel="stylesheet" href="components/dotted-globe.css?v=34"> -->
@@ -191,7 +192,7 @@
   <script src="components/auth.js?v=4"></script>
 </head>
 <body>
-  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build 2d546d4 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build 1dfb710 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
   <header class="site-header" data-site-header data-home="#top" data-root=""></header>
   <script src="components/site-links.js?v=14"></script>
   <script src="components/site-header.js?v=45"></script>
@@ -498,6 +499,19 @@
       </div>
     </section>
 
+    <!-- Member reviews (components/reviews/): hidden until there are 5
+         approved reviews, then filled from api/reviews/. No review star
+         markup for search engines. -->
+    <section class="reviews" id="reviews" aria-labelledby="reviews-title" data-reviews-home hidden>
+      <header class="reviews__head">
+        <h2 id="reviews-title" class="reviews__title">What members say</h2>
+        <div data-reviews-summary></div>
+      </header>
+      <div data-reviews-list></div>
+      <p class="reviews__all"><a class="button button--ghost" href="reviews/"><span>Read all reviews</span> <svg class="button__icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg></a></p>
+      <p class="rv-note">Reviews are from verified members and are not investment advice.</p>
+    </section>
+
     <!-- Section 7: FAQ. One question open at a time (script.js);
          questions and answers also appear in the FAQPage JSON-LD in <head>. -->
     <section class="faq" id="faq" aria-labelledby="faq-title">
@@ -611,6 +625,7 @@
       else window.addEventListener("load", go);
     })();
   </script>
+  <script src="components/reviews/reviews-list.js?v=1"></script>
   <script src="components/paid-plans.js?v=2"></script>
   <script src="script.js?v=41"></script>
 

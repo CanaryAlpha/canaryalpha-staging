@@ -36,8 +36,12 @@ export function requestState(request) {
 /*
  * The signed-in user, freshly read from Clerk (so a plan change counts at
  * once, not when the session token next refreshes), or null.
- *   { id, name, email, tier, billing, stripeCustomerId, assetOrder }
+ *   { id, name, firstName, lastName, email, tier, billing, stripeCustomerId,
+ *     assetOrder, owner, review, reviewLog }
  * assetOrder: the member's own order of the asset list (slugs), or null.
+ * owner: publicMetadata.role is "owner" (set in Clerk's dashboard only).
+ * review, reviewLog: the member's review and its write times
+ * (api/_lib/reviews.js).
  */
 export async function currentUser(request) {
   const state = await requestState(request);
@@ -54,10 +58,15 @@ export async function currentUser(request) {
   return {
     id: u.id,
     name: [u.firstName, u.lastName].filter(Boolean).join(" "),
+    firstName: u.firstName || "",
+    lastName: u.lastName || "",
     email: primary ? primary.emailAddress : "",
     tier: effectiveTier(billing),
     billing,
     stripeCustomerId: (u.privateMetadata && u.privateMetadata.stripeCustomerId) || null,
-    assetOrder: (u.privateMetadata && Array.isArray(u.privateMetadata.assetOrder) && u.privateMetadata.assetOrder) || null
+    assetOrder: (u.privateMetadata && Array.isArray(u.privateMetadata.assetOrder) && u.privateMetadata.assetOrder) || null,
+    owner: !!(u.publicMetadata && u.publicMetadata.role === "owner"),
+    review: (u.privateMetadata && u.privateMetadata.review) || null,
+    reviewLog: (u.privateMetadata && Array.isArray(u.privateMetadata.reviewLog) && u.privateMetadata.reviewLog) || []
   };
 }

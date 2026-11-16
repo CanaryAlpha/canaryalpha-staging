@@ -16,6 +16,7 @@ export const PUBLIC_PAGES = [
   { path: "/terms/", lastmod: "2026-11-14" },
   { path: "/privacy/", lastmod: "2026-11-01" },
   { path: "/holdings/", lastmod: "2026-11-04" },
+  { path: "/reviews/", lastmod: "2026-11-16" },
   { path: "/disclaimer/", lastmod: "2026-11-04" }
 ];
 

@@ -80,7 +80,7 @@ export function page({ title, description, canonical, body, back }) {
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${esc(canonical)}">
-  <meta property="og:image" content="${SITE}/brand/og-image.png?v=2">
+  <meta property="og:image" content="${SITE}/brand/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Canary Alpha Research: in-depth cryptocurrency fundamental analysis, explained simply.">
