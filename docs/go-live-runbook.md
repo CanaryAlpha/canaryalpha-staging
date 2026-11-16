@@ -246,45 +246,181 @@ Enterprise monthly paid $970 (prorated) and became Enterprise (monthly).
 
 ## Go-live: switching Stripe to live mode
 
-Only after items 129–131 are done (LLC, EIN, bank account), and after the
-test above passes on production in TEST mode.
+Only after items 129–131 are done (LLC, EIN, bank account; all three closed
+by 2026-11-14), and after the test above passes on production in TEST mode.
+Steps 1–6 are the owner's: they need the live Stripe account and the Vercel
+dashboard. **No secret goes into this repo, a commit, a chat or a log:** keys
+and signing secrets are copied in the Stripe dashboard and pasted straight
+into Vercel.
 
-1. **Activate the Stripe account** (live mode): business details (the LLC,
-   EIN), bank account for payouts, statement descriptor `CANARYALPHA`,
-   support email hello@canaryalpha.co, public business website
-   https://canaryalpha.co. Turn on email receipts (Settings → Customer emails).
-2. **Create the live objects** with the Stripe CLI in live mode
-   (`stripe login`, then add `--live` to each command), copying the TEST
-   ones exactly, including lookup keys and metadata:
+1. **Activate the Stripe account** (live mode; done by the owner
+   2026-11-14: Canary Alpha Research LLC, bank account connected, automatic
+   payouts). Then, in live mode:
+   - Settings → Business → Public details: public business name
+     `Canary Alpha Research LLC` (Checkout and receipts show it as the
+     seller), statement descriptor `CANARY ALPHA RESEARCH` (card
+     statements show it in capitals), support email hello@canaryalpha.co,
+     website https://canaryalpha.co, Terms https://canaryalpha.co/terms/
+     and Privacy https://canaryalpha.co/privacy/.
+   - Settings → Customer emails: email receipts for successful payments and
+     refunds on.
+   - Settings → Managed Payments: leave it off. Checkout also turns it off
+     per session, so a live checkout must open with Canary Alpha Research
+     LLC, not Stripe, as the seller (step 7 confirms).
+2. **Create the live products, prices, portal and webhook** with the Stripe
+   CLI. First `stripe switch` and pick the **Canary Alpha Research LLC**
+   account, not the "Canary Alpha 404" sandbox the CLI used for TEST mode
+   (if it isn't listed, `stripe login` and pick it there). While the CLI is
+   on the sandbox, every `--live` command is refused with "You're in a
+   sandbox" and creates nothing (seen 2026-11-14). Check before creating
+   anything: `stripe products list --live --limit 5 | jq '.data[] | {id, name}'`
+   runs without that message (and, the first time, lists no Canary Alpha
+   products).
+   Every command below has `--live`; the ids it prints (`prod_…`,
+   `price_…`, `bpc_…`, `we_…`) are not secrets. Paste the whole block in one
+   Terminal window so the variables carry over (`jq` is installed):
    ```bash
-   stripe products create --live --name "Canary Alpha Pro" -d "metadata[ca_plan]=pro"
-   stripe prices create --live --product <prod> --currency usd --unit-amount 3000 -d "recurring[interval]=month" -d "lookup_key=pro_monthly" -d "metadata[ca_plan]=pro"
-   stripe prices create --live --product <prod> --currency usd --unit-amount 28800 -d "recurring[interval]=year" -d "lookup_key=pro_yearly" -d "metadata[ca_plan]=pro"
-   stripe products create --live --name "Canary Alpha Enterprise" -d "metadata[ca_plan]=enterprise"
-   stripe prices create --live --product <prod> --currency usd --unit-amount 100000 -d "recurring[interval]=month" -d "lookup_key=enterprise_monthly" -d "metadata[ca_plan]=enterprise"
-   stripe prices create --live --product <prod> --currency usd --unit-amount 840000 -d "recurring[interval]=year" -d "lookup_key=enterprise_yearly" -d "metadata[ca_plan]=enterprise"
+   PRO=$(stripe products create --live --name "Canary Alpha Pro" -d "metadata[ca_plan]=pro" | jq -r .id)
+   PRO_M=$(stripe prices create --live --product "$PRO" --currency usd --unit-amount 3000 -d "recurring[interval]=month" -d "lookup_key=pro_monthly" -d "metadata[ca_plan]=pro" | jq -r .id)
+   PRO_Y=$(stripe prices create --live --product "$PRO" --currency usd --unit-amount 28800 -d "recurring[interval]=year" -d "lookup_key=pro_yearly" -d "metadata[ca_plan]=pro" | jq -r .id)
+   ENT=$(stripe products create --live --name "Canary Alpha Enterprise" -d "metadata[ca_plan]=enterprise" | jq -r .id)
+   ENT_M=$(stripe prices create --live --product "$ENT" --currency usd --unit-amount 100000 -d "recurring[interval]=month" -d "lookup_key=enterprise_monthly" -d "metadata[ca_plan]=enterprise" | jq -r .id)
+   ENT_Y=$(stripe prices create --live --product "$ENT" --currency usd --unit-amount 840000 -d "recurring[interval]=year" -d "lookup_key=enterprise_yearly" -d "metadata[ca_plan]=enterprise" | jq -r .id)
+   echo "$PRO $PRO_M $PRO_Y $ENT $ENT_M $ENT_Y"
    ```
-   Then check Settings → Managed Payments (live mode): checkout turns it
-   off per session either way, so a live checkout must open with Canary
-   Alpha, not Stripe, as the seller (step 7 confirms).
-   Then the customer portal (Settings → Billing → Customer portal, live mode)
-   as listed above, and Settings → Business → Public details (Terms and
-   Privacy links).
-3. **Live webhook**: Developers → Webhooks (live) → Add endpoint
-   `https://canaryalpha.co/api/stripe/webhook/`, the seven events above, the
-   API version the code uses (stripe-node's pinned version). Copy its signing
-   secret.
-4. **Vercel Production variables**: `STRIPE_SECRET_KEY` → the live key,
-   `STRIPE_WEBHOOK_SECRET` → the live endpoint's secret. Keep
-   `PAID_PLANS_ENABLED=false` for now. Redeploy.
-5. **Smoke test, still switched off**: `/api/config` says `paidPlans: false`;
-   `POST /api/billing/checkout/` is refused.
-6. **Turn it on**: `PAID_PLANS_ENABLED=true` in Production. Redeploy.
-7. **One real purchase**: buy Pro monthly with a real card on your own
-   account, check the account page, the Stripe live dashboard and the
-   webhook delivery (200), then cancel and refund it in Stripe.
-8. **Terms and Privacy**: remove "Pro and Enterprise are not on sale yet"
-   from Terms section 4 (after the attorney review of items 133–135).
+   Check: six ids, none of them `null`. Then this lists exactly the four
+   prices ($30.00/month, $288.00/year, $1,000.00/month, $8,400.00/year),
+   each with its lookup key and `ca_plan`:
+   ```bash
+   stripe prices list --live -d "lookup_keys[]=pro_monthly" -d "lookup_keys[]=pro_yearly" -d "lookup_keys[]=enterprise_monthly" -d "lookup_keys[]=enterprise_yearly" | jq '.data[] | {lookup_key, unit_amount, interval: .recurring.interval, product, ca_plan: .metadata.ca_plan, active}'
+   ```
+   **Customer portal.** The site opens Stripe's *default* portal
+   configuration, so update that one (do not create a second):
+   ```bash
+   BPC=$(stripe billing_portal configurations list --live -d is_default=true | jq -r '.data[0].id'); echo "$BPC"
+   ```
+   If that prints `null`, open the live Dashboard → Settings → Billing →
+   Customer portal, click Save once (it creates the default), and run it
+   again. Then copy the TEST portal's settings onto it (Pro and Enterprise,
+   monthly↔yearly, cancel at period end, price changes only, so adjustable
+   quantity is off):
+   ```bash
+   stripe billing_portal configurations update "$BPC" --live \
+     -d "business_profile[headline]=Canary Alpha Research: manage your plan" \
+     -d "business_profile[privacy_policy_url]=https://canaryalpha.co/privacy/" \
+     -d "business_profile[terms_of_service_url]=https://canaryalpha.co/terms/" \
+     -d "default_return_url=https://canaryalpha.co/account/" \
+     -d "features[customer_update][enabled]=true" \
+     -d "features[customer_update][allowed_updates][]=email" \
+     -d "features[customer_update][allowed_updates][]=address" \
+     -d "features[invoice_history][enabled]=true" \
+     -d "features[payment_method_update][enabled]=true" \
+     -d "features[subscription_cancel][enabled]=true" \
+     -d "features[subscription_cancel][mode]=at_period_end" \
+     -d "features[subscription_cancel][proration_behavior]=none" \
+     -d "features[subscription_pause][enabled]=false" \
+     -d "features[subscription_update][enabled]=true" \
+     -d "features[subscription_update][default_allowed_updates][]=price" \
+     -d "features[subscription_update][proration_behavior]=always_invoice" \
+     -d "features[subscription_update][schedule_at_period_end][conditions][0][type]=decreasing_item_amount" \
+     -d "features[subscription_update][schedule_at_period_end][conditions][1][type]=shortening_interval" \
+     -d "features[subscription_update][products][0][product]=$PRO" \
+     -d "features[subscription_update][products][0][prices][]=$PRO_M" \
+     -d "features[subscription_update][products][0][prices][]=$PRO_Y" \
+     -d "features[subscription_update][products][1][product]=$ENT" \
+     -d "features[subscription_update][products][1][prices][]=$ENT_M" \
+     -d "features[subscription_update][products][1][prices][]=$ENT_Y" \
+     | jq '{id, error: .error.message}'
+   ```
+   The update's reply leaves out the product list unless it is expanded
+   (seen 2026-11-14: a filter that read it failed with "Cannot iterate over
+   null"), so check it by reading the configuration back:
+   ```bash
+   stripe get "/v1/billing_portal/configurations/$BPC" --live -d "expand[]=features.subscription_update.products" | jq '{id, error: .error.message, is_default, livemode, default_return_url, cancel: .features.subscription_cancel.mode, updates: .features.subscription_update.default_allowed_updates, products: ((.features.subscription_update.products | if type == "object" then .data else . end) // [] | map({product, prices}))}'
+   ```
+   Check: `error: null`, `is_default: true`, `livemode: true`,
+   `cancel: "at_period_end"`, `updates: ["price"]` (no `quantity`), and both
+   products with two prices each.
+
+   **Webhook.** With the final slash (`vercel.json`'s `trailingSlash`
+   redirects `/api/stripe/webhook` without it, and Stripe does not follow
+   redirects), the seven events the code handles, and the API version
+   stripe-node 23.0.0 is pinned to. The `jq` at the end keeps the signing
+   secret off the screen; it is copied from the Dashboard in step 3:
+   ```bash
+   stripe webhook_endpoints create --live \
+     -d "url=https://canaryalpha.co/api/stripe/webhook/" \
+     -d "api_version=2026-09-30.endive" \
+     -d "description=canaryalpha.co production (live)" \
+     -d "enabled_events[]=checkout.session.completed" \
+     -d "enabled_events[]=customer.subscription.created" \
+     -d "enabled_events[]=customer.subscription.updated" \
+     -d "enabled_events[]=customer.subscription.deleted" \
+     -d "enabled_events[]=invoice.paid" \
+     -d "enabled_events[]=invoice.payment_failed" \
+     -d "enabled_events[]=charge.refunded" \
+     | jq '{id, url, status, api_version, livemode, enabled_events}'
+   ```
+   If the CLI refuses a live write ("permission" or "restricted key"),
+   make that object in the live Dashboard instead with the same values
+   (a price's lookup key is under "Advanced" when adding the price; its
+   metadata under "Metadata").
+3. **Vercel Production variables** (vercel.com → the `canary-alpha` team →
+   project `canary-alpha-research-live` → Settings → Environment Variables).
+   Production only; Preview keeps the TEST values.
+   - **Copy the live secret key**: Stripe Dashboard, account switcher
+     (top left) on Canary Alpha Research LLC, not the sandbox, test mode
+     off → Developers → API keys → Secret key → Reveal live key (Stripe may
+     ask you to sign in again) → Copy. If Stripe won't reveal it again,
+     use Create secret key, name it `vercel-production`, and copy it when
+     it is shown.
+   - In Vercel, find `STRIPE_SECRET_KEY`. If its row lists **Production and
+     Preview together**, click ⋯ → Edit, untick Production, Save (Preview
+     keeps the test key); then Add New (top right) → Key
+     `STRIPE_SECRET_KEY`, paste the live key as the Value, Environments:
+     **Production only**, Sensitive on → Save. If the row is already
+     Production only: ⋯ → Edit → paste over the value → Save.
+   - **Copy the live webhook signing secret**: Stripe Dashboard (live) →
+     Developers → Webhooks → the `https://canaryalpha.co/api/stripe/webhook/`
+     endpoint → Signing secret → Reveal → Copy.
+   - In Vercel, do the same for `STRIPE_WEBHOOK_SECRET` (Production only,
+     Sensitive on).
+   - Leave `PAID_PLANS_ENABLED` at `false` in Production for now.
+   - Deployments → the latest Production deployment → ⋯ → Redeploy.
+   - Clear the clipboard (copy any other text) when done.
+4. **Smoke test, still switched off**: `/api/config` says `paidPlans: false`;
+   `POST /api/billing/checkout/` is refused with 403 `paid_plans_closed`.
+5. **Turn it on**: Vercel → Environment Variables → `PAID_PLANS_ENABLED` →
+   ⋯ → Edit → Value `true`, Environments **Production only** (if the row
+   also covers Preview or Development, untick them first and add a separate
+   Production-only `true`) → Save. The value takes effect with the next
+   deployment, which is the merge of the `go-live` branch (the "Go Pro" /
+   "Go Enterprise" wording and the Terms change in step 8). Without that
+   merge: Deployments → latest Production → ⋯ → Redeploy.
+6. **Clean up TEST**: in the "Canary Alpha 404" sandbox, disable the
+   webhook endpoint for `https://canaryalpha.co/api/stripe/webhook/`
+   (Developers → Webhooks → ⋯ → Disable). Production now checks the live
+   signing secret, so sandbox deliveries to it would fail with 400. The
+   preview endpoint stays.
+7. **One real purchase** on your own account: Pro monthly ($30, the lowest
+   price). Check the account page ("Pro (monthly): renews on …"), a Pro
+   report opening in full, Manage billing (the portal offers Pro yearly and
+   Enterprise, cancel at period end, no quantity), the payment in the
+   Stripe live dashboard (seller Canary Alpha Research LLC, descriptor
+   `CANARY ALPHA RESEARCH`), and the webhook deliveries (200). Then in
+   Stripe: the subscription → Cancel immediately, and the payment → Refund
+   in full. The account page returns to Free and the `charge.refunded`
+   delivery is 200.
+8. **Terms**: "Pro and Enterprise are not on sale yet" comes out of Terms
+   section 4 (done on the `go-live` branch, 2026-11-14, for the owner's
+   review).
+
+   **Decisions recorded 2026-11-14 (the owner):** launched 2026-11 without
+   attorney review by operator decision (cost); review deferred until funds
+   allow (items 133–135 stay part-closed, with that note). The Terms change
+   above is kept for launch. "Canary Alpha Research LLC, a Delaware limited
+   liability company" in the Terms and Privacy is confirmed correct and
+   stays as written.
 9. **Record it** on checklist item 404.
 
 **Roll back**: set `PAID_PLANS_ENABLED` back to `false` and redeploy. Paid

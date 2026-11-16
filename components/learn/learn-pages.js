@@ -180,10 +180,21 @@
       "<span>Play video <span class=\"learn-sr\">“" + esc(v.title) + "”, </span>(" + esc(v.length) + ")</span></button></div>";
   }
 
+  // Each article and video page gets its own title and description in the
+  // tab and in link previews (the HTML holds a generic pair until then).
+  function setMeta(title, desc) {
+    document.title = title + " — Learn — Canary Alpha Research";
+    [["meta[name=\"description\"]", desc], ["meta[property=\"og:title\"]", document.title],
+     ["meta[property=\"og:description\"]", desc]].forEach(function (m) {
+      var el = document.querySelector(m[0]);
+      if (el && m[1]) el.setAttribute("content", m[1]);
+    });
+  }
+
   function videoPage() {
     var v = L.video(id);
     if (!v) return notFound("video");
-    document.title = v.title + " — Learn — Canary Alpha Research";
+    setMeta(v.title, v.summary);
     var open = L.canVideo(v), need = L.need(L.videoFeature(v));
     main.innerHTML =
       '<p class="learn-back"><a href="' + esc(L.url.learn) + '#videos">← Learn</a></p>' +
@@ -207,7 +218,7 @@
   function articlePage() {
     var a = L.article(id);
     if (!a) return notFound("article");
-    document.title = a.title + " — Learn — Canary Alpha Research";
+    setMeta(a.title, a.summary);
     var step = ART.path.indexOf(a.id), prev = step > 0 ? L.article(ART.path[step - 1]) : null, next = step !== -1 ? L.article(ART.path[step + 1]) : null;
     var v = a.video ? L.video(a.video) : null;
     main.innerHTML =

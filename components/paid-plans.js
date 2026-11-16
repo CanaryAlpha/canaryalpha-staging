@@ -3,7 +3,8 @@
  * Join the list" (waitlist/), which is what everyone sees while paid plans
  * are closed. When the server's switch is on (PAID_PLANS_ENABLED, read
  * from /api/config by components/auth.js), each button with
- * data-paid-href / data-paid-label becomes the real one.
+ * data-paid-href / data-paid-label becomes the real one, and each element
+ * with data-paid-text (the "coming soon" lines) gets that text instead.
  */
 (function () {
   var auth = window.CA_AUTH;
@@ -15,6 +16,9 @@
       var label = a.querySelector("span");
       if (label) label.textContent = a.getAttribute("data-paid-label");
       a.classList.remove("plan__cta--soon");
+    });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-paid-text]"), function (el) {
+      el.textContent = el.getAttribute("data-paid-text");
     });
   });
 })();
