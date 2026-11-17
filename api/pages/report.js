@@ -31,8 +31,8 @@ export async function GET(request) {
   }
   if (!view) return htmlResponse(404, messagePage({ title: "Report not found", text: "We don't have a report on that token." }));
 
-  // The download links the API signs for this plan (full reports only).
-  const downloads = view.full ? await quiet(async () => {
+  // Download links: Enterprise only (Free and Pro read on the site).
+  const downloads = view.full && user.tier === "enterprise" ? await quiet(async () => {
     const r = await research("/api/documents/" + slug, user.tier);
     return r.status === 200 && r.body ? { documents: r.body.documents || [] } : null;
   }) : null;

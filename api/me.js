@@ -1,7 +1,9 @@
 /*
  * GET /api/me: the signed-in user and their plan, as the server sees it.
  *   200 { user {name, email}, tier, billing {plan, status, interval,
- *   periodEnd, cancelAtPeriodEnd, customer}, paidPlans }   401 when signed out
+ *   periodEnd, cancelAtPeriodEnd, customer}, paidPlans, admin }   401 when
+ *   signed out. admin only decides whether the menu shows the Admin link;
+ *   every admin page and action checks the role again on the server.
  *   (header x-clerk-auth-reason says why)
  */
 import { currentUser, requestState } from "./_lib/auth.js";
@@ -30,6 +32,7 @@ export async function GET(request) {
       cancelAtPeriodEnd: s.cancelAtPeriodEnd,
       customer: !!user.stripeCustomerId
     },
-    paidPlans: paidPlansEnabled()
+    paidPlans: paidPlansEnabled(),
+    admin: user.admin
   });
 }

@@ -21,7 +21,8 @@ test("the logged-in group is headed My account, not Dashboard", () => {
 test("the group lists Dashboard, Reports and Settings, in that order", () => {
   // Array.from: the file ran in its own context, whose arrays deepEqual
   // would never match ours.
-  const items = Array.from(links().dashboards).filter((d) => !d.tier);
+  // (Admin, marked admin, shows to admins only: tests/reviews.test.js.)
+  const items = Array.from(links().dashboards).filter((d) => !d.tier && !d.admin);
   assert.deepEqual(items.map((d) => d.label), ["Dashboard", "Reports", "Settings"]);
   assert.deepEqual(items.map((d) => d.href), ["dashboard/", "reports/", "account/"]);
 });

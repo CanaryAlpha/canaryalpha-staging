@@ -37,9 +37,11 @@ export function requestState(request) {
  * The signed-in user, freshly read from Clerk (so a plan change counts at
  * once, not when the session token next refreshes), or null.
  *   { id, name, firstName, lastName, email, tier, billing, stripeCustomerId,
- *     assetOrder, owner, review, reviewLog }
+ *     assetOrder, admin, twoFactor, review, reviewLog }
  * assetOrder: the member's own order of the asset list (slugs), or null.
- * owner: publicMetadata.role is "owner" (set in Clerk's dashboard only).
+ * admin: publicMetadata.role is "admin" (set in Clerk's dashboard only;
+ * members can't write publicMetadata). twoFactor: the account has two-step
+ * verification on in Clerk (admin pages and actions need it).
  * review, reviewLog: the member's review and its write times
  * (api/_lib/reviews.js).
  */
@@ -65,7 +67,8 @@ export async function currentUser(request) {
     billing,
     stripeCustomerId: (u.privateMetadata && u.privateMetadata.stripeCustomerId) || null,
     assetOrder: (u.privateMetadata && Array.isArray(u.privateMetadata.assetOrder) && u.privateMetadata.assetOrder) || null,
-    owner: !!(u.publicMetadata && u.publicMetadata.role === "owner"),
+    admin: !!(u.publicMetadata && u.publicMetadata.role === "admin"),
+    twoFactor: u.twoFactorEnabled === true,
     review: (u.privateMetadata && u.privateMetadata.review) || null,
     reviewLog: (u.privateMetadata && Array.isArray(u.privateMetadata.reviewLog) && u.privateMetadata.reviewLog) || []
   };

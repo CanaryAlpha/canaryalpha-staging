@@ -3,6 +3,11 @@
   "trailingSlash": true,
   "redirects": [
     {
+      "source": "/reviews/queue/",
+      "destination": "/admin/reviews/",
+      "permanent": false
+    },
+    {
       "source": "/dashboard/report/",
       "has": [
         {

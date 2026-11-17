@@ -2,32 +2,41 @@
  * Member reviews: the rules, and where they are kept.
  *
  * Each member has at most one review, kept on their own Clerk user in
- * privateMetadata.review (never sent to the browser by Clerk; only these
- * api/reviews/ functions read or write it). Deleting the account deletes
- * the review with it. The shape:
+ * privateMetadata.review (never sent to the browser by Clerk; only the
+ * api/reviews/ and api/admin/reviews/ functions read or write it).
+ * Deleting the account deletes the review with it. The shape:
  *
  *   { rating 1-5, text (cleaned, 20-600 characters), display "name" |
  *     "initials" | "anonymous", name (the name shown, worked out when the
  *     review is saved), consent true, tier "free" | "pro" | "enterprise"
  *     (at the time of writing), createdAt, updatedAt, status "pending" |
- *     "approved" | "declined" | "hidden", moderatedAt }
+ *     "approved" | "declined" | "hidden", moderatedAt,
+ *     reply: { text, createdAt, updatedAt, forVersion } | absent }
  *
- * Every new or edited review is "pending" until the owner approves it in
- * the queue (/reviews/queue/). The public list shows "approved" reviews
- * only, with the text exactly as approved: an edit sends the review back
- * to "pending", and the owner approves a specific version (updatedAt), so
- * text the owner hasn't seen is never published.
+ * Every new or edited review is "pending" until an admin approves it at
+ * /admin/reviews/. The public list shows "approved" reviews only, with the
+ * text exactly as approved: an edit sends the review back to "pending", and
+ * every admin action names the version (updatedAt) the admin was shown, so
+ * text an admin hasn't seen is never published. A reply ("Response from
+ * Canary Alpha Research") is shown under the review; forVersion records
+ * which version of the review it answered.
+ *
+ * Admins are the users whose publicMetadata.role is "admin" (set in Clerk's
+ * dashboard; members can't change publicMetadata), and they need two-step
+ * verification on. Permanent deletions are logged on the admin who made
+ * them, in privateMetadata.reviewDeletions: who, when, why and whose review,
+ * never the deleted text.
  *
  * privateMetadata.reviewLog holds the times of the member's last writes,
- * for the rate limit. The owner is the user whose publicMetadata.role is
- * "owner" (set in Clerk's dashboard; members can't change publicMetadata).
- * No email address is ever stored in a review or sent with one.
+ * for the rate limit. No email address is ever stored in a review or sent
+ * with one.
  */
 import { clerk } from "./auth.js";
 
 export const MIN_TEXT = 20;
 export const MAX_TEXT = 600;
-export const MIN_FOR_SUMMARY = 5;
+export const MIN_FOR_HOME = 5;
+export const MAX_REPLY = 1000;
 export const DISPLAYS = ["name", "initials", "anonymous"];
 export const STATUSES = ["pending", "approved", "declined", "hidden"];
 export const TIER_LABELS = { free: "Free member", pro: "Pro member", enterprise: "Enterprise member" };
@@ -117,7 +126,7 @@ export function ownView(r) {
 // What anyone sees of an approved review: no account ID, no email.
 export function publicView(r) {
   const d = new Date(r.updatedAt);
-  return {
+  const out = {
     rating: r.rating,
     text: r.text,
     name: r.name,
@@ -125,76 +134,130 @@ export function publicView(r) {
     tierLabel: TIER_LABELS[r.tier] || TIER_LABELS.free,
     month: d.toISOString().slice(0, 7)
   };
-}
-
-// The public list: approved reviews, newest first, with the average and
-// count only once there are MIN_FOR_SUMMARY of them.
-export function publicList(entries) {
-  const approved = entries.map((e) => e.review).filter((r) => r && r.status === "approved")
-    .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
-  const count = approved.length;
-  const out = { count: count >= MIN_FOR_SUMMARY ? count : null, average: null, showOnHome: count >= MIN_FOR_SUMMARY,
-    reviews: approved.map(publicView) };
-  if (count >= MIN_FOR_SUMMARY) out.average = Math.round((approved.reduce((s, r) => s + r.rating, 0) / count) * 10) / 10;
+  if (r.reply && r.reply.text) out.reply = { text: r.reply.text, date: String(r.reply.updatedAt || r.reply.createdAt).slice(0, 10) };
   return out;
 }
 
-// The owner's queue: every review, pending first, then newest.
-export function queueList(entries) {
-  const order = { pending: 0, approved: 1, hidden: 2, declined: 3 };
-  const items = entries.filter((e) => e.review).map((e) => ({
-    userId: e.userId,
-    rating: e.review.rating,
-    text: e.review.text,
-    display: e.review.display,
-    name: e.review.name,
-    tier: e.review.tier,
-    tierLabel: TIER_LABELS[e.review.tier] || TIER_LABELS.free,
-    consent: e.review.consent === true,
-    status: e.review.status,
-    createdAt: e.review.createdAt,
-    updatedAt: e.review.updatedAt,
-    moderatedAt: e.review.moderatedAt || null
-  })).sort((a, b) => (order[a.status] - order[b.status]) || String(b.updatedAt).localeCompare(String(a.updatedAt)));
-  return { pending: items.filter((i) => i.status === "pending").length, items };
+// The rating summary of a list of reviews: the count, the average to one
+// decimal (null when there are none) and how many gave each star.
+export function ratingSummary(reviews) {
+  const breakdown = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  let sum = 0;
+  for (const r of reviews) { breakdown[r.rating] += 1; sum += r.rating; }
+  const count = reviews.length;
+  return { count, average: count ? Math.round((sum / count) * 10) / 10 : null, breakdown };
 }
 
-// The owner's actions, and the status each one sets. Hide applies to a
-// published review; Approve also brings a hidden or declined one back.
-export const ACTIONS = { approve: "approved", decline: "declined", hide: "hidden" };
+// The public list: approved reviews only (never pending, hidden, declined
+// or deleted), newest first, with their summary. The homepage section waits
+// for MIN_FOR_HOME of them (showOnHome).
+export function publicList(entries) {
+  const approved = entries.map((e) => e.review).filter((r) => r && r.status === "approved")
+    .sort((a, b) => String(b.updatedAt).localeCompare(String(a.updatedAt)));
+  return { ...ratingSummary(approved), showOnHome: approved.length >= MIN_FOR_HOME, reviews: approved.map(publicView) };
+}
+
+// What an admin sees of each review, waiting ones first, then newest.
+export function adminItem(userId, r) {
+  return {
+    userId,
+    rating: r.rating,
+    text: r.text,
+    display: r.display,
+    name: r.name,
+    tier: r.tier,
+    tierLabel: TIER_LABELS[r.tier] || TIER_LABELS.free,
+    consent: r.consent === true,
+    status: r.status,
+    createdAt: r.createdAt,
+    updatedAt: r.updatedAt,
+    moderatedAt: r.moderatedAt || null,
+    reply: r.reply && r.reply.text ? { text: r.reply.text, createdAt: r.reply.createdAt, updatedAt: r.reply.updatedAt,
+      current: r.reply.forVersion === r.updatedAt } : null
+  };
+}
+export function adminList(entries, deletions = []) {
+  const order = { pending: 0, approved: 1, hidden: 2, declined: 3 };
+  const items = entries.filter((e) => e.review).map((e) => adminItem(e.userId, e.review))
+    .sort((a, b) => (order[a.status] - order[b.status]) || String(b.updatedAt).localeCompare(String(a.updatedAt)));
+  const log = deletions.slice().sort((a, b) => String(b.at).localeCompare(String(a.at)));
+  return { pending: items.filter((i) => i.status === "pending").length, items, deletions: log,
+    published: ratingSummary(entries.map((e) => e.review).filter((r) => r && r.status === "approved")) };
+}
+
+// An admin's actions on a review's status, the status each sets, and when
+// each is allowed. Reply, remove the reply and delete are handled apart.
+export const ACTIONS = { approve: "approved", decline: "declined", hide: "hidden", restore: "approved" };
 export function canModerate(action, status) {
+  if (action === "approve") return status === "pending" || status === "declined";
+  if (action === "decline") return status === "pending";
   if (action === "hide") return status === "approved";
-  if (action === "approve") return status !== "approved";
-  if (action === "decline") return status === "pending" || status === "hidden";
+  if (action === "restore") return status === "hidden";
   return false;
 }
-
-export function isOwner(u) {
-  return !!(u && u.publicMetadata && u.publicMetadata.role === "owner");
+export const DELETE_REASONS = {
+  spam: "Spam",
+  abuse: "Abuse or hate",
+  private_info: "Private information",
+  member_request: "Member requested removal",
+  other: "Other"
+};
+// The reply as stored: cleaned like a review (no links or HTML), 2-1000
+// characters. Returns { text } or { error }.
+export function validateReply(raw) {
+  if (typeof raw !== "string" || raw.length > MAX_REPLY * 2) return fail("bad_reply", "Keep the reply to " + MAX_REPLY + " characters.");
+  const text = cleanText(raw);
+  if (text.length < 2) return fail("bad_reply", "Write a reply (links and HTML are removed).");
+  if (text.length > MAX_REPLY) return fail("bad_reply", "Keep the reply to " + MAX_REPLY + " characters.");
+  return { text };
+}
+// Admin pages and actions: an admin with two-step verification on.
+export function adminState(user) {
+  if (!user) return "signed_out";
+  if (!user.admin) return "not_admin";
+  if (!user.twoFactor) return "needs_2fa";
+  return "ok";
 }
 
 // ---- Storage: the reviews on every Clerk user --------------------------
 
-const LIST_TTL_MS = 60 * 1000;
-let listCache = null;
+const STALE_OK_MS = 10 * 60 * 1000;
+let inFlight = null, lastGood = null;
 
-// Every user that has a review: [{ userId, review }]. Read from Clerk in
-// pages of 500; kept for a minute in this function instance (the public
-// endpoint is also cached by Vercel's CDN).
-export async function allReviews({ fresh = false } = {}) {
-  if (!fresh && listCache && Date.now() - listCache.at < LIST_TTL_MS) return listCache.entries;
-  const entries = [];
-  for (let offset = 0; offset < 100000; offset += 500) {
-    const page = await clerk().users.getUserList({ limit: 500, offset, orderBy: "-created_at" });
-    const users = Array.isArray(page) ? page : page.data || [];
-    for (const u of users) {
-      const r = u.privateMetadata && u.privateMetadata.review;
-      if (r && typeof r === "object" && STATUSES.includes(r.status)) entries.push({ userId: u.id, review: r });
+// Every user's review and every admin's deletion log, read from Clerk in
+// pages of 500 on every call (no cache, so an approval, hide or delete
+// shows on the next page load). Calls that arrive together share one read;
+// if Clerk can't be reached, the last good read (up to 10 minutes old) is
+// used instead.
+export function scanUsers() {
+  if (inFlight) return inFlight;
+  inFlight = (async () => {
+    const entries = [], deletions = [];
+    for (let offset = 0; offset < 100000; offset += 500) {
+      const page = await clerk().users.getUserList({ limit: 500, offset, orderBy: "-created_at" });
+      const users = Array.isArray(page) ? page : page.data || [];
+      for (const u of users) {
+        const pm = u.privateMetadata || {};
+        const r = pm.review;
+        if (r && typeof r === "object" && STATUSES.includes(r.status)) entries.push({ userId: u.id, review: r });
+        if (Array.isArray(pm.reviewDeletions)) {
+          const by = [u.firstName, u.lastName].filter(Boolean).join(" ") || u.id;
+          for (const d of pm.reviewDeletions) deletions.push({ ...d, by, byId: u.id });
+        }
+      }
+      if (users.length < 500) break;
     }
-    if (users.length < 500) break;
-  }
-  listCache = { at: Date.now(), entries };
-  return entries;
+    lastGood = { at: Date.now(), entries, deletions };
+    return { entries, deletions };
+  })().catch((e) => {
+    if (lastGood && Date.now() - lastGood.at < STALE_OK_MS) {
+      console.log("reviews: Clerk read failed, using the last good read", e && e.message);
+      return { entries: lastGood.entries, deletions: lastGood.deletions };
+    }
+    throw e;
+  }).finally(() => { inFlight = null; });
+  return inFlight;
 }
-
-export function forgetList() { listCache = null; }
+export async function allReviews() { return (await scanUsers()).entries; }
+// Kept for the member's own writes: nothing is cached, so nothing to forget.
+export function forgetList() { lastGood = null; }

@@ -1,13 +1,13 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <!-- STAGING build of 1dfb7105cb5137998dd59d454d741020e1ad815e (tools/build-staging.py) -->
+  <!-- STAGING build of bb2cf52b1d880d6f5ab896157469fff36c1b4b06 (tools/build-staging.py) -->
   <meta name="robots" content="noindex, nofollow">
-  <meta name="ca-staging-build" content="1dfb7105cb5137998dd59d454d741020e1ad815e">
+  <meta name="ca-staging-build" content="bb2cf52b1d880d6f5ab896157469fff36c1b4b06">
   <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Review queue — Canary Alpha Research</title>
+  <title>Manage reviews — Admin — Canary Alpha Research</title>
   <meta name="robots" content="noindex, nofollow">
   <link rel="icon" type="image/svg+xml" href="../../brand/favicon.svg">
   <link rel="icon" type="image/png" sizes="512x512" href="../../brand/favicon-512.png">
@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&amp;display=swap">
   <link rel="stylesheet" href="../../styles.css?v=88">
   <link rel="stylesheet" href="../../components/site-header.css?v=45">
-  <link rel="stylesheet" href="../../components/reviews/reviews.css?v=1">
+  <link rel="stylesheet" href="../../components/reviews/reviews.css?v=2">
   <!-- Site settings and production mode: load first. -->
   <script src="../../components/site.config.js?v=3"></script>
   <script src="../../components/site-mode.js?v=2"></script>
@@ -38,25 +38,46 @@
     })();
   </script>
   <!-- Accounts (Clerk), see components/auth.js. -->
-  <script src="../../components/auth.js?v=4"></script>
+  <script src="../../components/auth.js?v=5"></script>
   <script src="../../components/auth-gate.js?v=3" data-require="any"></script>
 </head>
 <body>
-  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build 1dfb710 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build bb2cf52 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
   <header class="site-header" data-site-header data-home="../../" data-root="../../"></header>
-  <script src="../../components/site-links.js?v=14"></script>
-  <script src="../../components/site-header.js?v=45"></script>
-  <!-- The owner's review queue. Holds nothing itself: the reviews come
-       from api/reviews/queue/, which answers the owner only. -->
-  <main class="rv-page rv-queue" data-review-queue>
-    <h1 class="rv-page__title">Review queue</h1>
-    <div data-queue-body>
-      <div data-queue-ready hidden>
-        <p class="rv-queue__rule">Approve honest reviews, positive or negative. Decline only spam, abuse, private information, or claims of investment returns.</p>
-        <p class="rv-queue__count" data-queue-count role="status"></p>
-        <p class="rv-page__sub">Approved reviews appear on the site within a few minutes. Declining or hiding a review never deletes the member&rsquo;s account, review or other data.</p>
-        <div class="rv-queue__tabs" data-queue-tabs role="group" aria-label="Show"></div>
-        <ul class="rv-queue__list" data-queue-list></ul>
+  <script src="../../components/site-links.js?v=16"></script>
+  <script src="../../components/site-header.js?v=46"></script>
+  <!-- Admin: manage member reviews. Holds nothing itself: the reviews
+       come from api/admin/reviews/, which answers admins with two-step
+       verification only, and every action goes to
+       api/admin/reviews/action/, which checks again. -->
+  <main class="rv-page rv-admin" data-review-admin>
+    <p class="rv-admin__crumb">Admin</p>
+    <h1 class="rv-page__title">Manage reviews</h1>
+    <div data-admin-body aria-live="polite">
+      <p class="rv-page__empty" data-admin-loading>Loading&hellip;</p>
+      <div data-admin-ready hidden>
+        <p class="rv-queue__rule">Reply to honest criticism rather than removing it. Delete or hide only spam, abuse, private information, claims of investment returns, or reviews the member asked to remove.</p>
+        <p class="rv-queue__count" data-admin-count role="status"></p>
+        <p class="rv-page__sub">Approvals, hides and deletions show on the site the next time a page loads. Declining or hiding a review keeps it stored; only Delete removes it, and deletions are logged below without the review&rsquo;s text.</p>
+        <div class="rv-admin__stats" data-admin-stats></div>
+        <div class="rv-admin__filters">
+          <div class="rv-queue__tabs" data-admin-tabs role="group" aria-label="Show reviews that are"></div>
+          <label class="rv-admin__select">Rating
+            <select data-admin-stars>
+              <option value="">All ratings</option>
+              <option value="5">5 stars</option>
+              <option value="4">4 stars</option>
+              <option value="3">3 stars</option>
+              <option value="2">2 stars</option>
+              <option value="1">1 star</option>
+            </select>
+          </label>
+        </div>
+        <ul class="rv-queue__list" data-admin-list></ul>
+        <details class="rv-admin__log" data-admin-log>
+          <summary>Deletion log</summary>
+          <div data-admin-log-body></div>
+        </details>
       </div>
     </div>
   </main>
@@ -66,8 +87,8 @@
   </footer>
   <script src="../../components/site-footer.js?v=1"></script>
 
-  <script src="../../components/reviews/reviews-list.js?v=1"></script>
-  <script src="../../components/reviews/review-queue.js?v=1"></script>
+  <script src="../../components/reviews/reviews-list.js?v=2"></script>
+  <script src="../../components/reviews/admin-reviews.js?v=1"></script>
   <script src="../../script.js?v=41"></script>
 </body>
 </html>

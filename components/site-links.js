@@ -26,16 +26,21 @@ window.CA_SITE_LINKS = {
     { label: "Log in", href: "login/", loggedOut: true },
     { label: "Sign up", href: "signup/", loggedOut: true },
     { label: "Contact Us", href: "contact/" },
+    { label: "Reviews", href: "reviews/" },
     { label: "Glossary", href: "learn/glossary/" }
   ],
 
   // The menu's My account group when logged in (site-header.js). An entry
-  // with a tier shows only to members on that tier or higher.
+  // with a tier shows only to members on that tier or higher; one marked
+  // admin only to admins.
   dashboards: [
     { label: "Dashboard", href: "dashboard/" },
     { label: "Reports", href: "reports/" },
     { label: "Bespoke reports", href: "dashboard/enterprise/", tier: "enterprise" },
-    { label: "Settings", href: "account/" }
+    { label: "Settings", href: "account/" },
+    // Admins only (publicMetadata.role "admin"). Hiding it is for display;
+    // the admin pages and their API check the role on the server.
+    { label: "Admin", href: "admin/reviews/", admin: true }
   ],
 
   footer: {
@@ -59,7 +64,13 @@ window.CA_SITE_LINKS = {
         ]
       },
       // Add About here once that page exists.
-      { title: "Company", links: [{ label: "Contact Us", href: "contact/" }] },
+      {
+        title: "Company",
+        links: [
+          { label: "Contact Us", href: "contact/" },
+          { label: "Reviews", href: "reviews/" }
+        ]
+      },
       {
         title: "Legal",
         links: [

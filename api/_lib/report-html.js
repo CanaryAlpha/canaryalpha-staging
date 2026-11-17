@@ -26,9 +26,9 @@ export const ASSET_VERSIONS = {
   "components/members/members.css": 8,
   "components/site.config.js": 3,
   "components/site-mode.js": 2,
-  "components/auth.js": 4,
-  "components/site-links.js": 14,
-  "components/site-header.js": 45,
+  "components/auth.js": 5,
+  "components/site-links.js": 16,
+  "components/site-header.js": 46,
   "components/site-footer.js": 1,
   "script.js": 41
 };
@@ -440,9 +440,10 @@ export function reportPage({ slug, view, tier, paidPlans, downloads }) {
 }
 const str = (x) => (typeof x === "string" && x.trim() ? x.trim() : "");
 
-// The download links the API signs for this tier (unchanged from the old
-// members' report page; item 128 owns what a plan may download).
+// The download links the API signs, for Enterprise only: Free and Pro have
+// no downloads (the operator's decision, 2026-11-16; item 128 dropped).
 function downloadsBlock(slug, tier, d) {
+  if (tier !== "enterprise") return "";
   const items = (d.documents || []).map((doc) => `<li><a href="${esc(doc.url)}" rel="noopener">${esc(doc.label || doc.role || "Document")}` +
     `${doc.format ? " (" + esc(String(doc.format).toUpperCase()) + ")" : ""}</a></li>`);
   if (tier === "enterprise") items.push(`<li><a href="/api/research/report/?slug=${encodeURIComponent(slug)}" download="${esc(slug)}-canary-alpha-research.json">Full research data (JSON)</a></li>`);

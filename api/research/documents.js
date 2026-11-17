@@ -1,6 +1,7 @@
 /*
  * GET /api/research/documents?slug=btc: download links (PDF and others) for
- * one report at this user's plan. The links are signed and expire after the
+ * one report at this user's plan. Enterprise only: Free and Pro read reports
+ * on the site and have no downloads (the operator's decision, 2026-11-16). The links are signed and expire after the
  * API's ttl_seconds.
  */
 import { currentUser } from "../_lib/auth.js";
@@ -16,6 +17,7 @@ export async function GET(request) {
   // Free: Bitcoin and Ethereum only, the same answer whether the token
   // exists or not (as api/dashboard/asset.js), so nothing can be probed.
   if (!canRead(slug, user.tier)) return error(403, "locked", "This report is part of Pro.");
+  if (user.tier !== "enterprise") return error(403, "enterprise_only", "Downloads are part of Enterprise.");
   const r = await research("/api/documents/" + slug, user.tier);
   if (r.status !== 200 || !r.body) return error(502, "research_unavailable", "Downloads are unavailable right now.");
   return json({ documents: r.body.documents || [], ttlSeconds: r.body.ttl_seconds || 0 });

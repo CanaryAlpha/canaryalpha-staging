@@ -146,7 +146,7 @@
       ? '<li class="site-header__group"><button type="button" class="site-header__group-btn" aria-expanded="false" aria-controls="site-header-dashboards">' +
           "My account" + ICONS.chevron + "</button>" +
           '<ul class="site-header__sub" id="site-header-dashboards" hidden>' + site.dashboards.filter(function (d) {
-            return !d.tier || auth.hasTier(d.tier);
+            return (!d.tier || auth.hasTier(d.tier)) && (!d.admin || user.admin === true);
           }).map(function (d) {
             return '<li><a href="' + root + d.href + '">' + d.label + "</a></li>";
           }).join("") + "</ul></li>"

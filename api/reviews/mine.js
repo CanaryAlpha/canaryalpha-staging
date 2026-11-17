@@ -4,7 +4,7 @@
  *               updatedAt} | null, profile: {hasFirstName, hasName} }
  *   POST    { rating, text, display, consent: true } -> { review }
  *           Creates or replaces the member's one review; it is "pending"
- *           until the owner approves it, including after an edit.
+ *           until an admin approves it, including after an edit.
  *   DELETE  -> { review: null }   removes it, published or not.
  * Text is cleaned (links and HTML removed) and must be 20-600 characters.
  * Writes are rate limited (api/_lib/reviews.js): 429 when too soon.
@@ -37,6 +37,9 @@ export async function POST(request) {
   const prev = user.review;
   const review = { ...v.review, tier: user.tier, createdAt: (prev && prev.createdAt) || now, updatedAt: now,
     status: "pending", moderatedAt: null };
+  // An admin's reply stays with the review; the admin page marks it as
+  // written for an earlier version.
+  if (prev && prev.reply) review.reply = prev.reply;
   await clerk().users.updateUserMetadata(user.id, { privateMetadata: { review, reviewLog: log } });
   forgetList();
   return json({ review: ownView(review), profile: profile(user) });

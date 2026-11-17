@@ -10,7 +10,7 @@
  *
  * Load after components/site.config.js, in <head>.
  *
- *   CA_AUTH.getCurrentUser()  -> { name, email, tier } | null   (sync: last
+ *   CA_AUTH.getCurrentUser()  -> { name, email, tier, admin } | null   (sync: last
  *                                known, from this tab's sessionStorage)
  *   CA_AUTH.getUserTier()     -> "free" | "pro" | "enterprise" | null
  *   CA_AUTH.hasTier(tier)     -> true for that tier or higher
@@ -59,7 +59,7 @@ window.CA_AUTH = (function () {
     } catch (e) { return null; }
   }
   function remember(me) {
-    var u = me ? { name: String(me.user.name || ""), email: String(me.user.email || ""), tier: me.tier } : null;
+    var u = me ? { name: String(me.user.name || ""), email: String(me.user.email || ""), tier: me.tier, admin: me.admin === true } : null;
     try {
       if (u) sessionStorage.setItem(KEY, JSON.stringify(u));
       else sessionStorage.removeItem(KEY);

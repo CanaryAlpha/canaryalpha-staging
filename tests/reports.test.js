@@ -133,11 +133,13 @@ test("Pro and Enterprise: the full report; Enterprise asks the API for instituti
   for (const tier of ["pro", "enterprise"]) {
     const r = await getReport("zro", tier);
     assert.equal(r.status, 200);
-    for (const s of ["PRO-EXEC-SUMMARY", "PRO-SUMMARY-DOC", "PRO-ANSWER-1", "PRO-RATIONALE", "Binance", "The full report", "Downloads"]) {
+    for (const s of ["PRO-EXEC-SUMMARY", "PRO-SUMMARY-DOC", "PRO-ANSWER-1", "PRO-RATIONALE", "Binance", "The full report"]) {
       assert.ok(r.html.includes(s), s + " for " + tier);
     }
     assert.doesNotMatch(r.html, /part of Pro/);
     assert.equal(r.html.includes("Full research data (JSON)"), tier === "enterprise");
+    assert.equal(r.html.includes("Downloads"), tier === "enterprise", "Downloads list for " + tier);
+    assert.equal(r.html.includes("r2.example/signed"), tier === "enterprise", "signed link for " + tier);
   }
   assert.ok(research.mock.calls.some((c) => c.arguments[0] === "/api/tokens/zro" && c.arguments[1] === "enterprise"));
 });
@@ -206,10 +208,28 @@ test("the JSON endpoints refuse Free the same way: 403, no name, whether the rep
       assert.ok(!body.includes("LayerZero") && !body.includes("available_slugs"), slug);
     }
     who = { id: "u1", tier: "free" };
-    assert.equal((await fn.GET(req("/api/research/x/?slug=btc"))).status, 200, "BTC stays open on Free");
+    assert.equal((await fn.GET(req("/api/research/x/?slug=btc"))).status, fn === docsApi ? 403 : 200, "BTC on Free");
     who = { id: "u1", tier: "pro" };
-    assert.equal((await fn.GET(req("/api/research/x/?slug=zro"))).status, 200, "Pro reads ZRO");
+    assert.equal((await fn.GET(req("/api/research/x/?slug=zro"))).status, fn === docsApi ? 403 : 200, "ZRO on Pro");
   }
+});
+
+test("downloads are Enterprise only: Free and Pro get no links, from the page or the API", async () => {
+  const docsApi = await import("../api/research/documents.js");
+  for (const [tier, slug] of [["free", "btc"], ["pro", "zro"]]) {
+    who = { id: "u1", tier };
+    const r = await docsApi.GET(req("/api/research/x/?slug=" + slug));
+    const body = await r.text();
+    assert.equal(r.status, 403, tier);
+    assert.match(body, /"error":"enterprise_only"/);
+    assert.ok(!body.includes("r2.example"), tier);
+    const page = await getReport(slug, tier);
+    assert.ok(!page.html.includes("Downloads") && !page.html.includes("r2.example"), tier + " page");
+  }
+  who = { id: "u1", tier: "enterprise" };
+  const ok = await docsApi.GET(req("/api/research/x/?slug=zro"));
+  assert.equal(ok.status, 200);
+  assert.match(await ok.text(), /r2\.example\/signed/);
 });
 
 test("an unknown or malformed slug is a 404, without the API's slug list", async () => {
