@@ -165,7 +165,10 @@ window.CA_REVIEWS = (function () {
   var src = document.currentScript && document.currentScript.src;
   var ROOT = src ? new URL("../../", src).href : "/";
   function load() {
-    return fetch(new URL("api/reviews/", ROOT).href, { credentials: "omit" }).then(function (res) {
+    // Same-origin credentials (the default): the list needs no login, but
+    // Vercel's preview protection only lets a request through with its
+    // cookie, and "omit" would strip it.
+    return fetch(new URL("api/reviews/", ROOT).href, { cache: "no-store" }).then(function (res) {
       if (!res.ok) throw new Error("reviews " + res.status);
       return res.json();
     });
