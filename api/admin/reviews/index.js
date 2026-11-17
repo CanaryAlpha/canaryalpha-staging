@@ -3,7 +3,7 @@
  * Admins only, checked here on the server on every call:
  *   401 signed out; 404 for anyone who isn't an admin (the page isn't
  *   advertised); 403 { error: "needs_2fa" } for an admin whose account
- *   doesn't have two-step verification on.
+ *   doesn't have two-step verification on, when ADMIN_REQUIRE_2FA is "true".
  *   200 { pending, items: [adminItem], deletions: [{ at, by, byId, userId,
  *         rating, status, createdAt, reason, reasonLabel }],
  *         published: { count, average, breakdown } }

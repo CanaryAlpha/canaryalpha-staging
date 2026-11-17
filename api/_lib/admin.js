@@ -1,8 +1,9 @@
 /*
  * The server-side gate for every admin page and action: a signed-in user
  * whose Clerk publicMetadata.role is "admin" (set in Clerk's dashboard
- * only), with two-step verification on. Returns the response to send when
- * the caller may not go on, or null.
+ * only), with two-step verification on when ADMIN_REQUIRE_2FA is "true"
+ * (off for now: Clerk's MFA needs a paid plan in production). Returns the
+ * response to send when the caller may not go on, or null.
  *   401 signed out; 404 not an admin (admin pages aren't advertised);
  *   403 needs_2fa for an admin without two-step verification.
  */

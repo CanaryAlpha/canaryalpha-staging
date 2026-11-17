@@ -156,7 +156,7 @@ test("signed-out callers and other sites are refused", async () => {
   assert.equal((await call(mine.DELETE, "/api/reviews/mine/", "DELETE", undefined, null)).status, 403);
 });
 
-test("only an admin with two-step verification can open the admin list or act", async () => {
+test("only an admin can open the admin list or act; two-step verification when switched on", async () => {
   addUser("user_admin", { first: "Ada", last: "Admin", role: "admin", twoFactor: true });
   addUser("user_no2fa", { first: "Nia", role: "admin", twoFactor: false });
   addUser("user_oldowner", { first: "Olly", role: "owner", twoFactor: true });
@@ -173,13 +173,21 @@ test("only an admin with two-step verification can open the admin list or act", 
   }
   assert.equal(users.get("user_pro").privateMetadata.review.status, "pending");
   assert.ok(users.get("user_pro").privateMetadata.review, "not deleted");
-  // An admin without two-step verification: told to turn it on, refused.
+  // An admin without two-step verification: let in while ADMIN_REQUIRE_2FA
+  // is off (the default; Clerk's MFA needs a paid plan), told to turn it
+  // on and refused once it's "true".
   as("user_no2fa");
-  const g = await getAdmin();
-  assert.equal(g.status, 403);
-  assert.equal(g.body.error, "needs_2fa");
-  assert.equal((await act({ userId: "user_pro", action: "approve", version: pro.updatedAt })).status, 403);
-  assert.equal(users.get("user_pro").privateMetadata.review.status, "pending");
+  assert.equal((await getAdmin()).status, 200, "allowed while the switch is off");
+  process.env.ADMIN_REQUIRE_2FA = "true";
+  try {
+    const g = await getAdmin();
+    assert.equal(g.status, 403);
+    assert.equal(g.body.error, "needs_2fa");
+    assert.equal((await act({ userId: "user_pro", action: "approve", version: pro.updatedAt })).status, 403);
+    assert.equal(users.get("user_pro").privateMetadata.review.status, "pending");
+    as("user_admin");
+    assert.equal((await getAdmin()).status, 200, "an admin with two-step verification gets in");
+  } finally { delete process.env.ADMIN_REQUIRE_2FA; }
   // The admin, and the same-origin rule for actions.
   as("user_admin");
   const q = await getAdmin();

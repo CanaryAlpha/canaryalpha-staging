@@ -22,8 +22,9 @@
  * which version of the review it answered.
  *
  * Admins are the users whose publicMetadata.role is "admin" (set in Clerk's
- * dashboard; members can't change publicMetadata), and they need two-step
- * verification on. Permanent deletions are logged on the admin who made
+ * dashboard; members can't change publicMetadata). When ADMIN_REQUIRE_2FA
+ * is "true" they also need two-step verification on (Clerk's MFA needs a
+ * paid Clerk plan in production, so it is off until that is in place). Permanent deletions are logged on the admin who made
  * them, in privateMetadata.reviewDeletions: who, when, why and whose review,
  * never the deleted text.
  *
@@ -211,11 +212,13 @@ export function validateReply(raw) {
   if (text.length > MAX_REPLY) return fail("bad_reply", "Keep the reply to " + MAX_REPLY + " characters.");
   return { text };
 }
-// Admin pages and actions: an admin with two-step verification on.
+// Admin pages and actions: an admin, with two-step verification on when
+// the environment variable ADMIN_REQUIRE_2FA is "true".
+export function requireTwoFactor() { return process.env.ADMIN_REQUIRE_2FA === "true"; }
 export function adminState(user) {
   if (!user) return "signed_out";
   if (!user.admin) return "not_admin";
-  if (!user.twoFactor) return "needs_2fa";
+  if (requireTwoFactor() && !user.twoFactor) return "needs_2fa";
   return "ok";
 }
 

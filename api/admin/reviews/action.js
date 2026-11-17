@@ -1,6 +1,7 @@
 /*
- * POST /api/admin/reviews/action/  (admins with two-step verification only;
- * the same checks as GET /api/admin/reviews/, made again here)
+ * POST /api/admin/reviews/action/  (admins only, with two-step verification
+ * when ADMIN_REQUIRE_2FA is "true"; the same checks as GET
+ * /api/admin/reviews/, made again here)
  *   { userId, version, action, ... }
  *   version is the review's updatedAt as the admin was shown it: 409 if the
  *   member has changed it since, so nothing is done to text the admin

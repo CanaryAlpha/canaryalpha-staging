@@ -4,9 +4,10 @@
  * The page holds nothing itself. Every review comes from
  * GET /api/admin/reviews/ and every action goes to
  * POST /api/admin/reviews/action/; both check on the server that the caller
- * is an admin (Clerk publicMetadata.role "admin") with two-step
- * verification on. Anyone else sees "This page isn't available."; an admin
- * without two-step verification sees how to turn it on.
+ * is an admin (Clerk publicMetadata.role "admin"), and, when the server
+ * requires it (ADMIN_REQUIRE_2FA), that two-step verification is on.
+ * Anyone else sees "This page isn't available."; an admin who needs
+ * two-step verification sees how to turn it on.
  *
  * Per review: Approve / Decline (waiting), Hide (published), Restore
  * (hidden), Approve (declined), a public reply (add, edit, remove) and
