@@ -11,10 +11,10 @@
  * Wikimedia Commons). It is stored below as base64, so nothing is fetched.
  *
  * The globe's layer covers the whole hero (dot-globe.css), so the globe is
- * never cut off by its stage: it fades out softly at its rim and at the
- * hero's edges, and wherever it passes under the headline, the subheading
- * or the buttons its dots dim to textDim (a soft-edged area around each line
- * of text), so the text stays readable with no shadow or box behind it.
+ * never cut off by its stage: it fades out softly at its rim (its outer
+ * edge) and where the hero ends. Nothing else changes a dot: dots under and
+ * around the headline, the subheading and the buttons are as sharp and
+ * bright as everywhere else, and the text has no shadow, haze or box.
  *
  * Motion: a slow spin; drag to turn it (on touch screens sideways only, so a
  * vertical swipe still scrolls the page); arrow keys turn it too. The spin
@@ -94,32 +94,16 @@
     return [m[0] * x + m[3] * y + m[6] * z, m[1] * x + m[4] * y + m[7] * z, m[2] * x + m[5] * y + m[8] * z];
   }
 
-  // Text areas the dots dim under: centre and half size in device px, GL
-  // y (from the bottom). Unused slots sit far off screen.
-  var RECTS = 16;
-  // Per dot: the rim fade (0 at the sphere's edge, full a little inside it)
-  // and the dimming under text, worked out once per dot in the vertex shader.
+  // Per dot: the rim fade only (0 at the sphere's edge, full a little
+  // inside it), so the globe never ends in a hard line.
   var VS =
-    "attribute vec3 aPos;uniform mat3 uRot;uniform vec2 uCenter;uniform vec2 uScale;uniform float uSize;" +
-    "uniform vec2 uRes;uniform vec4 uRect[" + RECTS + "];uniform float uDim;uniform float uFeather;varying float vA;" +
-    "void main(){vec3 r=uRot*aPos;vec2 p=uCenter+r.xy*uScale;gl_Position=vec4(p,0.0,1.0);gl_PointSize=uSize;" +
-    "vec2 f=(p*0.5+0.5)*uRes;float t=0.0;" +
-    "for(int i=0;i<" + RECTS + ";i++){vec2 q=max(abs(f-uRect[i].xy)-uRect[i].zw,0.0);t=max(t,1.0-smoothstep(0.0,uFeather,length(q)));}" +
-    "vA=r.z<0.0?-1.0:smoothstep(0.0,0.5,r.z)*mix(1.0,uDim,t);}";
+    "attribute vec3 aPos;uniform mat3 uRot;uniform vec2 uCenter;uniform vec2 uScale;uniform float uSize;varying float vA;" +
+    "void main(){vec3 r=uRot*aPos;gl_Position=vec4(uCenter+r.xy*uScale,0.0,1.0);gl_PointSize=uSize;" +
+    "vA=r.z<0.0?-1.0:smoothstep(0.0,0.5,r.z);}";
   var FS =
     "precision mediump float;uniform vec4 uColor;varying float vA;" +
     "void main(){if(vA<0.0)discard;vec2 c=gl_PointCoord-0.5;float d=dot(c,c);if(d>0.25)discard;" +
     "float a=uColor.a*vA*(1.0-smoothstep(0.16,0.25,d));gl_FragColor=vec4(uColor.rgb*a,a);}";
-  // The same dimming for the no-WebGL picture (CSS px, y down).
-  function dimAt(rects, x, y, dim, feather) {
-    var t = 0;
-    for (var i = 0; i < rects.length; i++) {
-      var r = rects[i], qx = Math.max(0, Math.abs(x - r[0]) - r[2]), qy = Math.max(0, Math.abs(y - r[1]) - r[3]);
-      var e = Math.min(1, Math.sqrt(qx * qx + qy * qy) / feather), s = e * e * (3 - 2 * e);
-      t = Math.max(t, 1 - s);
-    }
-    return 1 + (dim - 1) * t;
-  }
   function smooth(e) { e = Math.max(0, Math.min(1, e)); return e * e * (3 - 2 * e); }
 
   function shader(gl, type, src) {
@@ -161,7 +145,6 @@
     grab.setAttribute("tabindex", "0");
     grab.setAttribute("role", "img");
     grab.setAttribute("aria-label", "A slowly turning globe of dots marking the land. Drag it, or use the arrow keys, to turn it.");
-    this.rects = [];
 
     var gl = null;
     try {
@@ -178,13 +161,7 @@
 
     this.bindInput();
     this.resize(); // lays out, which builds the dots for this size
-    if (window.ResizeObserver) {
-      var ro = new ResizeObserver(function () { self.resize(); });
-      ro.observe(el);
-      // The text it dims under moves when the headline or the buttons change.
-      var hero = el.closest(".hero");
-      if (hero) Array.prototype.forEach.call(hero.querySelectorAll(".hero__title, .hero__foot"), function (t) { ro.observe(t); });
-    }
+    if (window.ResizeObserver) new ResizeObserver(function () { self.resize(); }).observe(el);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { self.resize(); });
     // The window too: crossing a breakpoint changes which screen size's
     // settings apply even when the stage itself keeps its size.
@@ -312,44 +289,7 @@
     g.width = g.height = d + "px";
     g.transform = "translate(" + (this.cx - R) + "px," + (this.cy - R) + "px)";
     this.el.setAttribute("data-layer", beside ? "beside" : "behind");
-    this.measureText();
     this.wake();
-  };
-
-  // The text the dots dim under: each line of the headline and the
-  // subheading, and each button, in CSS px of the layer (centre, half size).
-  Globe.prototype.measureText = function () {
-    var hero = this.el.closest(".hero"), out = [], er = this.el.getBoundingClientRect();
-    function addRect(r) {
-      if (r.width < 1 || r.height < 1 || out.length >= RECTS) return;
-      out.push([r.left - er.left + r.width / 2, r.top - er.top + r.height / 2, r.width / 2, r.height / 2]);
-    }
-    function lines(node) {
-      if (!node || !document.createRange) return;
-      var range = document.createRange(), rows = [];
-      range.selectNodeContents(node);
-      Array.prototype.forEach.call(range.getClientRects(), function (r) {
-        if (r.width < 1) return;
-        // Merge the pieces of each line into one box.
-        var row = rows.filter(function (x) { return Math.abs(x.top - r.top) < r.height / 2; })[0];
-        if (!row) rows.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
-        else { row.left = Math.min(row.left, r.left); row.right = Math.max(row.right, r.right); row.top = Math.min(row.top, r.top); row.bottom = Math.max(row.bottom, r.bottom); }
-      });
-      rows.forEach(function (x) { addRect({ left: x.left, top: x.top, width: x.right - x.left, height: x.bottom - x.top }); });
-    }
-    if (hero) {
-      lines(hero.querySelector(".hero__title"));
-      lines(hero.querySelector(".hero__text"));
-      Array.prototype.forEach.call(hero.querySelectorAll(".hero__actions .button"), function (b) { addRect(b.getBoundingClientRect()); });
-    }
-    this.rects = out;
-    var dpr = this.dpr || 1, h = this.h, a = new Float32Array(RECTS * 4);
-    for (var i = 0; i < RECTS; i++) {
-      var r = out[i];
-      if (r) { a[i * 4] = r[0] * dpr; a[i * 4 + 1] = (h - r[1]) * dpr; a[i * 4 + 2] = r[2] * dpr; a[i * 4 + 3] = r[3] * dpr; }
-      else { a[i * 4] = -1e5; a[i * 4 + 1] = -1e5; }
-    }
-    this.rectData = a;
   };
 
   Globe.prototype.themeChanged = function () {
@@ -415,21 +355,10 @@
     gl.uniform2f(p.u.uScale, R / (this.w / 2), R / (this.h / 2));
     gl.uniform1f(p.u.uSize, Math.max(1, this.opts.dotSize * this.dpr));
     gl.uniform4f(p.u.uColor, this.dotRgb[0], this.dotRgb[1], this.dotRgb[2], this.dotAlpha);
-    gl.uniform2f(p.u.uRes, this.canvas.width, this.canvas.height);
-    if (this.rectData) gl.uniform4fv(p.u["uRect[0]"] || gl.getUniformLocation(p.p, "uRect"), this.rectData);
-    gl.uniform1f(p.u.uDim, this.textDim());
-    gl.uniform1f(p.u.uFeather, FEATHER * this.dpr);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buf);
     gl.enableVertexAttribArray(p.aPos);
     gl.vertexAttribPointer(p.aPos, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.POINTS, 0, this.dots.length / 3);
-  };
-
-  // How strongly dots show under text (0 = not at all, 1 = no dimming).
-  var FEATHER = 28; // CSS px: the soft edge around each text area
-  Globe.prototype.textDim = function () {
-    var v = +this.opts.textDim;
-    return isNaN(v) ? 0.2 : Math.max(0, Math.min(1, v));
   };
 
   // No WebGL: a still picture of the same globe on a 2D canvas.
@@ -439,12 +368,12 @@
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, this.w, this.h);
     var col = this.dotRgb.map(function (v) { return Math.round(v * 255); }).join(",");
-    var s = Math.max(1, this.opts.dotSize), dim = this.textDim(), rects = this.rects || [];
+    var s = Math.max(1, this.opts.dotSize);
     for (var i = 0; i < d.length; i += 3) {
       var p = apply3(m, d[i], d[i + 1], d[i + 2]);
       if (p[2] <= 0) continue;
       var x = this.cx + p[0] * R, y = this.cy - p[1] * R;
-      c.fillStyle = "rgba(" + col + "," + (this.dotAlpha * smooth(p[2] / 0.5) * dimAt(rects, x, y, dim, FEATHER)) + ")";
+      c.fillStyle = "rgba(" + col + "," + (this.dotAlpha * smooth(p[2] / 0.5)) + ")";
       c.fillRect(x - s / 2, y - s / 2, s, s);
     }
   };

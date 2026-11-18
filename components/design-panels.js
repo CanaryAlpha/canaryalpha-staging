@@ -11,9 +11,8 @@
  *   Globe       per screen size (desktop 1100px+, tablet 600-1099px, phone
  *               under 600px, the hero's own breakpoints): visible, size (% of
  *               the hero's width, max px), horizontal and vertical position
- *               with fine offsets, and layer; then the dots (with how
- *               strongly they show under the text), rotation and the frame
- *               rate (components/dot-globe.config.js).
+ *               with fine offsets, and layer; then the dots, rotation and
+ *               the frame rate (components/dot-globe.config.js).
  *   Background  the page colour (--ground) for Light and for Dark, from
  *               presets, a picker or a hex code, with a live WCAG AA contrast
  *               check of the text, buttons and globe dots on it. The globe
@@ -475,17 +474,17 @@
     add("dotOpacity.light", { type: "range", label: "Opacity on light", min: 0.1, max: 1, step: 0.05 });
     add("dotColor.dark", { type: "color", label: "Dot colour on dark backgrounds" });
     add("dotOpacity.dark", { type: "range", label: "Opacity on dark", min: 0.1, max: 1, step: 0.05 });
-    add("textDim", { type: "range", label: "Dots under text", min: 0, max: 1, step: 0.05, fmt: function (v) { return Math.round(v * 100); }, unit: "%" });
     var tnote = hint(b);
-    // Worst case under the secondary text: a dot at full strength, dimmed.
+    // The text sits on the dots as they are: its contrast on the brightest
+    // dot (one facing the reader, at full opacity).
     function textNote() {
       var parts = ["light", "dark"].map(function (m) {
-        var bg = readC()[m].ground, dc = (B.dotColor || {})[m], da = +((B.dotOpacity || {})[m]) * (+B.textDim);
+        var bg = readC()[m].ground, dc = (B.dotColor || {})[m], da = +((B.dotOpacity || {})[m]);
         if (!hexOk(bg) || !hexOk(dc) || isNaN(da)) return "";
-        var r = contrast(TOKENS[m].muted, mix(dc, bg, Math.max(0, Math.min(1, da))));
-        return (m === "light" ? "Light" : "Dark") + " " + r.toFixed(1) + ":1 " + (r >= 4.5 ? "pass" : "FAIL");
+        var dot = mix(dc, bg, Math.max(0, Math.min(1, da))), t = TOKENS[m];
+        return (m === "light" ? "Light" : "Dark") + ": headline " + contrast(t.ink, dot).toFixed(1) + ":1, subheading " + contrast(t.muted, dot).toFixed(1) + ":1";
       }).filter(Boolean);
-      tnote.textContent = "Dots dim to this under the headline, subheading and buttons. Secondary text on a dot there (AA needs 4.5:1): " + parts.join(", ") + ".";
+      tnote.textContent = "Text on the brightest dot (AA needs 4.5:1): " + parts.join("; ") + ".";
     }
     textNote();
     b.addEventListener("input", textNote);
@@ -572,8 +571,7 @@
       var B = readB(), set = darkGround(bg) ? "dark" : "light";
       var dc = (B.dotColor || gd)[set] || (set === "dark" ? "#f2f2f2" : "#111111"), da = +((B.dotOpacity || go)[set] || 0.8);
       if (hexOk(dc)) out.push(["Globe dots (" + (set === "dark" ? "light dots" : "dark dots") + ")", contrast(mix(dc, bg, da), bg), 3]);
-      var td = +(B.textDim != null ? B.textDim : GLOBE_DEF.textDim);
-      if (hexOk(dc) && !isNaN(td)) out.push(["Secondary text over the globe", contrast(t.muted, mix(dc, bg, Math.min(1, da * td))), 4.5]);
+      if (hexOk(dc)) out.push(["Secondary text on the brightest globe dot", contrast(t.muted, mix(dc, bg, da)), 4.5]);
       return out;
     }
     function show(fromHex) {

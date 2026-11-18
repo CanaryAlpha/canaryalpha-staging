@@ -23,10 +23,6 @@
  *   autoRotate, speed (degrees a second), direction (1 east, -1 west),
  *   startLon    the longitude facing the reader at load (10 = Europe/Africa,
  *               -75 = the Americas, 110 = Asia), tilt (degrees, + = north up)
- *   textDim     how strongly dots show under the headline, the subheading
- *               and the buttons (0 none, 1 no dimming), so the text stays
- *               readable over the globe: 0.2 keeps the secondary text above
- *               WCAG AA (4.5:1) in light and dark
  *
  * Values chosen with the design panel on 2026-11-16.
  * The globe has a fixed size: it doesn't zoom. Colours: monochrome dots
@@ -51,7 +47,5 @@ window.CA_DOT_GLOBE_DEFAULTS = {
   speed: 12.5,
   direction: 1,
   startLon: -74,
-  tilt: 0,
-
-  textDim: 0.2
+  tilt: 0
 };

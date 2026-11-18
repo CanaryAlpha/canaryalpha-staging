@@ -224,8 +224,9 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 }
 .hero__stage .dotted-globe { pointer-events: auto; }
 
-/* Text over the hero visual: no shadow, halo or box. The dot globe dims
-   its own dots under the text instead (components/dot-globe.js, textDim). */
+/* Text over the hero visual: a fully transparent background, with no
+   shadow, halo, scrim or box, and the globe's dots stay unchanged under it
+   (components/dot-globe.js). */
 .hero__title,
 .hero__text {
   position: absolute;
