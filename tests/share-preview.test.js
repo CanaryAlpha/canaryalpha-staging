@@ -28,6 +28,11 @@ test("the share image is a 1200x630 PNG under 300 KB, and the old one stays", ()
   assert.ok(fs.existsSync("brand/og-image.png"));
 });
 
+test("the share image builder draws no coloured accent (it read as a line under the alpha)", () => {
+  const html = fs.readFileSync("tools/og-image/card.html", "utf8");
+  assert.doesNotMatch(html, /#FFEF00|\bCANARY\b|BAR_/);
+});
+
 for (const page of PUBLIC) {
   test(`${page} has complete share tags with the new image`, () => {
     const html = fs.readFileSync(page, "utf8");
