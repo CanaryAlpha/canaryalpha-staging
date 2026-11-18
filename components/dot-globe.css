@@ -1,47 +1,61 @@
-/* Dot globe (components/dot-globe.js) in the homepage hero's stage. The stage
-   reserves its space in CSS (no layout shift while the script loads); the
-   canvas and the glow sit inside it. */
+/* Dot globe (components/dot-globe.js) in the homepage hero. The stage
+   reserves its space in CSS (no layout shift while the script loads), but
+   the globe's own layer covers the whole hero, so the globe is never cut
+   off by the stage: only the hero's edges clip it (the hero hides overflow,
+   so nothing scrolls sideways), and there it fades out over 32px instead of
+   ending in a hard line. The canvas is transparent and ignores the pointer;
+   the circle over the globe (.dot-globe__grab) takes the drags. */
 .dot-globe {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  outline: none;
+  z-index: 0;
+  pointer-events: none;
+  --dot-globe-fade: 32px;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 var(--dot-globe-fade), #000 calc(100% - var(--dot-globe-fade)), transparent),
+    linear-gradient(to bottom, transparent, #000 var(--dot-globe-fade), #000 calc(100% - var(--dot-globe-fade)), transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 var(--dot-globe-fade), #000 calc(100% - var(--dot-globe-fade)), transparent),
+    linear-gradient(to bottom, transparent, #000 var(--dot-globe-fade), #000 calc(100% - var(--dot-globe-fade)), transparent);
+  mask-composite: intersect;
 }
-.dot-globe:focus-visible { box-shadow: inset 0 0 0 2px var(--ink); }
 .dot-globe__canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   display: block;
-  pointer-events: auto;
-  /* Touch: sideways drags turn the globe; vertical swipes scroll the page and
-     a pinch zooms the page as usual (the globe itself never zooms). */
-  touch-action: pan-y pinch-zoom;
+  pointer-events: none;
 }
-.dot-globe.is-dragging .dot-globe__canvas { cursor: grabbing !important; }
-/* A soft ring just outside the sphere, white in Dark and grey in Light. */
-.dot-globe__glow {
+.dot-globe__grab {
   position: absolute;
   left: 0;
   top: 0;
   border-radius: 50%;
-  pointer-events: none;
-  background: radial-gradient(circle closest-side,
-    rgba(var(--dot-globe-glow, 255, 255, 255), 0) 72%,
-    rgba(var(--dot-globe-glow, 255, 255, 255), var(--dot-globe-glow-a, 0.22)) 80%,
-    rgba(var(--dot-globe-glow, 255, 255, 255), 0) 100%);
+  pointer-events: auto;
+  cursor: grab;
+  outline: none;
+  /* Touch: sideways drags turn the globe; vertical swipes scroll the page and
+     a pinch zooms the page as usual (the globe itself never zooms). */
+  touch-action: pan-y pinch-zoom;
 }
-
-/* The hero's stage holds the globe. Desktop (1100px+): the whole area under
-   the menu bar, behind the text. Below 1100px: its own row between the
-   slogan and the foot, tall enough for the globe to read. */
-.hero__stage--globe { pointer-events: none; }
-/* Its height leaves room for the rest of the hero, so the hero still fits
-   one screen where it can (as the old hero animation did). */
+.dot-globe__grab:focus-visible { box-shadow: 0 0 0 2px var(--ink); }
+.dot-globe.is-dragging .dot-globe__grab { cursor: grabbing; }
+/* The hero's stage. Desktop (1100px+): nothing to reserve, the globe sits
+   in the area under the menu bar, behind the text. Below 1100px, beside:
+   its own row between the slogan and the foot, tall enough for the globe
+   (the script sets its height to match). Behind (the default there): no
+   row at all; the globe sits behind the headline and the buttons. The stage
+   is never positioned, so the globe's layer is placed against the hero. */
+.hero .hero__stage--globe { position: static; pointer-events: none; }
 @media (max-width: 1099px) {
-  .hero__stage--globe { position: relative; min-height: clamp(220px, 100vh - 540px, 520px); }
+  .hero__stage--globe { min-height: clamp(220px, 100vh - 540px, 520px); }
   @supports (height: 1svh) { .hero__stage--globe { min-height: clamp(220px, 100svh - 540px, 520px); } }
+  /* Text above the globe in every layer (inset: auto, so the desktop
+     offsets in styles.css don't shift it). */
+  .hero .hero__title,
+  .hero .hero__foot { position: relative; inset: auto; z-index: 1; }
 }
 @media (max-width: 599px) {
   .hero__stage--globe { min-height: clamp(220px, 100vh - 600px, 380px); margin-inline: calc(-1 * var(--pad, 1rem)); }
@@ -49,16 +63,8 @@
 }
 /* Per-screen-size settings (components/dot-globe.config.js, devices): the
    globe sets these on the hero. Hidden: no stage at all, so no empty row. */
-.hero[data-globe="off"] .hero__stage--globe { display: none; }
-/* Tablet and phone, "behind": the globe leaves its row and sits behind the
-   headline and the buttons, which stay above it. */
+.hero[data-globe="off"] .hero__stage--globe,
+.hero[data-globe="off"] .dot-globe { display: none; }
 @media (max-width: 1099px) {
-  .hero[data-globe-layer="behind"] .hero__stage--globe {
-    position: absolute;
-    inset: var(--site-header-h, 0px) 0 0 0;
-    min-height: 0;
-    margin: 0;
-  }
-  .hero[data-globe-layer="behind"] .hero__title,
-  .hero[data-globe-layer="behind"] .hero__foot { position: relative; z-index: 1; }
+  .hero[data-globe-layer="behind"] .hero__stage--globe { min-height: 0; margin: 0; }
 }

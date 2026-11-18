@@ -11,8 +11,9 @@
  *   Globe       per screen size (desktop 1100px+, tablet 600-1099px, phone
  *               under 600px, the hero's own breakpoints): visible, size (% of
  *               the hero's width, max px), horizontal and vertical position
- *               with fine offsets, and layer; then the dots, rotation, glow
- *               and the frame rate (components/dot-globe.config.js).
+ *               with fine offsets, and layer; then the dots (with how
+ *               strongly they show under the text), rotation and the frame
+ *               rate (components/dot-globe.config.js).
  *   Background  the page colour (--ground) for Light and for Dark, from
  *               presets, a picker or a hex code, with a live WCAG AA contrast
  *               check of the text, buttons and globe dots on it. The globe
@@ -461,7 +462,7 @@
       dnote.textContent = CONTROLLER ? "Each frame uses its own screen size's settings." :
         here ? "You're viewing this screen size now (" + innerWidth + "px wide)." : "You're viewing " + bp() + " width (" + innerWidth + "px): resize the window, or use the simulator, to see " + editing + ".";
       lnote.textContent = editing === "desktop" ? "Beside keeps the globe to one side of the headline (choose Left or Right); never taller than the hero." :
-        "Beside: the globe has its own row between the headline and the buttons. Behind: it sits behind them.";
+        "Behind: the globe sits behind the headline and the buttons, centred in the hero under the menu bar. Beside: it has its own row between the headline and the buttons. Either way it can reach past its place; it fades out at the hero's edges.";
     }
     showDevice();
     window.addEventListener("resize", showDevice);
@@ -474,15 +475,26 @@
     add("dotOpacity.light", { type: "range", label: "Opacity on light", min: 0.1, max: 1, step: 0.05 });
     add("dotColor.dark", { type: "color", label: "Dot colour on dark backgrounds" });
     add("dotOpacity.dark", { type: "range", label: "Opacity on dark", min: 0.1, max: 1, step: 0.05 });
+    add("textDim", { type: "range", label: "Dots under text", min: 0, max: 1, step: 0.05, fmt: function (v) { return Math.round(v * 100); }, unit: "%" });
+    var tnote = hint(b);
+    // Worst case under the secondary text: a dot at full strength, dimmed.
+    function textNote() {
+      var parts = ["light", "dark"].map(function (m) {
+        var bg = readC()[m].ground, dc = (B.dotColor || {})[m], da = +((B.dotOpacity || {})[m]) * (+B.textDim);
+        if (!hexOk(bg) || !hexOk(dc) || isNaN(da)) return "";
+        var r = contrast(TOKENS[m].muted, mix(dc, bg, Math.max(0, Math.min(1, da))));
+        return (m === "light" ? "Light" : "Dark") + " " + r.toFixed(1) + ":1 " + (r >= 4.5 ? "pass" : "FAIL");
+      }).filter(Boolean);
+      tnote.textContent = "Dots dim to this under the headline, subheading and buttons. Secondary text on a dot there (AA needs 4.5:1): " + parts.join(", ") + ".";
+    }
+    textNote();
+    b.addEventListener("input", textNote);
     heading(b, "Rotation");
     add("autoRotate", { type: "check", label: "Auto-rotate" });
     add("speed", { type: "range", label: "Speed", min: 0, max: 40, step: 0.5, unit: "°/s" });
     add("direction", { type: "select", label: "Direction", number: true, options: [["1", "Eastward"], ["-1", "Westward"]] });
     add("startLon", { type: "range", label: "Starting longitude", min: -180, max: 180, unit: "°" });
     add("tilt", { type: "range", label: "Tilt", min: -60, max: 75, unit: "°" });
-    heading(b, "Atmosphere");
-    add("glow", { type: "check", label: "Glow on" });
-    add("glowStrength", { type: "range", label: "Strength", min: 0, max: 1, step: 0.05 });
     if (g) {
       heading(b, "Performance");
       var fps = document.createElement("p");
@@ -493,7 +505,7 @@
         fps.textContent = (g.fps ? g.fps + " frames a second" : "Not drawing (still, hidden or off screen)") + " · " + (g.dots.length / 3) + " dots drawn" + (g.gl ? "" : " · no WebGL: still picture");
       }, 500);
     }
-    function showAll() { B = readB(); ctl.forEach(function (x) { x.c.show(get(x.path)); }); showDevice(); }
+    function showAll() { B = readB(); ctl.forEach(function (x) { x.c.show(get(x.path)); }); showDevice(); textNote(); }
     refreshers[KEY_B] = showAll;
     p.onCopy(function () { copyText(JSON.stringify({ globe: B }, null, 2), p.status); });
     p.onReset(function () {
@@ -560,6 +572,8 @@
       var B = readB(), set = darkGround(bg) ? "dark" : "light";
       var dc = (B.dotColor || gd)[set] || (set === "dark" ? "#f2f2f2" : "#111111"), da = +((B.dotOpacity || go)[set] || 0.8);
       if (hexOk(dc)) out.push(["Globe dots (" + (set === "dark" ? "light dots" : "dark dots") + ")", contrast(mix(dc, bg, da), bg), 3]);
+      var td = +(B.textDim != null ? B.textDim : GLOBE_DEF.textDim);
+      if (hexOk(dc) && !isNaN(td)) out.push(["Secondary text over the globe", contrast(t.muted, mix(dc, bg, Math.min(1, da * td))), 4.5]);
       return out;
     }
     function show(fromHex) {

@@ -224,15 +224,14 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 }
 .hero__stage .dotted-globe { pointer-events: auto; }
 
-/* A soft halo in the page colour keeps text readable where it crosses the
-   hero visual, in every theme; no boxes or borders. */
+/* Text over the hero visual: no shadow, halo or box. The dot globe dims
+   its own dots under the text instead (components/dot-globe.js, textDim). */
 .hero__title,
 .hero__text {
   position: absolute;
   z-index: 1;
   margin: 0;
   pointer-events: none;
-  text-shadow: 0 0 0.35em var(--ground), 0 0 0.12em var(--ground);
 }
 
 .hero__title {

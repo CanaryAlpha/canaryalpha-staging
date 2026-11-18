@@ -10,6 +10,12 @@
  * cobe 2.0.1 (MIT, vendor/cobe-2.0.1.js; "World map blank without borders",
  * Wikimedia Commons). It is stored below as base64, so nothing is fetched.
  *
+ * The globe's layer covers the whole hero (dot-globe.css), so the globe is
+ * never cut off by its stage: it fades out softly at its rim and at the
+ * hero's edges, and wherever it passes under the headline, the subheading
+ * or the buttons its dots dim to textDim (a soft-edged area around each line
+ * of text), so the text stays readable with no shadow or box behind it.
+ *
  * Motion: a slow spin; drag to turn it (on touch screens sideways only, so a
  * vertical swipe still scrolls the page); arrow keys turn it too. The spin
  * comes back 2.5s after the last touch. It never zooms and never takes the
@@ -88,13 +94,33 @@
     return [m[0] * x + m[3] * y + m[6] * z, m[1] * x + m[4] * y + m[7] * z, m[2] * x + m[5] * y + m[8] * z];
   }
 
+  // Text areas the dots dim under: centre and half size in device px, GL
+  // y (from the bottom). Unused slots sit far off screen.
+  var RECTS = 16;
+  // Per dot: the rim fade (0 at the sphere's edge, full a little inside it)
+  // and the dimming under text, worked out once per dot in the vertex shader.
   var VS =
-    "attribute vec3 aPos;uniform mat3 uRot;uniform vec2 uCenter;uniform vec2 uScale;uniform float uSize;varying float vZ;" +
-    "void main(){vec3 r=uRot*aPos;gl_Position=vec4(uCenter+r.xy*uScale,0.0,1.0);gl_PointSize=uSize;vZ=r.z;}";
+    "attribute vec3 aPos;uniform mat3 uRot;uniform vec2 uCenter;uniform vec2 uScale;uniform float uSize;" +
+    "uniform vec2 uRes;uniform vec4 uRect[" + RECTS + "];uniform float uDim;uniform float uFeather;varying float vA;" +
+    "void main(){vec3 r=uRot*aPos;vec2 p=uCenter+r.xy*uScale;gl_Position=vec4(p,0.0,1.0);gl_PointSize=uSize;" +
+    "vec2 f=(p*0.5+0.5)*uRes;float t=0.0;" +
+    "for(int i=0;i<" + RECTS + ";i++){vec2 q=max(abs(f-uRect[i].xy)-uRect[i].zw,0.0);t=max(t,1.0-smoothstep(0.0,uFeather,length(q)));}" +
+    "vA=r.z<0.0?-1.0:smoothstep(0.0,0.5,r.z)*mix(1.0,uDim,t);}";
   var FS =
-    "precision mediump float;uniform vec4 uColor;varying float vZ;" +
-    "void main(){if(vZ<0.0)discard;vec2 c=gl_PointCoord-0.5;float d=dot(c,c);if(d>0.25)discard;" +
-    "float a=uColor.a*(0.3+0.7*smoothstep(0.0,0.45,vZ))*(1.0-smoothstep(0.16,0.25,d));gl_FragColor=vec4(uColor.rgb*a,a);}";
+    "precision mediump float;uniform vec4 uColor;varying float vA;" +
+    "void main(){if(vA<0.0)discard;vec2 c=gl_PointCoord-0.5;float d=dot(c,c);if(d>0.25)discard;" +
+    "float a=uColor.a*vA*(1.0-smoothstep(0.16,0.25,d));gl_FragColor=vec4(uColor.rgb*a,a);}";
+  // The same dimming for the no-WebGL picture (CSS px, y down).
+  function dimAt(rects, x, y, dim, feather) {
+    var t = 0;
+    for (var i = 0; i < rects.length; i++) {
+      var r = rects[i], qx = Math.max(0, Math.abs(x - r[0]) - r[2]), qy = Math.max(0, Math.abs(y - r[1]) - r[3]);
+      var e = Math.min(1, Math.sqrt(qx * qx + qy * qy) / feather), s = e * e * (3 - 2 * e);
+      t = Math.max(t, 1 - s);
+    }
+    return 1 + (dim - 1) * t;
+  }
+  function smooth(e) { e = Math.max(0, Math.min(1, e)); return e * e * (3 - 2 * e); }
 
   function shader(gl, type, src) {
     var s = gl.createShader(type);
@@ -125,13 +151,17 @@
     this.visible = true;
 
     el.innerHTML = "";
-    this.glow = el.appendChild(document.createElement("div"));
-    this.glow.className = "dot-globe__glow";
     this.canvas = el.appendChild(document.createElement("canvas"));
     this.canvas.className = "dot-globe__canvas";
-    el.setAttribute("tabindex", "0");
-    el.setAttribute("role", "img");
-    el.setAttribute("aria-label", "A slowly turning globe of dots marking the land. Drag it, or use the arrow keys, to turn it.");
+    // The canvas covers the hero but ignores the pointer; this circle over
+    // the globe takes the drags and the keys, so the rest of the hero
+    // scrolls and clicks as usual.
+    var grab = this.grab = el.appendChild(document.createElement("div"));
+    grab.className = "dot-globe__grab";
+    grab.setAttribute("tabindex", "0");
+    grab.setAttribute("role", "img");
+    grab.setAttribute("aria-label", "A slowly turning globe of dots marking the land. Drag it, or use the arrow keys, to turn it.");
+    this.rects = [];
 
     var gl = null;
     try {
@@ -148,7 +178,14 @@
 
     this.bindInput();
     this.resize(); // lays out, which builds the dots for this size
-    if (window.ResizeObserver) new ResizeObserver(function () { self.resize(); }).observe(el);
+    if (window.ResizeObserver) {
+      var ro = new ResizeObserver(function () { self.resize(); });
+      ro.observe(el);
+      // The text it dims under moves when the headline or the buttons change.
+      var hero = el.closest(".hero");
+      if (hero) Array.prototype.forEach.call(hero.querySelectorAll(".hero__title, .hero__foot"), function (t) { ro.observe(t); });
+    }
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { self.resize(); });
     // The window too: crossing a breakpoint changes which screen size's
     // settings apply even when the stage itself keeps its size.
     window.addEventListener("resize", function () { self.resize(); });
@@ -220,20 +257,26 @@
     this.wake();
   };
 
-  // Where the globe sits in its stage, in CSS px: centre and radius, from
-  // this screen size's settings (opts.devices). The hero gets
-  // data-globe-layer ("behind" | "beside") and data-globe="off" when it is
-  // hidden (dot-globe.css); on tablet and phone, beside, the stage's row is
-  // as tall as the globe needs.
+  // Where the globe sits, in CSS px of its layer (which covers the hero):
+  // centre and radius, from this screen size's settings (opts.devices),
+  // placed in an area: the hero under the menu bar, or on tablet and phone,
+  // beside, the stage's own row. The hero gets data-globe-layer ("behind" |
+  // "beside") and data-globe="off" when it is hidden (dot-globe.css); beside
+  // on tablet and phone, the stage's row is as tall as the globe needs. The
+  // globe may reach past its area: it is only cut where the hero ends, and
+  // fades out there.
   Globe.prototype.layout = function () {
     var p = this.place(), dev = device(), w = this.w, h = this.h;
     var stage = this.el.parentNode, hero = this.el.closest(".hero");
+    var beside = p.layer === "beside", narrowBeside = dev !== "desktop" && beside;
     var heroW = hero ? hero.clientWidth : w;
+    var cs = hero ? getComputedStyle(hero) : null;
+    var top = cs ? lengthPx(cs.getPropertyValue("--site-header-h"), 0) : 0;
     var d = (+p.size || 50) / 100 * heroW;
     if (+p.maxSize > 0) d = Math.min(d, +p.maxSize);
     if (dev === "desktop") {
-      d = Math.min(d, h);
-      if (p.layer === "beside" && p.x !== "center") d = Math.min(d, w * 0.46);
+      d = Math.min(d, h - top);
+      if (beside && p.x !== "center") d = Math.min(d, w * 0.46);
     }
     d = Math.max(60, d);
     // Rebuild the dots when the size calls for a clearly different count.
@@ -241,9 +284,9 @@
     if (!this.builtDots || Math.abs(want - this.builtDots) / this.builtDots > 0.08 || (this.builtForPhone !== this.phone() && want !== this.builtDots)) {
       this.wantDots = want; this.rebuild();
     }
-    var R = d / 2, m = hero ? lengthPx(getComputedStyle(hero).getPropertyValue("--pad"), 16) : 16;
+    var R = d / 2, m = cs ? lengthPx(cs.getPropertyValue("--pad"), 16) : 16;
     if (hero) {
-      hero.setAttribute("data-globe-layer", p.layer === "beside" ? "beside" : "behind");
+      hero.setAttribute("data-globe-layer", beside ? "beside" : "behind");
       if (p.visible === false) hero.setAttribute("data-globe", "off");
       else if (hero.hasAttribute("data-globe")) {
         // Shown again: measure the stage once it is back in the layout.
@@ -252,22 +295,67 @@
         setTimeout(function () { self.resize(); }, 0);
       }
     }
-    if (stage && stage.style) stage.style.minHeight = dev !== "desktop" && p.layer === "beside" ? Math.ceil(d / 0.85) + "px" : "";
-    var cx = p.x === "left" ? m + R : p.x === "right" ? w - m - R : w / 2;
-    var cy = p.y === "top" ? m + R : p.y === "bottom" ? h - m - R : h / 2;
-    this.cx = cx + (+p.offsetX || 0);
-    this.cy = cy + (+p.offsetY || 0);
+    // Beside, the row is as tall as the globe needs; a globe moved up into
+    // the headline gives back that much of its row, so no gap opens below.
+    if (stage && stage.style) stage.style.minHeight = narrowBeside ? Math.max(0, Math.ceil(d / 0.85 + Math.min(0, +p.offsetY || 0))) + "px" : "";
+    var area = { x: 0, y: top, w: w, h: Math.max(1, h - top) };
+    if (narrowBeside && stage && stage.getBoundingClientRect) {
+      var er = this.el.getBoundingClientRect(), sr = stage.getBoundingClientRect();
+      area = { x: sr.left - er.left, y: sr.top - er.top, w: sr.width, h: Math.max(1, sr.height) };
+    }
+    var cx = p.x === "left" ? m + R : p.x === "right" ? area.w - m - R : area.w / 2;
+    var cy = p.y === "top" ? m + R : p.y === "bottom" ? area.h - m - R : area.h / 2;
+    this.cx = area.x + cx + (+p.offsetX || 0);
+    this.cy = area.y + cy + (+p.offsetY || 0);
     this.radius = R;
-    this.el.setAttribute("data-layer", p.layer === "beside" ? "beside" : "behind");
+    var g = this.grab.style;
+    g.width = g.height = d + "px";
+    g.transform = "translate(" + (this.cx - R) + "px," + (this.cy - R) + "px)";
+    this.el.setAttribute("data-layer", beside ? "beside" : "behind");
+    this.measureText();
     this.wake();
+  };
+
+  // The text the dots dim under: each line of the headline and the
+  // subheading, and each button, in CSS px of the layer (centre, half size).
+  Globe.prototype.measureText = function () {
+    var hero = this.el.closest(".hero"), out = [], er = this.el.getBoundingClientRect();
+    function addRect(r) {
+      if (r.width < 1 || r.height < 1 || out.length >= RECTS) return;
+      out.push([r.left - er.left + r.width / 2, r.top - er.top + r.height / 2, r.width / 2, r.height / 2]);
+    }
+    function lines(node) {
+      if (!node || !document.createRange) return;
+      var range = document.createRange(), rows = [];
+      range.selectNodeContents(node);
+      Array.prototype.forEach.call(range.getClientRects(), function (r) {
+        if (r.width < 1) return;
+        // Merge the pieces of each line into one box.
+        var row = rows.filter(function (x) { return Math.abs(x.top - r.top) < r.height / 2; })[0];
+        if (!row) rows.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
+        else { row.left = Math.min(row.left, r.left); row.right = Math.max(row.right, r.right); row.top = Math.min(row.top, r.top); row.bottom = Math.max(row.bottom, r.bottom); }
+      });
+      rows.forEach(function (x) { addRect({ left: x.left, top: x.top, width: x.right - x.left, height: x.bottom - x.top }); });
+    }
+    if (hero) {
+      lines(hero.querySelector(".hero__title"));
+      lines(hero.querySelector(".hero__text"));
+      Array.prototype.forEach.call(hero.querySelectorAll(".hero__actions .button"), function (b) { addRect(b.getBoundingClientRect()); });
+    }
+    this.rects = out;
+    var dpr = this.dpr || 1, h = this.h, a = new Float32Array(RECTS * 4);
+    for (var i = 0; i < RECTS; i++) {
+      var r = out[i];
+      if (r) { a[i * 4] = r[0] * dpr; a[i * 4 + 1] = (h - r[1]) * dpr; a[i * 4 + 2] = r[2] * dpr; a[i * 4 + 3] = r[3] * dpr; }
+      else { a[i * 4] = -1e5; a[i * 4 + 1] = -1e5; }
+    }
+    this.rectData = a;
   };
 
   Globe.prototype.themeChanged = function () {
     var dark = isDark(), o = this.opts, key = dark ? "dark" : "light";
     this.dotRgb = rgb(o.dotColor && o.dotColor[key]);
     this.dotAlpha = Math.max(0, Math.min(1, +(o.dotOpacity && o.dotOpacity[key]) || 0.8));
-    this.el.style.setProperty("--dot-globe-glow", dark ? "255,255,255" : "0,0,0");
-    this.el.style.setProperty("--dot-globe-glow-a", dark ? "0.22" : "0.09");
     this.wake();
   };
 
@@ -310,16 +398,7 @@
   };
 
   Globe.prototype.draw = function () {
-    var o = this.opts, R = this.radius, m = rotation(this.lon, this.tilt);
-    // Glow ring just outside the sphere.
-    var g = this.glow.style;
-    g.display = o.glow ? "" : "none";
-    if (o.glow) {
-      var gs = R * 2.5;
-      g.width = g.height = gs + "px";
-      g.transform = "translate(" + (this.cx - gs / 2) + "px," + (this.cy - gs / 2) + "px)";
-      g.opacity = Math.max(0, Math.min(1, o.glowStrength));
-    }
+    var R = this.radius, m = rotation(this.lon, this.tilt);
     if (this.gl) this.drawGL(m, R); else this.draw2D(m, R);
   };
 
@@ -336,10 +415,21 @@
     gl.uniform2f(p.u.uScale, R / (this.w / 2), R / (this.h / 2));
     gl.uniform1f(p.u.uSize, Math.max(1, this.opts.dotSize * this.dpr));
     gl.uniform4f(p.u.uColor, this.dotRgb[0], this.dotRgb[1], this.dotRgb[2], this.dotAlpha);
+    gl.uniform2f(p.u.uRes, this.canvas.width, this.canvas.height);
+    if (this.rectData) gl.uniform4fv(p.u["uRect[0]"] || gl.getUniformLocation(p.p, "uRect"), this.rectData);
+    gl.uniform1f(p.u.uDim, this.textDim());
+    gl.uniform1f(p.u.uFeather, FEATHER * this.dpr);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buf);
     gl.enableVertexAttribArray(p.aPos);
     gl.vertexAttribPointer(p.aPos, 3, gl.FLOAT, false, 0, 0);
     gl.drawArrays(gl.POINTS, 0, this.dots.length / 3);
+  };
+
+  // How strongly dots show under text (0 = not at all, 1 = no dimming).
+  var FEATHER = 28; // CSS px: the soft edge around each text area
+  Globe.prototype.textDim = function () {
+    var v = +this.opts.textDim;
+    return isNaN(v) ? 0.2 : Math.max(0, Math.min(1, v));
   };
 
   // No WebGL: a still picture of the same globe on a 2D canvas.
@@ -349,37 +439,31 @@
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, this.w, this.h);
     var col = this.dotRgb.map(function (v) { return Math.round(v * 255); }).join(",");
-    var s = Math.max(1, this.opts.dotSize);
+    var s = Math.max(1, this.opts.dotSize), dim = this.textDim(), rects = this.rects || [];
     for (var i = 0; i < d.length; i += 3) {
       var p = apply3(m, d[i], d[i + 1], d[i + 2]);
       if (p[2] <= 0) continue;
-      c.fillStyle = "rgba(" + col + "," + (this.dotAlpha * (0.3 + 0.7 * Math.min(1, p[2] / 0.45))) + ")";
-      c.fillRect(this.cx + p[0] * R - s / 2, this.cy - p[1] * R - s / 2, s, s);
+      var x = this.cx + p[0] * R, y = this.cy - p[1] * R;
+      c.fillStyle = "rgba(" + col + "," + (this.dotAlpha * smooth(p[2] / 0.5) * dimAt(rects, x, y, dim, FEATHER)) + ")";
+      c.fillRect(x - s / 2, y - s / 2, s, s);
     }
   };
 
-  Globe.prototype.overGlobe = function (e) {
-    var r = this.el.getBoundingClientRect(), x = e.clientX - r.left - this.cx, y = e.clientY - r.top - this.cy;
-    return Math.sqrt(x * x + y * y) <= this.radius * 1.08;
-  };
-
-  // Drag to turn. One pointer only; no wheel, trackpad or pinch handling, so
-  // those always scroll or zoom the page as usual.
+  // Drag to turn, on the circle over the globe (.dot-globe__grab). One
+  // pointer only; no wheel, trackpad or pinch handling, so those always
+  // scroll or zoom the page as usual.
   Globe.prototype.bindInput = function () {
-    var self = this, el = this.el, canvas = this.canvas, active = null, last = null;
-    canvas.addEventListener("pointerdown", function (e) {
-      if (active !== null || (e.pointerType === "mouse" && (e.button !== 0 || !self.overGlobe(e)))) return;
+    var self = this, el = this.el, grab = this.grab, active = null, last = null;
+    grab.addEventListener("pointerdown", function (e) {
+      if (active !== null || (e.pointerType === "mouse" && e.button !== 0)) return;
       active = e.pointerId;
-      try { canvas.setPointerCapture(e.pointerId); } catch (err) {}
+      try { grab.setPointerCapture(e.pointerId); } catch (err) {}
       self.dragging = true; self.vel = 0; last = { x: e.clientX, y: e.clientY };
       el.classList.add("is-dragging");
       self.touch();
     });
-    canvas.addEventListener("pointermove", function (e) {
-      if (e.pointerId !== active) {
-        if (e.pointerType === "mouse") canvas.style.cursor = self.overGlobe(e) ? "grab" : "";
-        return;
-      }
+    grab.addEventListener("pointermove", function (e) {
+      if (e.pointerId !== active) return;
       var R = Math.max(40, self.radius), dx = e.clientX - last.x, dy = e.clientY - last.y;
       var dLon = -dx / R / DEG * 0.9;
       self.lon += dLon; self.vel = dLon * 0.5;
@@ -394,10 +478,10 @@
       el.classList.remove("is-dragging");
       self.touch();
     }
-    canvas.addEventListener("pointerup", up);
-    canvas.addEventListener("pointercancel", up);
+    grab.addEventListener("pointerup", up);
+    grab.addEventListener("pointercancel", up);
 
-    el.addEventListener("keydown", function (e) {
+    grab.addEventListener("keydown", function (e) {
       var k = e.key, step = 6;
       if (k === "ArrowLeft") self.lon -= step;
       else if (k === "ArrowRight") self.lon += step;
