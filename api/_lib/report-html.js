@@ -20,7 +20,7 @@ import { isHeld } from "./holdings.js";
 import { identityOf, marketOf, datesOf } from "./reports.js";
 
 export const ASSET_VERSIONS = {
-  "styles.css": 91,
+  "styles.css": 92,
   "components/site-header.css": 47,
   "components/dashboard/dashboard.css": 21,
   "components/members/members.css": 8,

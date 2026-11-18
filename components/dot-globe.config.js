@@ -12,8 +12,7 @@
  *     maxSize     px; on desktop also never taller than the hero's area
  *     x, offsetX  "left" | "center" | "right", then a nudge in px
  *     y, offsetY  "top" | "middle" | "bottom", then a nudge in px
- *     layer       "behind" (the text sits over it, the default everywhere)
- *                 or "beside": on desktop kept to the side of the headline
+ *     layer       "behind" (the text sits over it) or "beside": on desktop kept to the side of the headline
  *                 (left or right only); on tablet and phone its own row
  *                 between the headline and the buttons
  *   dots        sample points on the sphere (only those on land are drawn)
@@ -35,17 +34,16 @@
  * (the glow setting was removed on 2026-11-17).
  */
 window.CA_DOT_GLOBE_DEFAULTS = {
-  // Desktop as at launch; tablet and phone blended behind the headline
-  // (2026-11-17), chosen at 820x1180 and 390x844.
+  // Chosen with the design panel and the device simulator (2026-11-17).
   devices: {
-    desktop: { visible: true, size: 50, maxSize: 860, x: "center", offsetX: 381, y: "middle", offsetY: 0, layer: "behind" },
-    tablet: { visible: true, size: 82, maxSize: 700, x: "center", offsetX: 0, y: "middle", offsetY: -60, layer: "behind" },
-    phone: { visible: true, size: 90, maxSize: 420, x: "center", offsetX: 0, y: "middle", offsetY: -90, layer: "behind" }
+    desktop: { visible: true, size: 50, maxSize: 1000, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "beside" },
+    tablet: { visible: true, size: 75, maxSize: 1000, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "beside" },
+    phone: { visible: true, size: 100, maxSize: 340, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "beside" }
   },
 
   dots: 40000,
   dotsPhone: 15000,
-  dotSize: 3,
+  dotSize: 2.5,
   dotColor: { light: "#111111", dark: "#f2f2f2" },
   dotOpacity: { light: 0.75, dark: 0.8 },
 

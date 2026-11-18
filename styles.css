@@ -278,10 +278,12 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 @media (min-width: 600px) and (max-width: 1099px) {
   .hero .hero__title { max-width: none; }
 }
-/* Phones: the slogan steps down from the 40px floor so its longest phrase
-   ("fundamental analysis,") fits one line and the slogan stays at 4 lines. */
+/* Phones: headline 30px and subheading 14px (headline panel, 2026-11-17);
+   on the narrowest phones the headline still steps down (9vw) so its
+   longest phrase ("fundamental analysis,") never breaks mid-phrase. */
 @media (max-width: 599px) {
-  .hero__title { font-size: min(var(--display-size), 9vw); }
+  .hero__title { font-size: min(30px, 9vw); }
+  .hero__foot .hero__text { font-size: 14px; }
 }
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
