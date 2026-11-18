@@ -100,20 +100,22 @@
   function darkGround(hex) { var c = rgb(hex); return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255 < 0.5; }
 
   // ======================= Defaults =======================
-  // The site's own values; null sizes mean "the site's CSS".
+  // The site's own values (styles.css, site-header.css; chosen with this
+  // panel on 2026-11-17). A null size means "the site's CSS": the phone
+  // headline is 30px, smaller on the narrowest phones (9vw).
   var HEAD_DEF = {
-    desktop: { align: "left", vertical: "top", offsetX: 0, offsetY: 0, headline: null, subheading: null, lines: 3 },
-    tablet: { align: "left", vertical: "top", offsetX: 0, offsetY: 0, headline: null, subheading: null, lines: 2 },
-    phone: { align: "left", vertical: "top", offsetX: 0, offsetY: 0, headline: null, subheading: null, lines: 0 }
+    desktop: { align: "left", vertical: "top", offsetX: 0, offsetY: 0, headline: 62, subheading: 20, lines: 1 },
+    tablet: { align: "left", vertical: "top", offsetX: 0, offsetY: 0, headline: 45, subheading: 20, lines: 1 },
+    phone: { align: "left", vertical: "top", offsetX: 0, offsetY: 0, headline: null, subheading: 20, lines: 2 }
   };
   // Desktop: the buttons sit right of the text; below 1200px, under it.
   var BTN_DEF = {
-    desktop: { align: "right", size: 16, order: "learn" },
+    desktop: { align: "center", size: 16, order: "learn" },
     tablet: { align: "left", size: 16, order: "learn" },
     phone: { align: "left", size: 16, order: "learn" }
   };
   var BG_DEF = { light: "#ffffff", dark: "#000000" };
-  var HDR_DEF = { top: "transparent", scroll: "solid" };
+  var HDR_DEF = { top: "transparent", scroll: "solid-noline" };
   var TOKENS = { light: { ink: "#000000", muted: "#595959" }, dark: { ink: "#ffffff", muted: "#a3a3a3" } };
   var CANARY = "#ffef00";
   var PRESETS = {
@@ -219,8 +221,9 @@
       if (+b.size && +b.size !== 16) r.push(".hero .hero__actions .button.button{font-size:" + (+b.size) + "px;}");
       if (b.order === "signup") r.push(".hero .hero__actions .hero__btn--main{order:-1;}");
       if (d === "desktop") {
-        if (b.align === "left") r.push(".hero .hero__foot{justify-content:flex-start;}");
-        else if (b.align === "center") r.push(".hero .hero__actions{margin-inline:auto;}");
+        // The site's CSS centres them in the space right of the text.
+        if (b.align === "left") r.push(".hero .hero__foot{justify-content:flex-start;}.hero .hero__actions{margin-inline:0;}");
+        else if (b.align === "right") r.push(".hero .hero__actions{margin-left:auto;margin-right:140px;}");
       } else if (b.align === "center") {
         r.push(".hero .hero__actions{align-self:stretch;justify-content:center;margin-left:0;}");
       } else if (b.align === "right") {
@@ -233,7 +236,8 @@
     r.push(':root[data-theme="dark"]{--ground:' + s.background.dark + ";}");
     // Header.
     if (s.header.top === "solid") r.push(".site-header{background:var(--ground);}");
-    if (s.header.scroll === "solid-noline") r.push(".site-header.is-scrolled{border-bottom-color:transparent;}");
+    // The site's CSS: solid, no line.
+    if (s.header.scroll === "solid") r.push(".site-header.is-scrolled{border-bottom-color:var(--rule);}");
     else if (s.header.scroll === "transparent") r.push(".site-header.is-scrolled{background:transparent;border-bottom-color:transparent;}");
     return "@media " + Q[d] + "{" + r.join("") + "}";
   }
@@ -529,7 +533,7 @@
     bind(b, "buttons", "size", { type: "range", label: "Label size", min: 12, max: 24, unit: "px" });
     bind(b, "buttons", "order", { type: "select", label: "Order", options: [["learn", "Learn more first"], ["signup", "Sign up first"]] });
     var n = hint(b);
-    shows.push(function () { n.textContent = cur === "desktop" ? "Desktop: Right keeps the buttons at the right of the subheading; Left puts them just after it." : "Below 1200px the buttons sit under the subheading."; });
+    shows.push(function () { n.textContent = cur === "desktop" ? "Desktop: Center places the buttons in the middle of the space right of the subheading; Right ends them 200px from the edge; Left puts them just after it." : "Below 1200px the buttons sit under the subheading."; });
   }
 
   // ---------------- Globe ----------------

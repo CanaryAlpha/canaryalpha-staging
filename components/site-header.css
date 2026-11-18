@@ -6,8 +6,9 @@
  *
  * The same bar on every screen size (desktop is the reference): fixed to
  * the top, transparent at the top of the page, and once the page scrolls
- * (.is-scrolled, set by site-header.js) a solid page-colour background
- * with a thin --rule line under it, so text never shows through. The drop-
+ * (.is-scrolled, set by site-header.js) a solid page-colour background, so
+ * text never shows through, with no line under it (design panel,
+ * 2026-11-17). The drop-
  * down panels keep a faint shadow (--site-header-shadow); dark grounds need
  * a deeper one to read at all.
  */
@@ -32,7 +33,7 @@
   font-weight: 400;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
-.site-header.is-scrolled { background: var(--ground); border-bottom-color: var(--rule); }
+.site-header.is-scrolled { background: var(--ground); }
 @media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
 
 .site-header__inner {

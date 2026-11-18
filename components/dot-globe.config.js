@@ -37,7 +37,7 @@ window.CA_DOT_GLOBE_DEFAULTS = {
   devices: {
     desktop: { visible: true, size: 50, maxSize: 1000, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "beside" },
     tablet: { visible: true, size: 75, maxSize: 1000, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "beside" },
-    phone: { visible: true, size: 100, maxSize: 340, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "beside" }
+    phone: { visible: true, size: 100, maxSize: 340, x: "center", offsetX: 0, y: "top", offsetY: 0, layer: "beside" }
   },
 
   dots: 40000,

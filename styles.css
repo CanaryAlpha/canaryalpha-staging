@@ -268,24 +268,27 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 }
 /* Screen sizes for the hero (and the globe and the ?design=1 panel): phone
    under 768px, tablet 768-1199px, desktop 1200px and up.
-   Desktop: fixed sizes chosen with the ?design=1 headline panel
-   (2026-11-16): headline 80px, subheading 25px. Tablet and phone keep the
-   scaling sizes above and below. */
+   Sizes chosen with the ?design=1 panel (2026-11-17); every screen size
+   gives the headline the full width between the page margins (the panel
+   asked for fewer lines than fit at these sizes, so it takes the most
+   width it can: 2 lines at 1440px, 3 on an 820px tablet and a 390px
+   phone). Subheading 20px everywhere.
+   Desktop: headline 62px. */
 @media (min-width: 1200px) {
-  .hero__title { font-size: 80px; }
-  .hero__foot .hero__text { font-size: 25px; }
+  .hero .hero__title { font-size: 62px; max-width: calc(100% - 2 * var(--pad)); }
+  .hero__foot .hero__text { font-size: 20px; }
 }
-/* Tablet (768-1199px): the slogan takes the full width so it sets in 2
-   lines (headline panel, 2026-11-16). Desktop keeps 14em: 3 lines. */
+/* Tablet (768-1199px): headline 45px. */
 @media (min-width: 768px) and (max-width: 1199px) {
-  .hero .hero__title { max-width: none; }
+  .hero .hero__title { font-size: 45px; max-width: none; }
+  .hero__foot .hero__text { font-size: 20px; }
 }
-/* Phones: headline 30px and subheading 14px (headline panel, 2026-11-17);
-   on the narrowest phones the headline still steps down (9vw) so its
-   longest phrase ("fundamental analysis,") never breaks mid-phrase. */
+/* Phones: headline 30px; on the narrowest phones it still steps down
+   (9vw) so its longest phrase ("fundamental analysis,") never breaks
+   mid-phrase. */
 @media (max-width: 767px) {
-  .hero__title { font-size: min(30px, 9vw); }
-  .hero__foot .hero__text { font-size: 14px; }
+  .hero .hero__title { font-size: min(30px, 9vw); max-width: none; }
+  .hero__foot .hero__text { font-size: 20px; }
 }
 /* Down arrow at the bottom centre of the hero: the page continues. */
 .scroll-hint {
@@ -321,7 +324,8 @@ table, .is-num { font-variant-numeric: tabular-nums; }
    out by the padding on the left, so the first label lines up with the
    text.
    Desktop (1200px+): the foot is the bottom overlay layer the text was,
-   with the buttons in a row to the right of the text, centred on it. */
+   with the buttons in a row to the right of the text, centred on it, and
+   centred in the space right of the text (panel, 2026-11-17: Center). */
 .hero__foot {
   position: absolute;
   z-index: 1;
@@ -355,7 +359,7 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 @media (min-width: 1200px) {
   .hero__foot { flex-direction: row; align-items: center; justify-content: space-between; gap: 2.5rem; }
   .hero__foot .hero__text { flex: 0 1 auto; }
-  .hero__actions { flex: none; flex-wrap: nowrap; margin-right: 140px; }
+  .hero__actions { flex: none; flex-wrap: nowrap; margin-inline: auto; }
 }
 /* Below 1200px: the slogan, the visual and the foot stack in normal flow
    (no overlap at any height; the hero grows past one screen if it must),

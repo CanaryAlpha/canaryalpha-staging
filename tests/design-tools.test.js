@@ -31,7 +31,7 @@ test("one set of screen sizes: phone under 768px, tablet 768-1199px, desktop 120
     assert.ok(css.length > 500, f);
     assert.doesNotMatch(css, /\((?:min|max)-width: (?:599|600|1099|1100)px\)/, f + " still uses the old 600/1100 breakpoints");
   }
-  assert.ok(read("styles.css").includes("@media (min-width: 1200px) {\n  .hero__title { font-size: 80px; }"));
+  assert.ok(read("styles.css").includes("@media (min-width: 1200px) {\n  .hero .hero__title { font-size: 62px;"));
 });
 
 test("the panel: Desktop, Tablet and Phone tabs over Headline, Buttons, Globe, Background and Header", () => {
