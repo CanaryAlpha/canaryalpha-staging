@@ -315,6 +315,8 @@
     if (ui) ui.refresh();
   });
   window.addEventListener("resize", function () { if (HAS_HERO) fitLines(); });
+  // The line count is measured in the site's fonts: fit again once they load.
+  if (HAS_HERO && document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitLines(); });
 
   // Inside a simulator frame: apply only, no panel. Phones and tablets have
   // overlay scrollbars, so the frame hides its own to keep the full width.
