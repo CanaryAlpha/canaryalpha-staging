@@ -21,15 +21,35 @@ test("the globe config has settings for each screen size", () => {
   }
 });
 
-test("the globe and the panel use the hero's breakpoints: 600px and 1100px", () => {
-  assert.match(read("components/dot-globe.js"), /w >= 1100 \? "desktop" : w >= 600 \? "tablet" : "phone"/);
-  assert.match(panel, /innerWidth >= 1100 \? "desktop" : innerWidth >= 600 \? "tablet" : "phone"/);
+test("one set of screen sizes: phone under 768px, tablet 768-1199px, desktop 1200px and up", () => {
+  assert.match(read("components/dot-globe.js"), /w >= 1200 \? "desktop" : w >= 768 \? "tablet" : "phone"/);
+  assert.match(panel, /innerWidth >= 1200 \? "desktop" : innerWidth >= 768 \? "tablet" : "phone"/);
+  assert.match(sim, /w >= 1200 \? "desktop" : w >= 768 \? "tablet" : "phone"/);
+  // The hero's own rules (styles.css, up to the unused hero visuals) and the globe's.
+  const all = read("styles.css"), heroCss = all.slice(all.indexOf(".hero {"), all.indexOf("/* The hero visual (components/hero-visuals.css)"));
+  for (const [f, css] of [["styles.css (hero)", heroCss], ["components/dot-globe.css", read("components/dot-globe.css")]]) {
+    assert.ok(css.length > 500, f);
+    assert.doesNotMatch(css, /\((?:min|max)-width: (?:599|600|1099|1100)px\)/, f + " still uses the old 600/1100 breakpoints");
+  }
+  assert.ok(read("styles.css").includes("@media (min-width: 1200px) {\n  .hero__title { font-size: 80px; }"));
 });
 
-test("the panel has Headline, Globe and Background sections, each with Copy settings and Reset", () => {
-  for (const s of ['section("headline", "Headline"', 'section("globe", "Globe"', 'section("background", "Background"']) assert.ok(panel.includes(s), s);
-  assert.ok(panel.includes('data-act="copy">Copy settings') && panel.includes('data-act="reset">Reset'));
-  assert.ok(panel.includes("Copy all settings"));
+test("the panel: Desktop, Tablet and Phone tabs over Headline, Buttons, Globe, Background and Header", () => {
+  assert.ok(panel.includes('role="tablist"') && panel.includes('role="tab"'));
+  for (const s of ['section("headline", "Headline"', 'section("buttons", "Buttons"', 'section("globe", "Globe"', 'section("background", "Background"', 'section("header", "Header"']) assert.ok(panel.includes(s), s);
+  for (const s of ['"Copy from Desktop"', '"Copy from Tablet"', '"Copy this device"', '"Reset this device"', 'data-act="copy-all">Copy settings', 'data-act="reset-all">Reset all']) assert.ok(panel.includes(s), s);
+  assert.ok(panel.includes('"Editing: " + NAMES[cur]'));
+  assert.ok(panel.includes("use the simulator to see them."));
+  assert.ok(panel.includes('new CustomEvent("design:device"'));
+  assert.ok(sim.includes('addEventListener("design:device"'));
+  // No per-section device dropdowns any more.
+  assert.doesNotMatch(panel, /label: "Screen size"|label: "Editing"/);
+});
+
+test("saved settings: one key for all three devices, older settings carried over", () => {
+  assert.ok(panel.includes('var KEY = "ca-design-v2"'));
+  for (const k of ['"ca-design-headline"', '"ca-design-globe"', '"ca-design-background"']) assert.ok(panel.includes(k), k);
+  assert.match(panel, /function migrate\(\)/);
 });
 
 test("saving to the browser never throws", () => {
@@ -45,7 +65,7 @@ test("the contrast check uses the site's own text colours", () => {
   const tok = (b, n) => b.match(new RegExp("--" + n + ": (#[0-9a-f]{6})"))[1];
   assert.ok(panel.includes(`light: { ink: "${tok(light, "ink")}", muted: "${tok(light, "muted")}" }`));
   assert.ok(panel.includes(`dark: { ink: "${tok(dark, "ink")}", muted: "${tok(dark, "muted")}" }`));
-  assert.ok(panel.includes(`light: { ground: "${tok(light, "ground")}" }, dark: { ground: "${tok(dark, "ground")}" }`));
+  assert.ok(panel.includes(`var BG_DEF = { light: "${tok(light, "ground")}", dark: "${tok(dark, "ground")}" }`));
 });
 
 test("pages load the panel only with ?design=1", () => {

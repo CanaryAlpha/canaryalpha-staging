@@ -266,23 +266,24 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero { --pad: 2.5rem; --edge: 1.5rem; }
   .hero__title { top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
-/* Desktop (1100px+): fixed sizes chosen with the ?design=1 headline panel
+/* Screen sizes for the hero (and the globe and the ?design=1 panel): phone
+   under 768px, tablet 768-1199px, desktop 1200px and up.
+   Desktop: fixed sizes chosen with the ?design=1 headline panel
    (2026-11-16): headline 80px, subheading 25px. Tablet and phone keep the
    scaling sizes above and below. */
-@media (min-width: 1100px) {
+@media (min-width: 1200px) {
   .hero__title { font-size: 80px; }
   .hero__foot .hero__text { font-size: 25px; }
 }
-/* Tablet (600-1099px): the slogan takes the full width so it sets in 2
-   lines (headline panel, 2026-11-16). Under about 768px wide it can't fit
-   2 lines at the 40px floor and stays at 3. Desktop keeps 14em: 3 lines. */
-@media (min-width: 600px) and (max-width: 1099px) {
+/* Tablet (768-1199px): the slogan takes the full width so it sets in 2
+   lines (headline panel, 2026-11-16). Desktop keeps 14em: 3 lines. */
+@media (min-width: 768px) and (max-width: 1199px) {
   .hero .hero__title { max-width: none; }
 }
 /* Phones: headline 30px and subheading 14px (headline panel, 2026-11-17);
    on the narrowest phones the headline still steps down (9vw) so its
    longest phrase ("fundamental analysis,") never breaks mid-phrase. */
-@media (max-width: 599px) {
+@media (max-width: 767px) {
   .hero__title { font-size: min(30px, 9vw); }
   .hero__foot .hero__text { font-size: 14px; }
 }
@@ -319,7 +320,7 @@ table, .is-num { font-variant-numeric: tabular-nums; }
    (40px page margin + 140 + 19 + 1 = 200px). Tablets: the row is pulled
    out by the padding on the left, so the first label lines up with the
    text.
-   Desktop (1100px+): the foot is the bottom overlay layer the text was,
+   Desktop (1200px+): the foot is the bottom overlay layer the text was,
    with the buttons in a row to the right of the text, centred on it. */
 .hero__foot {
   position: absolute;
@@ -348,20 +349,20 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 .hero__actions .button.button { min-width: 0; justify-content: center; padding-inline: var(--hero-btn-pad, 19px); }
 /* Phones: a little less padding beside each label, so the three buttons
    fit one row on a 375px screen, as on desktop. */
-@media (max-width: 599px) { .hero__actions { --hero-btn-pad: 12px; } }
+@media (max-width: 767px) { .hero__actions { --hero-btn-pad: 12px; } }
 :root:not([data-auth-state="in"]) .hero__actions [data-auth="in"],
 :root[data-auth-state="in"] .hero__actions [data-auth="out"] { display: none; }
-@media (min-width: 1100px) {
+@media (min-width: 1200px) {
   .hero__foot { flex-direction: row; align-items: center; justify-content: space-between; gap: 2.5rem; }
   .hero__foot .hero__text { flex: 0 1 auto; }
   .hero__actions { flex: none; flex-wrap: nowrap; margin-right: 140px; }
 }
-/* Below 1100px: the slogan, the visual and the foot stack in normal flow
+/* Below 1200px: the slogan, the visual and the foot stack in normal flow
    (no overlap at any height; the hero grows past one screen if it must),
    with the buttons under the text in desktop's order (Learn more, Sign up,
    Log in) and style: one left-aligned row, the first label in line with the
    text, wrapping to a second line only where they don't fit. */
-@media (max-width: 1099px) {
+@media (max-width: 1199px) {
   .hero {
     display: grid;
     grid-template-rows: auto 1fr auto;
@@ -377,14 +378,14 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   /* Never further than the page margin, so no button reaches off screen. */
   .hero__actions { margin-left: calc(-1 * min(var(--hero-btn-pad, 19px), var(--pad))); }
 }
-@media (min-width: 768px) and (max-width: 1099px) {
+@media (min-width: 768px) and (max-width: 1199px) {
   .hero { padding-top: calc(var(--site-header-h, 0px) + 2.5rem); }
 }
 /* The hero visual (components/hero-visuals.css) gives up the buttons'
    height, so the hero still fits one screen where it can: in flow it is
    already inside the hero's side padding (full width), and its height
    leaves room for one row of buttons (tablet) or three (phone). */
-@media (max-width: 1099px) {
+@media (max-width: 1199px) {
   .hero .hv { --hv-w: min(100%, 60rem); --hv-h: clamp(180px, 100vh - 580px, 320px); }
   @supports (height: 1svh) { .hero .hv { --hv-h: clamp(180px, 100svh - 580px, 320px); } }
 }

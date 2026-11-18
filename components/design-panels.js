@@ -1,41 +1,46 @@
 /*
  * Design panel, for the site owner only. Loaded only when the address has
  * ?design=1 (kept for the tab's session; ?design=0 turns it off): by
- * index.html on the homepage and by components/design-mode.js on Learn, the
+ * index.html on the homepage and by the small loaders on Learn, the
  * glossary and Sign up. Visitors never get it.
  *
- * One floating panel with three collapsible sections:
- *   Headline    alignment, vertical position, X/Y offsets, headline and
- *               subheading sizes per screen size and a line count (1-4)
- *               reached by narrowing the headline, never by cutting words.
- *   Globe       per screen size (desktop 1100px+, tablet 600-1099px, phone
- *               under 600px, the hero's own breakpoints): visible, size (% of
- *               the hero's width, max px), horizontal and vertical position
- *               with fine offsets, and layer; then the dots, rotation and
- *               the frame rate (components/dot-globe.config.js).
- *   Background  the page colour (--ground) for Light and for Dark, from
- *               presets, a picker or a hex code, with a live WCAG AA contrast
- *               check of the text, buttons and globe dots on it. The globe
- *               picks its Light or Dark dot colours by how dark the chosen
- *               background is, so the dots stay visible either way.
+ * Desktop, Tablet and Phone each have their own complete settings. Three
+ * tabs at the top choose which device every section shows and edits; the
+ * screen sizes are the site's one set (styles.css, dot-globe.js): phone
+ * under 768px, tablet 768-1199px, desktop 1200px and up. Sections:
+ *   Headline    alignment, vertical position (desktop), X/Y offsets,
+ *               headline and subheading sizes, a line count (1-4) reached by
+ *               narrowing the headline, never by cutting words.
+ *   Buttons     alignment, label size, order (Learn more or Sign up first).
+ *   Globe       show or hide, size, max size, position, layer, the dots and
+ *               the rotation (defaults: components/dot-globe.config.js).
+ *   Background  the page colour (--ground) for Light and for Dark, with a
+ *               live WCAG AA check of the text, buttons and dots on it.
+ *   Header      at the top of the page, and after scrolling.
+ * Headline, Buttons and Globe show on the homepage only; Background and
+ * Header on every page that loads the panel.
  *
- * Headline and Globe show on the homepage only; Background on every page
- * that loads the panel. Each section has Copy settings, Reset and saves to
- * this browser (localStorage, nothing is sent anywhere); "Copy all settings"
- * gives all three as one JSON block. Saved settings only apply while design
- * mode is on; with it off the page shows the defaults in code.
+ * Helpers: Copy from Desktop / Copy from Tablet (on the Tablet and Phone
+ * tabs), Copy this device, Reset this device, and at the foot Copy
+ * settings (all three devices as one block, labelled by device) and Reset
+ * all. Everything is saved in this browser (localStorage "ca-design-v2",
+ * nothing is sent anywhere). Settings saved by the older panel (one key per
+ * section) are carried over once, and left in place. Saved settings only
+ * apply while design mode is on; with it off the page shows the defaults in
+ * code.
  *
  * Two other modes, for the device simulator (design/simulator/):
  *   ?sim=1      inside a simulator frame: no panel; the saved settings are
- *               applied, and re-applied whenever they change in another tab
- *               or in the simulator's own panel (the storage event).
+ *               applied (each frame uses its own device's, by its width),
+ *               and re-applied whenever they change (the storage event).
  *   simulator   on the simulator page (<body data-design-simulator>): the
- *               panel with every section, editing the saved settings, which
- *               the frames pick up live.
+ *               panel with every section; choosing a tab sends
+ *               "design:device", and the simulator highlights that frame.
  */
 (function () {
   "use strict";
-  var KEY_A = "ca-design-headline", KEY_B = "ca-design-globe", KEY_C = "ca-design-background";
+  var KEY = "ca-design-v2";
+  var OLD = { headline: "ca-design-headline", globe: "ca-design-globe", background: "ca-design-background" };
   var SIM = /[?&]sim=1(?:&|$)/.test(location.search);
   var CONTROLLER = !!document.querySelector("[data-design-simulator]");
   var hero = document.querySelector(".hero");
@@ -43,14 +48,19 @@
   var sub = document.querySelector(".hero__text");
   var foot = document.querySelector(".hero__foot");
   var HAS_HERO = !!(hero && title);
-  var DEVICES = [["desktop", "Desktop (1100px+)"], ["tablet", "Tablet (600-1099px)"], ["phone", "Phone (under 600px)"]];
+  var DEVS = ["desktop", "tablet", "phone"];
+  var NAMES = { desktop: "Desktop", tablet: "Tablet", phone: "Phone" };
+  var RANGES = { desktop: "1200px and up", tablet: "768-1199px", phone: "under 768px" };
+  var Q = { desktop: "(min-width: 1200px)", tablet: "(min-width: 768px) and (max-width: 1199px)", phone: "(max-width: 767px)" };
 
   function load(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }
   function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
   function drop(k) { try { localStorage.removeItem(k); } catch (e) {} }
+  function sget(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }
+  function sset(k, v) { try { sessionStorage.setItem(k, v); } catch (e) {} }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
   function esc(t) { return String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;"); }
-  function bp() { return innerWidth >= 1100 ? "desktop" : innerWidth >= 600 ? "tablet" : "phone"; }
+  function bp() { return innerWidth >= 1200 ? "desktop" : innerWidth >= 768 ? "tablet" : "phone"; }
   function copyText(text, status) {
     function done(ok) {
       var old = status.parentNode.querySelector(".ca-dpanel__copybox");
@@ -89,26 +99,21 @@
   // The globe's own test (isDark in dot-globe.js): weighted sRGB under 0.5.
   function darkGround(hex) { var c = rgb(hex); return (0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]) / 255 < 0.5; }
 
-  // ======================= State =======================
-  // A: headline
-  var DEF_A = {
-    align: "left", vertical: "top", offsetX: 0, offsetY: 0,
-    sizes: { desktop: { headline: null, subheading: null, lines: 3 },
-             tablet: { headline: null, subheading: null, lines: 2 },
-             phone: { headline: null, subheading: null, lines: 0 } }
+  // ======================= Defaults =======================
+  // The site's own values; null sizes mean "the site's CSS".
+  var HEAD_DEF = {
+    desktop: { align: "left", vertical: "top", offsetX: 0, offsetY: 0, headline: null, subheading: null, lines: 3 },
+    tablet: { align: "left", vertical: "top", offsetX: 0, offsetY: 0, headline: null, subheading: null, lines: 2 },
+    phone: { align: "left", vertical: "top", offsetX: 0, offsetY: 0, headline: null, subheading: null, lines: 0 }
   };
-  function readA() {
-    var a = Object.assign(clone(DEF_A), load(KEY_A) || {});
-    a.sizes = Object.assign(clone(DEF_A.sizes), a.sizes || {});
-    return a;
-  }
-  var A = readA();
-
-  // B: globe (the defaults are in components/dot-globe.config.js)
-  var GLOBE_DEF = clone(window.CA_DOT_GLOBE_DEFAULTS || (window.CA_DOT_GLOBE && window.CA_DOT_GLOBE.defaults) || {});
-
-  // C: background. The site's own colours (styles.css) are the defaults.
-  var DEF_C = { light: { ground: "#ffffff" }, dark: { ground: "#000000" } };
+  // Desktop: the buttons sit right of the text; below 1200px, under it.
+  var BTN_DEF = {
+    desktop: { align: "right", size: 16, order: "learn" },
+    tablet: { align: "left", size: 16, order: "learn" },
+    phone: { align: "left", size: 16, order: "learn" }
+  };
+  var BG_DEF = { light: "#ffffff", dark: "#000000" };
+  var HDR_DEF = { top: "transparent", scroll: "solid" };
   var TOKENS = { light: { ink: "#000000", muted: "#595959" }, dark: { ink: "#ffffff", muted: "#a3a3a3" } };
   var CANARY = "#ffef00";
   var PRESETS = {
@@ -117,46 +122,120 @@
     light: [["#ffffff", "White (now)"], ["#fafaf7", "Off-white"], ["#f7f4ec", "Warm off-white"], ["#f4f6f9", "Cool off-white"],
             ["#efefef", "Light grey"], ["#fffbe6", "Pale canary"]]
   };
-  function readC() {
-    var c = clone(DEF_C), s = load(KEY_C) || {};
-    ["light", "dark"].forEach(function (m) { if (s[m] && hexOk(s[m].ground)) c[m].ground = s[m].ground.toLowerCase(); });
-    return c;
+  // Globe: components/dot-globe.config.js; each device = the shared values
+  // with that device's own entry over them.
+  var GLOBE_DEF = clone(window.CA_DOT_GLOBE_DEFAULTS || (window.CA_DOT_GLOBE && window.CA_DOT_GLOBE.defaults) || {});
+  var GLOBE_KEYS = ["visible", "size", "maxSize", "x", "offsetX", "y", "offsetY", "layer",
+    "dots", "dotsPhone", "dotSize", "dotColor", "dotOpacity", "autoRotate", "speed", "direction", "startLon", "tilt"];
+  function globeDef(d) {
+    var all = Object.assign({ visible: true, size: 50, maxSize: 860, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "behind" }, GLOBE_DEF);
+    delete all.devices;
+    Object.assign(all, (GLOBE_DEF.devices || {})[d] || {});
+    var out = {};
+    GLOBE_KEYS.forEach(function (k) { if (k in all) out[k] = clone(all[k]); });
+    return out;
   }
-  var C = readC();
-  function mode() {
-    var t = document.documentElement.getAttribute("data-theme");
-    if (t === "light" || t === "dark") return t;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  function deviceDef(d) {
+    return { headline: clone(HEAD_DEF[d]), buttons: clone(BTN_DEF[d]), globe: globeDef(d), background: clone(BG_DEF), header: clone(HDR_DEF) };
   }
+  function defaults() { var s = {}; DEVS.forEach(function (d) { s[d] = deviceDef(d); }); return s; }
+
+  // ======================= Saved settings =======================
+  // Saved values over the defaults: known keys only, valid colours only.
+  function mergeDev(d, saved) {
+    var out = deviceDef(d);
+    if (!saved || typeof saved !== "object") return out;
+    Object.keys(out).forEach(function (g) {
+      var sv = saved[g];
+      if (!sv || typeof sv !== "object") return;
+      Object.keys(out[g]).forEach(function (k) {
+        if (!(k in sv) || sv[k] === undefined) return;
+        var v = sv[k];
+        if ((k === "dotColor" || k === "dotOpacity") && v && typeof v === "object") v = Object.assign({}, out[g][k], v);
+        out[g][k] = clone(v);
+      });
+    });
+    ["light", "dark"].forEach(function (m) { if (!hexOk(out.background[m])) out.background[m] = BG_DEF[m]; else out.background[m] = out.background[m].toLowerCase(); });
+    return out;
+  }
+  // The older panel saved one key per section (headline position for every
+  // size, globe shared values plus one entry per size, one background).
+  function migrate() {
+    var a = load(OLD.headline), b = load(OLD.globe), c = load(OLD.background), s = {};
+    if (!a && !b && !c) return null;
+    DEVS.forEach(function (d) {
+      var dev = {};
+      if (a && typeof a === "object") {
+        var sz = (a.sizes || {})[d] || {};
+        dev.headline = { align: a.align, vertical: a.vertical, offsetX: a.offsetX, offsetY: a.offsetY, headline: sz.headline, subheading: sz.subheading, lines: sz.lines };
+      }
+      if (b && typeof b === "object") {
+        var g = {};
+        Object.keys(b).forEach(function (k) { if (k !== "devices") g[k] = b[k]; });
+        dev.globe = Object.assign(g, (b.devices || {})[d] || {});
+      }
+      if (c && typeof c === "object") dev.background = { light: c.light && c.light.ground, dark: c.dark && c.dark.ground };
+      s[d] = dev;
+    });
+    return s;
+  }
+  function read() {
+    var raw = load(KEY), migrated = false;
+    if (!raw || typeof raw !== "object") { raw = migrate(); migrated = !!raw; }
+    var s = {};
+    DEVS.forEach(function (d) { s[d] = mergeDev(d, raw && raw[d]); });
+    if (migrated) save(KEY, s);
+    return s;
+  }
+  var S = read();
+  function commit() { save(KEY, S); apply(); }
 
   // ======================= Applying =======================
-  var styleA = document.head.appendChild(document.createElement("style"));
-  styleA.id = "ca-design-headline-css";
-  var styleC = document.head.appendChild(document.createElement("style"));
-  styleC.id = "ca-design-background-css";
+  var styleEl = document.head.appendChild(document.createElement("style"));
+  styleEl.id = "ca-design-css";
   var warnEl = null;
 
-  function cssA() {
-    var dx = (+A.offsetX || 0) + "px", dy = (+A.offsetY || 0) + "px", c = [];
-    var hx = A.align === "center" ? "-50%" : "0px";
-    var vy = A.vertical === "middle" ? "-50%" : "0px";
-    // Desktop: the headline is its own layer, placed anywhere in the hero.
-    c.push("@media (min-width: 1100px){.hero .hero__title{" +
-      (A.align === "right" ? "left:auto;right:var(--pad);" : A.align === "center" ? "left:50%;right:auto;" : "") +
-      (A.vertical === "middle" ? "top:50%;" : A.vertical === "bottom" ? "top:auto;bottom:calc(var(--arrow-clear) + var(--ca-foot-h, 6rem) + 2rem);" : "") +
-      "text-align:" + A.align + ";transform:translate(calc(" + hx + " + " + dx + "),calc(" + vy + " + " + dy + "));}}");
-    // Below 1100px it stacks in the page's flow: alignment and offsets only.
-    c.push("@media (max-width: 1099px){.hero .hero__title{text-align:" + A.align + ";" +
-      (A.align === "center" ? "margin-inline:auto;" : A.align === "right" ? "margin-left:auto;margin-right:0;" : "") +
-      "transform:translate(" + dx + "," + dy + ");}}");
-    var q = { desktop: "(min-width: 1100px)", tablet: "(min-width: 600px) and (max-width: 1099px)", phone: "(max-width: 599px)" };
-    Object.keys(q).forEach(function (k) {
-      var s = A.sizes[k], r = "";
-      if (s.headline) r += ".hero .hero__title{font-size:" + s.headline + "px;}";
-      if (s.subheading) r += ".hero .hero__foot .hero__text{font-size:" + s.subheading + "px;}";
-      if (r) c.push("@media " + q[k] + "{" + r + "}");
-    });
-    return c.join("\n");
+  // One device's CSS, inside its own media query.
+  function cssDevice(d) {
+    var s = S[d], h = s.headline, b = s.buttons, r = [];
+    if (HAS_HERO) {
+      var dx = (+h.offsetX || 0) + "px", dy = (+h.offsetY || 0) + "px";
+      if (d === "desktop") {
+        // The headline is its own layer, placed anywhere in the hero.
+        var hx = h.align === "center" ? "-50%" : "0px", vy = h.vertical === "middle" ? "-50%" : "0px";
+        r.push(".hero .hero__title{" +
+          (h.align === "right" ? "left:auto;right:var(--pad);" : h.align === "center" ? "left:50%;right:auto;" : "") +
+          (h.vertical === "middle" ? "top:50%;" : h.vertical === "bottom" ? "top:auto;bottom:calc(var(--arrow-clear) + var(--ca-foot-h, 6rem) + 2rem);" : "") +
+          "text-align:" + h.align + ";transform:translate(calc(" + hx + " + " + dx + "),calc(" + vy + " + " + dy + "));}");
+      } else {
+        // Stacked in the page's flow: alignment and offsets only.
+        r.push(".hero .hero__title{text-align:" + h.align + ";" +
+          (h.align === "center" ? "margin-inline:auto;" : h.align === "right" ? "margin-left:auto;margin-right:0;" : "") +
+          "transform:translate(" + dx + "," + dy + ");}");
+      }
+      if (h.headline) r.push(".hero .hero__title{font-size:" + h.headline + "px;}");
+      if (h.subheading) r.push(".hero .hero__foot .hero__text{font-size:" + h.subheading + "px;}");
+      // Buttons.
+      if (+b.size && +b.size !== 16) r.push(".hero .hero__actions .button.button{font-size:" + (+b.size) + "px;}");
+      if (b.order === "signup") r.push(".hero .hero__actions .hero__btn--main{order:-1;}");
+      if (d === "desktop") {
+        if (b.align === "left") r.push(".hero .hero__foot{justify-content:flex-start;}");
+        else if (b.align === "center") r.push(".hero .hero__actions{margin-inline:auto;}");
+      } else if (b.align === "center") {
+        r.push(".hero .hero__actions{align-self:stretch;justify-content:center;margin-left:0;}");
+      } else if (b.align === "right") {
+        r.push(".hero .hero__actions{align-self:stretch;justify-content:flex-end;margin-left:0;margin-right:calc(-1 * min(var(--hero-btn-pad, 19px), var(--pad)));}");
+      }
+    }
+    // Background.
+    r.push(':root,:root[data-theme="light"]{--ground:' + s.background.light + ";}");
+    r.push('@media (prefers-color-scheme: dark){:root:not([data-theme]){--ground:' + s.background.dark + ";}}");
+    r.push(':root[data-theme="dark"]{--ground:' + s.background.dark + ";}");
+    // Header.
+    if (s.header.top === "solid") r.push(".site-header{background:var(--ground);}");
+    if (s.header.scroll === "solid-noline") r.push(".site-header.is-scrolled{border-bottom-color:transparent;}");
+    else if (s.header.scroll === "transparent") r.push(".site-header.is-scrolled{background:transparent;border-bottom-color:transparent;}");
+    return "@media " + Q[d] + "{" + r.join("") + "}";
   }
 
   // Lines the headline takes now (distinct line tops of its text).
@@ -183,9 +262,9 @@
     return Math.floor(hero.clientWidth - 2 * pad);
   }
   function warn(t) { if (warnEl) warnEl.textContent = t; }
-  // Narrow the headline until it takes `n` lines; warn when it can't.
+  // Narrow the headline until it takes `n` lines (this screen's device); warn when it can't.
   function fitLines() {
-    var n = A.sizes[bp()].lines | 0;
+    var n = S[bp()].headline.lines | 0;
     title.style.maxWidth = "";
     warn("");
     if (!n) return;
@@ -203,72 +282,42 @@
     }
     title.style.maxWidth = hi + "px";
   }
-  function applyA() {
-    if (!HAS_HERO) return;
-    if (foot) hero.style.setProperty("--ca-foot-h", foot.offsetHeight + "px");
-    styleA.textContent = cssA();
-    fitLines();
-  }
 
-  function cssC() {
-    var l = C.light.ground, d = C.dark.ground;
-    return ":root,:root[data-theme=\"light\"]{--ground:" + l + ";}\n" +
-      "@media (prefers-color-scheme: dark){:root:not([data-theme]){--ground:" + d + ";}}\n" +
-      ":root[data-theme=\"dark\"]{--ground:" + d + ";}";
-  }
   function globe() { return window.CA_DOT_GLOBE && window.CA_DOT_GLOBE.instances[0]; }
-  function applyC() {
-    styleC.textContent = cssC();
+  // The globe gets every device's settings; it uses the one for its width.
+  // Only a real change is sent, so its spin never restarts for nothing.
+  var sentGlobe = "";
+  function pushGlobe() {
     var g = globe();
-    if (g) g.themeChanged(); // dots follow the new background (light or dark set)
-  }
-
-  // Globe: saved settings over the defaults; unknown (removed) keys are ignored by the globe.
-  function readB() {
-    var b = clone(GLOBE_DEF), s = load(KEY_B);
-    if (s && typeof s === "object") {
-      Object.keys(s).forEach(function (k) { if (k !== "devices" && k in b) b[k] = s[k]; });
-      if (s.devices && typeof s.devices === "object") {
-        b.devices = b.devices || {};
-        DEVICES.forEach(function (d) { b.devices[d[0]] = Object.assign({}, b.devices[d[0]] || {}, s.devices[d[0]] || {}); });
-      }
-    }
-    return b;
-  }
-  // Only the keys that changed go to the globe, so a change elsewhere never
-  // resets its spin to the starting longitude.
-  var appliedB = {};
-  function pushB(b) {
-    var g = globe(), patch = {}, any = false;
     if (!g) return;
-    Object.keys(b).forEach(function (k) {
-      var j = JSON.stringify(b[k]);
-      if (appliedB[k] !== j) { patch[k] = clone(b[k]); appliedB[k] = j; any = true; }
-    });
-    if (any) g.set(patch);
+    var devs = {};
+    DEVS.forEach(function (d) { devs[d] = clone(S[d].globe); });
+    var j = JSON.stringify(devs);
+    if (j !== sentGlobe) { sentGlobe = j; g.set({ devices: devs }); }
+    else g.themeChanged(); // dots follow a new background (light or dark set)
   }
-  function applyB() { pushB(readB()); }
-
-  applyC();
-  applyA();
-  function whenGlobe(fn) {
-    if (globe()) fn(globe());
-    else document.addEventListener("dot-globe:ready", function () { if (globe()) fn(globe()); }, { once: true });
+  function apply() {
+    styleEl.textContent = DEVS.map(cssDevice).join("\n");
+    if (HAS_HERO) {
+      if (foot) hero.style.setProperty("--ca-foot-h", foot.offsetHeight + "px");
+      fitLines();
+      pushGlobe();
+    }
   }
-  if (HAS_HERO) whenGlobe(function () { applyB(); });
+  apply();
+  if (HAS_HERO && !globe()) document.addEventListener("dot-globe:ready", pushGlobe, { once: true });
 
   // Settings changed in another tab, or in the simulator's panel: re-apply.
+  var ui = null;
   window.addEventListener("storage", function (e) {
-    if (e.key === KEY_A || e.key === null) { A = readA(); applyA(); }
-    if (e.key === KEY_B || e.key === null) applyB();
-    if (e.key === KEY_C || e.key === null) { C = readC(); applyC(); }
-    if (ui && e.key) ui.refresh(e.key);
+    if (e.key !== KEY && e.key !== null) return;
+    S = read(); apply();
+    if (ui) ui.refresh();
   });
-  window.addEventListener("resize", function () { if (HAS_HERO) applyA(); });
+  window.addEventListener("resize", function () { if (HAS_HERO) fitLines(); });
 
   // Inside a simulator frame: apply only, no panel. Phones and tablets have
   // overlay scrollbars, so the frame hides its own to keep the full width.
-  var ui = null;
   if (SIM) {
     var noBars = document.head.appendChild(document.createElement("style"));
     noBars.textContent = "html{scrollbar-width:none}html::-webkit-scrollbar{display:none}";
@@ -278,8 +327,9 @@
   // ======================= The panel =======================
   var uid = 0;
   // A labelled control. spec: { type: range|select|check|color, label, min,
-  // max, step, unit, fmt, options: [[value, label]] }.
-  function control(parent, spec, value, onInput) {
+  // max, step, unit, fmt, options: [[value, label]] }. show(null) shows the
+  // range at `fallback` with "site's own" as its value.
+  function control(parent, spec, onInput) {
     var id = "ca-dp-" + (++uid), row = document.createElement("div"), html;
     row.className = "ca-dpanel__row ca-dpanel__row--" + spec.type;
     if (spec.type === "range") {
@@ -296,15 +346,17 @@
     row.innerHTML = html;
     parent.appendChild(row);
     var input = row.querySelector("input,select"), out = row.querySelector("output");
-    function show(v) {
+    function label(v) { return (spec.fmt ? spec.fmt(+v) : v) + (spec.unit || ""); }
+    function show(v, fallback) {
       if (spec.type === "check") input.checked = !!v;
+      else if (v === null || v === undefined || v === "") { input.value = fallback != null ? fallback : ""; if (out) out.textContent = fallback != null ? label(fallback) + " (site's own)" : "site's own"; return; }
       else input.value = v;
-      if (out) out.textContent = (spec.fmt ? spec.fmt(+v) : v) + (spec.unit || "");
+      if (out) out.textContent = label(v);
     }
-    show(value);
     input.addEventListener("input", function () {
       var v = spec.type === "check" ? input.checked : spec.type === "range" ? +input.value : input.value;
-      if (out) out.textContent = (spec.fmt ? spec.fmt(+v) : v) + (spec.unit || "");
+      if (spec.type === "select" && spec.number) v = +v;
+      if (out) out.textContent = label(v);
       onInput(v);
     });
     return { row: row, input: input, show: show };
@@ -314,6 +366,7 @@
     h.className = "ca-dpanel__group";
     h.textContent = text;
     parent.appendChild(h);
+    return h;
   }
   function hint(parent, text) {
     var p = document.createElement("p");
@@ -322,208 +375,229 @@
     parent.appendChild(p);
     return p;
   }
+  function button(parent, text, fn) {
+    var b = document.createElement("button");
+    b.type = "button";
+    b.textContent = text;
+    b.addEventListener("click", fn);
+    parent.appendChild(b);
+    return b;
+  }
 
-  // Panel shell: one floating box, collapsible, holding collapsible sections.
+  // The device being edited: the window's own size at first, then the tab chosen.
+  var cur = sget("ca-dpanel-device");
+  if (DEVS.indexOf(cur) < 0) cur = bp();
+
+  // Panel shell.
   var box = document.createElement("section");
   box.className = "ca-dpanel" + (CONTROLLER ? " ca-dpanel--docked" : "");
   box.id = "ca-dpanel";
   box.setAttribute("aria-label", "Design panel");
   var collapsed = !CONTROLLER && innerWidth < 700; // phones start collapsed (it would cover the hero)
-  try { var cs = sessionStorage.getItem("ca-dpanel-collapsed"); if (cs !== null && !CONTROLLER) collapsed = cs === "1"; } catch (e) {}
+  var cs = sget("ca-dpanel-collapsed");
+  if (cs !== null && !CONTROLLER) collapsed = cs === "1";
   box.innerHTML =
     '<div class="ca-dpanel__head"><button type="button" class="ca-dpanel__toggle" aria-expanded="' + !collapsed + '" aria-controls="ca-dpanel-body">' +
     '<span>Design</span><span class="ca-dpanel__chev" aria-hidden="true"></span></button></div>' +
-    '<div class="ca-dpanel__body" id="ca-dpanel-body"' + (collapsed ? " hidden" : "") + '></div>' +
-    '<div class="ca-dpanel__foot ca-dpanel__foot--all"' + (collapsed ? " hidden" : "") + '><button type="button" data-act="copy-all">Copy all settings</button>' +
+    '<div class="ca-dpanel__tabs" role="tablist" aria-label="Device"' + (collapsed ? " hidden" : "") + '>' +
+    DEVS.map(function (d) { return '<button type="button" role="tab" id="ca-dtab-' + d + '" aria-controls="ca-dpanel-body" data-device="' + d + '">' + NAMES[d] + "</button>"; }).join("") +
+    "</div>" +
+    '<div class="ca-dpanel__body" id="ca-dpanel-body" role="tabpanel"' + (collapsed ? " hidden" : "") + '>' +
+    '<p class="ca-dpanel__ranges">Phone under 768px · Tablet 768-1199px · Desktop 1200px and up</p>' +
+    '<p class="ca-dpanel__note" role="status"></p>' +
+    '<div class="ca-dpanel__tools"></div>' +
+    '<div class="ca-dpanel__sections"></div></div>' +
+    '<div class="ca-dpanel__foot ca-dpanel__foot--all"' + (collapsed ? " hidden" : "") + '>' +
+    '<button type="button" data-act="copy-all">Copy settings</button><button type="button" data-act="reset-all">Reset all</button>' +
     '<span class="ca-dpanel__status" role="status" aria-live="polite"></span></div>';
   var panelBody = box.querySelector(".ca-dpanel__body");
-  var allStatus = box.querySelector(".ca-dpanel__foot--all .ca-dpanel__status");
+  var sectionsEl = box.querySelector(".ca-dpanel__sections");
+  var tabsEl = box.querySelector(".ca-dpanel__tabs");
+  var noteEl = box.querySelector(".ca-dpanel__note");
+  var toolsEl = box.querySelector(".ca-dpanel__tools");
+  var footAll = box.querySelector(".ca-dpanel__foot--all");
+  var allStatus = footAll.querySelector(".ca-dpanel__status");
   var toggle = box.querySelector(".ca-dpanel__toggle");
   toggle.addEventListener("click", function () {
     var open = toggle.getAttribute("aria-expanded") !== "true";
     toggle.setAttribute("aria-expanded", String(open));
-    panelBody.hidden = !open;
-    box.querySelector(".ca-dpanel__foot--all").hidden = !open;
-    try { sessionStorage.setItem("ca-dpanel-collapsed", open ? "0" : "1"); } catch (e) {}
+    panelBody.hidden = tabsEl.hidden = footAll.hidden = !open;
+    sset("ca-dpanel-collapsed", open ? "0" : "1");
   });
   (document.querySelector("[data-design-panel-home]") || document.body).appendChild(box);
 
-  // A collapsible section (a dropdown) with its own Copy settings and Reset.
+  // Device helpers: copy from another device, copy or reset this one.
+  var toolStatus = document.createElement("span");
+  toolStatus.className = "ca-dpanel__status";
+  toolStatus.setAttribute("role", "status");
+  toolStatus.setAttribute("aria-live", "polite");
+  var fromDesktop = button(toolsEl, "Copy from Desktop", function () { copyFrom("desktop"); });
+  var fromTablet = button(toolsEl, "Copy from Tablet", function () { copyFrom("tablet"); });
+  button(toolsEl, "Copy this device", function () {
+    var o = {}; o[cur] = S[cur];
+    copyText(label() + "\n" + JSON.stringify(o, null, 2), toolStatus);
+  });
+  button(toolsEl, "Reset this device", function () {
+    S[cur] = deviceDef(cur); commit(); showAll();
+    toolStatus.textContent = NAMES[cur] + " is back to the defaults.";
+  });
+  toolsEl.appendChild(toolStatus);
+  function copyFrom(d) {
+    S[cur] = clone(S[d]); commit(); showAll();
+    toolStatus.textContent = NAMES[cur] + " now starts from " + NAMES[d] + "'s settings.";
+  }
+  function label() { return "Canary Alpha design settings: " + NAMES[cur] + " (" + RANGES[cur] + ")"; }
+
+  box.querySelector('[data-act="copy-all"]').addEventListener("click", function () {
+    var o = { screenSizes: RANGES };
+    DEVS.forEach(function (d) { o[d] = S[d]; });
+    copyText("Canary Alpha design settings: Desktop, Tablet and Phone\n" + JSON.stringify(o, null, 2), allStatus);
+  });
+  box.querySelector('[data-act="reset-all"]').addEventListener("click", function () {
+    // Saved as defaults (not removed), so the older panel's settings aren't carried over again.
+    S = defaults(); commit(); showAll();
+    allStatus.textContent = "Every device is back to the defaults.";
+  });
+
+  // A collapsible section with its "Editing: Tablet" label.
+  var shows = [], labels = [], refreshBg = function () {};
   function section(key, name, startOpen) {
-    var id = "ca-dsec-" + key, open = startOpen;
-    try { var s = sessionStorage.getItem(id); if (s !== null) open = s === "1"; } catch (e) {}
+    var id = "ca-dsec-" + key, open = startOpen, s = sget(id);
+    if (s !== null) open = s === "1";
     var sec = document.createElement("div");
     sec.className = "ca-dsec";
     sec.innerHTML = '<h3 class="ca-dsec__head"><button type="button" class="ca-dsec__toggle" aria-expanded="' + open + '" aria-controls="' + id + '">' +
       '<span>' + esc(name) + '</span><span class="ca-dpanel__chev" aria-hidden="true"></span></button></h3>' +
-      '<div class="ca-dsec__body" id="' + id + '"' + (open ? "" : " hidden") + '><div class="ca-dsec__controls"></div>' +
-      '<div class="ca-dpanel__foot"><button type="button" data-act="copy">Copy settings</button><button type="button" data-act="reset">Reset</button>' +
-      '<span class="ca-dpanel__status" role="status" aria-live="polite"></span></div></div>';
+      '<div class="ca-dsec__body" id="' + id + '"' + (open ? "" : " hidden") + '><p class="ca-dsec__editing"></p><div class="ca-dsec__controls"></div></div>';
     var t = sec.querySelector(".ca-dsec__toggle"), body = sec.querySelector(".ca-dsec__body");
     t.addEventListener("click", function () {
       var o = t.getAttribute("aria-expanded") !== "true";
       t.setAttribute("aria-expanded", String(o));
       body.hidden = !o;
-      try { sessionStorage.setItem(id, o ? "1" : "0"); } catch (e) {}
+      sset(id, o ? "1" : "0");
     });
-    panelBody.appendChild(sec);
-    return {
-      body: sec.querySelector(".ca-dsec__controls"), status: sec.querySelector(".ca-dsec__body .ca-dpanel__status"),
-      onCopy: function (fn) { sec.querySelector('[data-act="copy"]').addEventListener("click", fn); },
-      onReset: function (fn) { sec.querySelector('[data-act="reset"]').addEventListener("click", fn); }
-    };
+    labels.push(sec.querySelector(".ca-dsec__editing"));
+    sectionsEl.appendChild(sec);
+    return sec.querySelector(".ca-dsec__controls");
+  }
+  // A control bound to S[cur][group][key] (or [key][sub]); `only` limits
+  // it to some devices.
+  function bind(parent, group, key, spec, opts) {
+    opts = opts || {};
+    var c = control(parent, spec, function (v) {
+      var g = S[cur][group];
+      if (opts.sub) g[key][opts.sub] = v; else g[key] = v;
+      commit();
+      if (opts.after) opts.after();
+      if (group === "globe") refreshBg(); // the dot checks under Background
+    });
+    shows.push(function () {
+      c.row.hidden = !!opts.only && opts.only.indexOf(cur) < 0;
+      var g = S[cur][group], v = opts.sub ? g[key][opts.sub] : g[key];
+      c.show(v, opts.fallback ? opts.fallback() : null);
+    });
+    return c;
   }
 
-  var refreshers = {};
-  ui = { refresh: function (key) { if (refreshers[key]) refreshers[key](); } };
-
-  // ---------------- Section: Headline ----------------
-  function buildA() {
-    var p = section("headline", "Headline", false), b = p.body, ctl = {}, editing = bp();
+  // ---------------- Headline ----------------
+  function buildHeadline() {
+    var b = section("headline", "Headline", false);
     heading(b, "Position");
-    ctl.align = control(b, { type: "select", label: "Alignment", options: [["left", "Left"], ["center", "Center"], ["right", "Right"]] }, A.align, function (v) { A.align = v; changed(); });
-    ctl.vertical = control(b, { type: "select", label: "Vertical (desktop)", options: [["top", "Top"], ["middle", "Middle"], ["bottom", "Bottom"]] }, A.vertical, function (v) { A.vertical = v; changed(); });
-    ctl.offsetX = control(b, { type: "range", label: "Offset X", min: -400, max: 400, unit: "px" }, A.offsetX, function (v) { A.offsetX = v; changed(); });
-    ctl.offsetY = control(b, { type: "range", label: "Offset Y", min: -300, max: 300, unit: "px" }, A.offsetY, function (v) { A.offsetY = v; changed(); });
-
+    bind(b, "headline", "align", { type: "select", label: "Alignment", options: [["left", "Left"], ["center", "Center"], ["right", "Right"]] });
+    bind(b, "headline", "vertical", { type: "select", label: "Vertical", options: [["top", "Top"], ["middle", "Middle"], ["bottom", "Bottom"]] }, { only: ["desktop"] });
+    bind(b, "headline", "offsetX", { type: "range", label: "Offset X", min: -400, max: 400, unit: "px" });
+    bind(b, "headline", "offsetY", { type: "range", label: "Offset Y", min: -300, max: 300, unit: "px" });
     heading(b, "Size and lines");
-    ctl.bp = control(b, { type: "select", label: "Screen size", options: DEVICES }, editing, function (v) { editing = v; showSizes(); });
-    var note = hint(b);
-    function computed(el) { return Math.round(parseFloat(getComputedStyle(el).fontSize)); }
-    ctl.headline = control(b, { type: "range", label: "Headline size", min: 24, max: 140, unit: "px" }, 0, function (v) { A.sizes[editing].headline = v; changed(); });
-    ctl.subheading = control(b, { type: "range", label: "Subheading size", min: 12, max: 40, unit: "px" }, 0, function (v) { A.sizes[editing].subheading = v; changed(); });
-    ctl.lines = control(b, { type: "select", label: "Headline lines", options: [["0", "Auto"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"]] }, "0", function (v) { A.sizes[editing].lines = +v; changed(); });
+    function computed(el) { return HAS_HERO && el && cur === bp() ? Math.round(parseFloat(getComputedStyle(el).fontSize)) : null; }
+    bind(b, "headline", "headline", { type: "range", label: "Headline size", min: 24, max: 140, unit: "px" }, { fallback: function () { return computed(title); } });
+    bind(b, "headline", "subheading", { type: "range", label: "Subheading size", min: 12, max: 40, unit: "px" }, { fallback: function () { return computed(sub); } });
+    bind(b, "headline", "lines", { type: "select", label: "Headline lines", number: true, options: [["0", "Auto"], ["1", "1"], ["2", "2"], ["3", "3"], ["4", "4"]] });
     warnEl = document.createElement("p");
     warnEl.className = "ca-dpanel__warn";
     warnEl.setAttribute("role", "status");
     b.appendChild(warnEl);
-
-    function showSizes() {
-      var s = A.sizes[editing], here = HAS_HERO && editing === bp();
-      ctl.headline.show(s.headline || (here ? computed(title) : ""));
-      ctl.subheading.show(s.subheading || (here && sub ? computed(sub) : ""));
-      ctl.lines.show(String(s.lines || 0));
-      note.textContent = CONTROLLER ? "Changes show in the frames; line warnings show on the homepage itself." :
-        here ? "You're viewing this screen size now." : "You're viewing " + bp() + " width: resize the window to see " + editing + " changes.";
-    }
-    function changed() { save(KEY_A, A); applyA(); }
-    function showAll() {
-      ["align", "vertical", "offsetX", "offsetY"].forEach(function (k) { ctl[k].show(A[k]); });
-      showSizes();
-    }
-    showSizes();
-    window.addEventListener("resize", showSizes);
-    refreshers[KEY_A] = showAll;
-    p.onCopy(function () { copyText(JSON.stringify({ headline: A }, null, 2), p.status); });
-    p.onReset(function () { A = clone(DEF_A); drop(KEY_A); applyA(); showAll(); p.status.textContent = "Reset to the defaults"; });
+    var n = hint(b);
+    shows.push(function () { n.textContent = cur === "desktop" ? "Desktop: the headline is its own layer; Vertical places it in the hero." : "Below 1200px the headline sits in the page's flow: alignment and offsets only."; });
   }
 
-  // ---------------- Section: Globe ----------------
-  function buildB() {
-    var B = readB(), g = globe();
-    var p = section("globe", "Globe", true), b = p.body, ctl = [], dctl = {}, editing = bp();
-    function changed() { save(KEY_B, B); pushB(B); }
-    function set(path, v) {
-      var parts = path.split(".");
-      if (parts.length === 2) B[parts[0]][parts[1]] = v; else B[path] = v;
-      changed();
-    }
-    function get(path) { var parts = path.split("."); return parts.length === 2 ? B[parts[0]][parts[1]] : B[path]; }
-    function add(path, spec) {
-      var c = control(b, spec, get(path), function (v) {
-        if (spec.type === "select" && spec.number) v = +v;
-        set(path, v);
-      });
-      ctl.push({ path: path, spec: spec, c: c });
-    }
-    // Per screen size.
-    heading(b, "Screen size");
-    var devSel = control(b, { type: "select", label: "Editing", options: [["desktop", "Desktop"], ["tablet", "Tablet"], ["phone", "Phone"]] }, editing, function (v) { editing = v; showDevice(); });
-    devSel.row.classList.add("ca-dpanel__row--device");
-    var dnote = hint(b);
-    function dset(k, v) { B.devices[editing][k] = v; changed(); }
-    function dadd(k, spec) { dctl[k] = control(b, spec, "", function (v) { dset(k, v); }); }
-    dadd("visible", { type: "check", label: "Show the globe on this screen size" });
-    dadd("size", { type: "range", label: "Size", min: 15, max: 120, unit: "% of width" });
-    dadd("maxSize", { type: "range", label: "Max size", min: 120, max: 1600, step: 10, unit: "px" });
-    dadd("x", { type: "select", label: "Horizontal", options: [["left", "Left"], ["center", "Center"], ["right", "Right"]] });
-    dadd("offsetX", { type: "range", label: "Fine X", min: -800, max: 800, unit: "px" });
-    dadd("y", { type: "select", label: "Vertical", options: [["top", "Top"], ["middle", "Middle"], ["bottom", "Bottom"]] });
-    dadd("offsetY", { type: "range", label: "Fine Y", min: -500, max: 500, unit: "px" });
-    dadd("layer", { type: "select", label: "Layer", options: [["behind", "Behind the headline"], ["beside", "Beside the headline"]] });
-    var lnote = hint(b);
-    function showDevice() {
-      B.devices = B.devices || {};
-      var s = B.devices[editing] = Object.assign({}, (GLOBE_DEF.devices || {})[editing] || {}, B.devices[editing] || {});
-      Object.keys(dctl).forEach(function (k) { dctl[k].show(s[k]); });
-      devSel.show(editing);
-      var here = editing === bp();
-      dnote.textContent = CONTROLLER ? "Each frame uses its own screen size's settings." :
-        here ? "You're viewing this screen size now (" + innerWidth + "px wide)." : "You're viewing " + bp() + " width (" + innerWidth + "px): resize the window, or use the simulator, to see " + editing + ".";
-      lnote.textContent = editing === "desktop" ? "Beside keeps the globe to one side of the headline (choose Left or Right); never taller than the hero." :
-        "Behind: the globe sits behind the headline and the buttons, centred in the hero under the menu bar. Beside: it has its own row between the headline and the buttons. Either way it can reach past its place; it fades out at the hero's edges.";
-    }
-    showDevice();
-    window.addEventListener("resize", showDevice);
+  // ---------------- Buttons ----------------
+  function buildButtons() {
+    var b = section("buttons", "Buttons", false);
+    bind(b, "buttons", "align", { type: "select", label: "Alignment", options: [["left", "Left"], ["center", "Center"], ["right", "Right"]] });
+    bind(b, "buttons", "size", { type: "range", label: "Label size", min: 12, max: 24, unit: "px" });
+    bind(b, "buttons", "order", { type: "select", label: "Order", options: [["learn", "Learn more first"], ["signup", "Sign up first"]] });
+    var n = hint(b);
+    shows.push(function () { n.textContent = cur === "desktop" ? "Desktop: Right keeps the buttons at the right of the subheading; Left puts them just after it." : "Below 1200px the buttons sit under the subheading."; });
+  }
 
+  // ---------------- Globe ----------------
+  function buildGlobe() {
+    var b = section("globe", "Globe", HAS_HERO);
+    bind(b, "globe", "visible", { type: "check", label: "Show the globe on this device" });
+    bind(b, "globe", "size", { type: "range", label: "Size", min: 15, max: 120, unit: "% of width" });
+    bind(b, "globe", "maxSize", { type: "range", label: "Max size", min: 120, max: 1600, step: 10, unit: "px" });
+    bind(b, "globe", "x", { type: "select", label: "Horizontal", options: [["left", "Left"], ["center", "Center"], ["right", "Right"]] });
+    bind(b, "globe", "offsetX", { type: "range", label: "Fine X", min: -800, max: 800, unit: "px" });
+    bind(b, "globe", "y", { type: "select", label: "Vertical", options: [["top", "Top"], ["middle", "Middle"], ["bottom", "Bottom"]] });
+    bind(b, "globe", "offsetY", { type: "range", label: "Fine Y", min: -500, max: 500, unit: "px" });
+    bind(b, "globe", "layer", { type: "select", label: "Layer", options: [["behind", "Behind the headline"], ["beside", "Beside the headline"]] });
+    var ln = hint(b);
+    shows.push(function () {
+      ln.textContent = cur === "desktop" ? "Beside keeps the globe to one side of the headline (choose Left or Right); never taller than the hero." :
+        "Behind: the globe sits behind the headline and the buttons. Beside: it has its own row between them. Either way it fades out at the hero's edges.";
+    });
     heading(b, "Dots");
-    add("dots", { type: "range", label: "Density (dots at 720px)", min: 2000, max: 40000, step: 500 });
-    add("dotsPhone", { type: "range", label: "Most dots on a phone", min: 1000, max: 15000, step: 500 });
-    add("dotSize", { type: "range", label: "Dot size", min: 0.5, max: 4, step: 0.1, unit: "px" });
-    add("dotColor.light", { type: "color", label: "Dot colour on light backgrounds" });
-    add("dotOpacity.light", { type: "range", label: "Opacity on light", min: 0.1, max: 1, step: 0.05 });
-    add("dotColor.dark", { type: "color", label: "Dot colour on dark backgrounds" });
-    add("dotOpacity.dark", { type: "range", label: "Opacity on dark", min: 0.1, max: 1, step: 0.05 });
-    var tnote = hint(b);
-    // The text sits on the dots as they are: its contrast on the brightest
-    // dot (one facing the reader, at full opacity).
+    bind(b, "globe", "dots", { type: "range", label: "Density (dots at 720px)", min: 2000, max: 40000, step: 500 });
+    bind(b, "globe", "dotsPhone", { type: "range", label: "Most dots on a phone", min: 1000, max: 15000, step: 500 }, { only: ["phone"] });
+    bind(b, "globe", "dotSize", { type: "range", label: "Dot size", min: 0.5, max: 4, step: 0.1, unit: "px" });
+    bind(b, "globe", "dotColor", { type: "color", label: "Dot colour on light backgrounds" }, { sub: "light", after: textNote });
+    bind(b, "globe", "dotOpacity", { type: "range", label: "Opacity on light", min: 0.1, max: 1, step: 0.05 }, { sub: "light", after: textNote });
+    bind(b, "globe", "dotColor", { type: "color", label: "Dot colour on dark backgrounds" }, { sub: "dark", after: textNote });
+    bind(b, "globe", "dotOpacity", { type: "range", label: "Opacity on dark", min: 0.1, max: 1, step: 0.05 }, { sub: "dark", after: textNote });
+    var tn = hint(b);
+    // The text sits on the dots as they are: its contrast on the brightest dot.
     function textNote() {
-      var parts = ["light", "dark"].map(function (m) {
-        var bg = readC()[m].ground, dc = (B.dotColor || {})[m], da = +((B.dotOpacity || {})[m]);
+      var s = S[cur], parts = ["light", "dark"].map(function (m) {
+        var bg = s.background[m], dc = s.globe.dotColor[m], da = +s.globe.dotOpacity[m];
         if (!hexOk(bg) || !hexOk(dc) || isNaN(da)) return "";
         var dot = mix(dc, bg, Math.max(0, Math.min(1, da))), t = TOKENS[m];
         return (m === "light" ? "Light" : "Dark") + ": headline " + contrast(t.ink, dot).toFixed(1) + ":1, subheading " + contrast(t.muted, dot).toFixed(1) + ":1";
       }).filter(Boolean);
-      tnote.textContent = "Text on the brightest dot (AA needs 4.5:1): " + parts.join("; ") + ".";
+      tn.textContent = "Text on the brightest dot (AA needs 4.5:1): " + parts.join("; ") + ".";
     }
-    textNote();
-    b.addEventListener("input", textNote);
+    shows.push(textNote);
     heading(b, "Rotation");
-    add("autoRotate", { type: "check", label: "Auto-rotate" });
-    add("speed", { type: "range", label: "Speed", min: 0, max: 40, step: 0.5, unit: "°/s" });
-    add("direction", { type: "select", label: "Direction", number: true, options: [["1", "Eastward"], ["-1", "Westward"]] });
-    add("startLon", { type: "range", label: "Starting longitude", min: -180, max: 180, unit: "°" });
-    add("tilt", { type: "range", label: "Tilt", min: -60, max: 75, unit: "°" });
-    if (g) {
-      heading(b, "Performance");
+    bind(b, "globe", "autoRotate", { type: "check", label: "Auto-rotate" });
+    bind(b, "globe", "speed", { type: "range", label: "Speed", min: 0, max: 40, step: 0.5, unit: "°/s" });
+    bind(b, "globe", "direction", { type: "select", label: "Direction", number: true, options: [["1", "Eastward"], ["-1", "Westward"]] });
+    bind(b, "globe", "startLon", { type: "range", label: "Starting longitude", min: -180, max: 180, unit: "°" });
+    bind(b, "globe", "tilt", { type: "range", label: "Tilt", min: -60, max: 75, unit: "°" });
+    if (HAS_HERO) {
+      heading(b, "Performance (this window)");
       var fps = document.createElement("p");
       fps.className = "ca-dpanel__fps";
       fps.setAttribute("aria-live", "off");
       b.appendChild(fps);
       setInterval(function () {
+        var g = globe();
+        if (!g) return;
         fps.textContent = (g.fps ? g.fps + " frames a second" : "Not drawing (still, hidden or off screen)") + " · " + (g.dots.length / 3) + " dots drawn" + (g.gl ? "" : " · no WebGL: still picture");
       }, 500);
     }
-    function showAll() { B = readB(); ctl.forEach(function (x) { x.c.show(get(x.path)); }); showDevice(); textNote(); }
-    refreshers[KEY_B] = showAll;
-    p.onCopy(function () { copyText(JSON.stringify({ globe: B }, null, 2), p.status); });
-    p.onReset(function () {
-      drop(KEY_B); B = readB(); pushB(B);
-      showAll(); p.status.textContent = "Reset to the defaults";
-    });
   }
 
-  // ---------------- Section: Background ----------------
-  function buildC() {
-    var p = section("background", "Background", !HAS_HERO), b = p.body, editing = mode();
-    var modeSel = control(b, { type: "select", label: "Editing", options: [["light", "Light mode"], ["dark", "Dark mode"]] }, editing, function (v) { editing = v; show(); });
+  // ---------------- Background ----------------
+  function buildBackground() {
+    var b = section("background", "Background", !HAS_HERO), m = sget("ca-dpanel-mode");
+    if (m !== "light" && m !== "dark") m = mode();
+    var modeSel = control(b, { type: "select", label: "Colour for", options: [["light", "Light mode"], ["dark", "Dark mode"]] }, function (v) { m = v; sset("ca-dpanel-mode", v); show(); });
     var preview = document.createElement("button");
     preview.type = "button";
     preview.className = "ca-dpanel__small";
     b.appendChild(preview);
     preview.addEventListener("click", function () {
-      if (CONTROLLER) document.dispatchEvent(new CustomEvent("design:theme", { detail: editing }));
-      else document.documentElement.setAttribute("data-theme", editing);
+      if (CONTROLLER) document.dispatchEvent(new CustomEvent("design:theme", { detail: m }));
+      else document.documentElement.setAttribute("data-theme", m);
       show();
     });
     heading(b, "Presets");
@@ -533,7 +607,7 @@
     sw.setAttribute("aria-label", "Background presets");
     b.appendChild(sw);
     heading(b, "Custom");
-    var pick = control(b, { type: "color", label: "Colour picker" }, C[editing].ground, function (v) { setGround(v); });
+    var pick = control(b, { type: "color", label: "Colour picker" }, function (v) { setGround(v); });
     var hexRow = document.createElement("div");
     hexRow.className = "ca-dpanel__row ca-dpanel__row--hex";
     var hexId = "ca-dp-" + (++uid);
@@ -556,33 +630,30 @@
     b.appendChild(cwarn);
     hint(b, "Applies to the page and the hero, not the yellow panels. Visitors still see the site's own colours.");
 
-    function setGround(v, fromHex) {
-      C[editing].ground = v;
-      save(KEY_C, C); applyC(); show(fromHex);
-    }
-    function checks(m, bg) {
-      var t = TOKENS[m], out = [];
+    function setGround(v, fromHex) { S[cur].background[m] = v; commit(); show(fromHex); }
+    function checks(bg) {
+      var t = TOKENS[m], out = [], gl = S[cur].globe;
       out.push(["Body text", contrast(t.ink, bg), 4.5]);
       out.push(["Secondary text", contrast(t.muted, bg), 4.5]);
       out.push(["Buttons (label and arrow)", contrast(t.ink, bg), 4.5]);
       // Hover turns buttons Canary yellow; in Light they get a black outline (styles.css), so only Dark is measured.
       if (m === "dark") out.push(["Button hover (yellow)", contrast(CANARY, bg), 4.5]);
-      var gd = (GLOBE_DEF.dotColor || {}), go = (GLOBE_DEF.dotOpacity || {});
-      var B = readB(), set = darkGround(bg) ? "dark" : "light";
-      var dc = (B.dotColor || gd)[set] || (set === "dark" ? "#f2f2f2" : "#111111"), da = +((B.dotOpacity || go)[set] || 0.8);
-      if (hexOk(dc)) out.push(["Globe dots (" + (set === "dark" ? "light dots" : "dark dots") + ")", contrast(mix(dc, bg, da), bg), 3]);
-      if (hexOk(dc)) out.push(["Secondary text on the brightest globe dot", contrast(t.muted, mix(dc, bg, da)), 4.5]);
+      var set = darkGround(bg) ? "dark" : "light", dc = gl.dotColor[set], da = +gl.dotOpacity[set];
+      if (hexOk(dc) && !isNaN(da)) {
+        out.push(["Globe dots (" + (set === "dark" ? "light dots" : "dark dots") + ")", contrast(mix(dc, bg, da), bg), 3]);
+        out.push(["Secondary text on the brightest globe dot", contrast(t.muted, mix(dc, bg, da)), 4.5]);
+      }
       return out;
     }
     function show(fromHex) {
-      var bg = C[editing].ground, here = mode() === editing;
-      modeSel.show(editing);
+      var bg = S[cur].background[m], here = mode() === m;
+      modeSel.show(m);
       pick.show(bg);
       if (!fromHex) { hex.value = bg; hex.setAttribute("aria-invalid", "false"); }
-      preview.textContent = here ? "Showing " + editing + " mode now" : "Show " + editing + " mode";
+      preview.textContent = here ? "Showing " + m + " mode now" : "Show " + m + " mode";
       preview.disabled = here && !CONTROLLER;
       sw.innerHTML = "";
-      PRESETS[editing].forEach(function (pr) {
+      PRESETS[m].forEach(function (pr) {
         var btn = document.createElement("button");
         btn.type = "button";
         btn.className = "ca-dpanel__swatch";
@@ -593,7 +664,7 @@
         sw.appendChild(btn);
       });
       var fails = [];
-      list.innerHTML = checks(editing, bg).map(function (c) {
+      list.innerHTML = checks(bg).map(function (c) {
         var ok = c[1] >= c[2];
         if (!ok) fails.push(c[0]);
         return '<li class="' + (ok ? "is-ok" : "is-low") + '"><span aria-hidden="true">' + (ok ? "✓" : "⚠") + "</span> " + esc(c[0]) + ": " +
@@ -601,21 +672,67 @@
       }).join("");
       cwarn.textContent = fails.length ? "Below WCAG AA on this background: " + fails.join(", ") + "." : "";
     }
-    show();
+    shows.push(function () { show(); });
+    refreshBg = function () { show(); };
     new MutationObserver(function () { show(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
-    refreshers[KEY_C] = function () { show(); };
-    refreshers[KEY_B] = (function (prev) { return function () { if (prev) prev(); show(); }; })(refreshers[KEY_B]);
-    p.onCopy(function () { copyText(JSON.stringify({ background: C }, null, 2), p.status); });
-    p.onReset(function () { C = clone(DEF_C); drop(KEY_C); applyC(); show(); p.status.textContent = "Reset to the site's colours"; });
+  }
+  function mode() {
+    var t = document.documentElement.getAttribute("data-theme");
+    if (t === "light" || t === "dark") return t;
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   }
 
-  if (HAS_HERO || CONTROLLER) buildA();
-  if (HAS_HERO) whenGlobe(function () { buildB(); buildC(); });
-  else {
-    if (CONTROLLER) buildB();
-    buildC();
+  // ---------------- Header ----------------
+  function buildHeader() {
+    var b = section("header", "Header", false);
+    bind(b, "header", "top", { type: "select", label: "At the top", options: [["transparent", "Transparent"], ["solid", "Solid page colour"]] });
+    bind(b, "header", "scroll", { type: "select", label: "After scrolling", options: [["solid", "Solid, line under it"], ["solid-noline", "Solid, no line"], ["transparent", "Stays transparent"]] });
+    hint(b, "The bar switches once the page scrolls; the change fades in (no fade with reduced motion).");
   }
-  box.querySelector('[data-act="copy-all"]').addEventListener("click", function () {
-    copyText(JSON.stringify({ headline: A, globe: readB(), background: C }, null, 2), allStatus);
+
+  if (HAS_HERO || CONTROLLER) { buildHeadline(); buildButtons(); buildGlobe(); }
+  buildBackground();
+  buildHeader();
+
+  // ---------------- Tabs ----------------
+  var tabs = Array.prototype.slice.call(tabsEl.querySelectorAll("[role=tab]"));
+  function note() {
+    if (CONTROLLER) { noteEl.textContent = "The highlighted frame is " + NAMES[cur] + "; every frame uses its own device's settings."; return; }
+    noteEl.textContent = cur === bp() ? "You're viewing " + NAMES[cur] + " now (" + innerWidth + "px wide)." :
+      "You're editing " + NAMES[cur] + " settings; use the simulator to see them.";
+    noteEl.classList.toggle("is-other", cur !== bp());
+  }
+  function showAll() {
+    tabs.forEach(function (t) {
+      var on = t.getAttribute("data-device") === cur;
+      t.setAttribute("aria-selected", String(on));
+      t.tabIndex = on ? 0 : -1;
+    });
+    panelBody.setAttribute("aria-labelledby", "ca-dtab-" + cur);
+    labels.forEach(function (l) { l.textContent = "Editing: " + NAMES[cur] + " (" + RANGES[cur] + ")"; });
+    fromDesktop.hidden = cur === "desktop";
+    fromTablet.hidden = cur !== "phone";
+    shows.forEach(function (f) { f(); });
+    note();
+  }
+  function choose(d, focus) {
+    cur = d;
+    sset("ca-dpanel-device", d);
+    toolStatus.textContent = "";
+    showAll();
+    if (focus) document.getElementById("ca-dtab-" + d).focus();
+    document.dispatchEvent(new CustomEvent("design:device", { detail: d }));
+  }
+  tabs.forEach(function (t, i) {
+    t.addEventListener("click", function () { choose(t.getAttribute("data-device")); });
+    t.addEventListener("keydown", function (e) {
+      var j = e.key === "ArrowRight" ? i + 1 : e.key === "ArrowLeft" ? i - 1 : e.key === "Home" ? 0 : e.key === "End" ? tabs.length - 1 : -1;
+      if (j < 0 && e.key !== "ArrowLeft") return;
+      e.preventDefault();
+      choose(tabs[(j + tabs.length) % tabs.length].getAttribute("data-device"), true);
+    });
   });
+  window.addEventListener("resize", note);
+  ui = { refresh: showAll };
+  choose(cur);
 })();

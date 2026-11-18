@@ -1,7 +1,8 @@
 /* Design panel (components/design-panels.js): ?design=1 only. One small
    floating box in the site's colours, above everything, on the right,
-   scrolling inside itself so it never covers the whole hero; its sections
-   (Headline, Globe, Background) open and close. In the device simulator it
+   scrolling inside itself so it never covers the whole hero. Three device
+   tabs (Desktop, Tablet, Phone) at the top; the sections under them
+   (Headline, Buttons, Globe, Background, Header) open and close. In the device simulator it
    is docked in the page instead (.ca-dpanel--docked). */
 .ca-dpanel {
   position: fixed;
@@ -29,6 +30,7 @@
 .ca-dpanel--docked { position: static; width: auto; max-height: none; box-shadow: none; }
 /* Sections: a heading button each, like the panel's own. */
 .ca-dsec { border-top: 1px solid var(--muted, #888); margin: 0 -0.75rem; }
+.ca-dpanel__sections .ca-dsec:first-child { border-top: 0; }
 .ca-dsec:first-child { border-top: 0; }
 .ca-dsec__head { margin: 0; }
 .ca-dsec__toggle {
@@ -159,3 +161,36 @@
 :root[data-theme="dark"] .ca-dpanel__checks .is-low { color: #ff8a80; }
 .ca-dpanel__copybox { flex-basis: 100%; width: 100%; font: 11px/1.3 ui-monospace, Menlo, monospace; color: var(--ink); background: var(--ground); border: 1px solid var(--muted, #888); border-radius: 4px; }
 .ca-dpanel [hidden] { display: none !important; }
+
+/* Device tabs: the chosen one is bold with a Canary Yellow underline. */
+.ca-dpanel__tabs { display: flex; border-top: 1px solid var(--muted, #888); }
+.ca-dpanel__tabs [role="tab"] {
+  flex: 1 1 0;
+  min-height: 40px;
+  padding: 0.45rem 0.25rem 0.3rem;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--muted, inherit);
+  font: 600 12.5px/1 var(--font-body);
+  cursor: pointer;
+}
+.ca-dpanel__tabs [role="tab"][aria-selected="true"] { color: var(--ink); font-weight: 700; border-bottom-color: #FFEF00; }
+.ca-dpanel__tabs [role="tab"]:hover { color: var(--ink); }
+.ca-dpanel__ranges { margin: 0.5rem 0 0.15rem; color: var(--muted, inherit); font-size: 11px; }
+.ca-dpanel__note { margin: 0.15rem 0 0.35rem; font-size: 11.5px; }
+.ca-dpanel__note.is-other { font-weight: 700; }
+.ca-dpanel__tools { display: flex; flex-wrap: wrap; gap: 0.35rem; padding: 0.25rem 0 0.6rem; }
+.ca-dpanel__tools button {
+  font: 600 11.5px/1 var(--font-body);
+  padding: 0.4rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ground);
+  color: var(--ink);
+  cursor: pointer;
+}
+.ca-dpanel__tools button:hover { color: #FFEF00; text-shadow: 0.5px 0 #000, -0.5px 0 #000, 0 0.5px #000, 0 -0.5px #000; }
+.ca-dsec__editing { margin: 0 0 0.25rem; font-size: 11px; font-weight: 700; color: var(--ink); }
+.ca-dsec__editing::before { content: ""; display: inline-block; width: 0.5em; height: 0.5em; margin-right: 0.35em; border-radius: 50%; background: #FFEF00; box-shadow: 0 0 0 1px var(--ink); vertical-align: 0.05em; }
+.ca-dpanel__sections { margin-top: 0.25rem; border-top: 1px solid var(--muted, #888); }

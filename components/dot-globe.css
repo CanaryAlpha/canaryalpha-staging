@@ -42,14 +42,14 @@
 }
 .dot-globe__grab:focus-visible { box-shadow: 0 0 0 2px var(--ink); }
 .dot-globe.is-dragging .dot-globe__grab { cursor: grabbing; }
-/* The hero's stage. Desktop (1100px+): nothing to reserve, the globe sits
-   in the area under the menu bar, behind the text. Below 1100px, beside:
+/* The hero's stage. Desktop (1200px+): nothing to reserve, the globe sits
+   in the area under the menu bar, behind the text. Below 1200px, beside:
    its own row between the slogan and the foot, tall enough for the globe
    (the script sets its height to match). Behind (the default there): no
    row at all; the globe sits behind the headline and the buttons. The stage
    is never positioned, so the globe's layer is placed against the hero. */
 .hero .hero__stage--globe { position: static; pointer-events: none; }
-@media (max-width: 1099px) {
+@media (max-width: 1199px) {
   .hero__stage--globe { min-height: clamp(220px, 100vh - 540px, 520px); }
   @supports (height: 1svh) { .hero__stage--globe { min-height: clamp(220px, 100svh - 540px, 520px); } }
   /* Text above the globe in every layer (inset: auto, so the desktop
@@ -57,7 +57,7 @@
   .hero .hero__title,
   .hero .hero__foot { position: relative; inset: auto; z-index: 1; }
 }
-@media (max-width: 599px) {
+@media (max-width: 767px) {
   .hero__stage--globe { min-height: clamp(220px, 100vh - 600px, 380px); margin-inline: calc(-1 * var(--pad, 1rem)); }
   @supports (height: 1svh) { .hero__stage--globe { min-height: clamp(220px, 100svh - 600px, 380px); } }
 }
@@ -65,6 +65,6 @@
    globe sets these on the hero. Hidden: no stage at all, so no empty row. */
 .hero[data-globe="off"] .hero__stage--globe,
 .hero[data-globe="off"] .dot-globe { display: none; }
-@media (max-width: 1099px) {
+@media (max-width: 1199px) {
   .hero[data-globe-layer="behind"] .hero__stage--globe { min-height: 0; margin: 0; }
 }

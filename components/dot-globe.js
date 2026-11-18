@@ -26,6 +26,11 @@
  * window.CA_DOT_GLOBE.instances[0].set({...}) changes settings live (the
  * design panel uses it; keys that aren't in the config are ignored); .get()
  * returns them; .fps is the frame rate.
+ *
+ * Screen sizes (one set for the whole hero and the design panel): phone
+ * under 768px, tablet 768-1199px, desktop 1200px and up. Each one's entry
+ * in devices may hold any setting (placement, dots, colours, rotation); it
+ * wins over the shared value at the top level of the config.
  */
 (function () {
   "use strict";
@@ -128,8 +133,6 @@
     this.el = el;
     this.opts = clone(DEFAULTS);
     this.fps = 0;
-    this.lon = this.opts.startLon;
-    this.tilt = this.opts.tilt;
     this.vel = 0;           // drag momentum, degrees a frame
     this.lastInput = -1e9;  // ms
     this.visible = true;
@@ -180,27 +183,28 @@
 
   // Only keys the config has are taken (older saved settings may hold others).
   Globe.prototype.set = function (partial) {
-    var o = this.opts, rebuild = false;
+    var o = this.opts, before = this.place();
     Object.keys(partial || {}).forEach(function (k) {
       if (!Object.prototype.hasOwnProperty.call(DEFAULTS, k)) return;
-      if (k === "dots" || k === "dotsPhone") rebuild = true;
       o[k] = clone(partial[k]);
     });
-    if ("startLon" in partial) this.lon = o.startLon;
-    if ("tilt" in partial) this.tilt = o.tilt;
-    if (rebuild) this.builtDots = 0; // layout() rebuilds for the new count
+    var after = this.place();
+    if (before.dots !== after.dots || before.dotsPhone !== after.dotsPhone) this.builtDots = 0; // layout() rebuilds for the new count
     this.layout();
     this.themeChanged();
   };
 
-  Globe.prototype.phone = function () { return window.innerWidth < 600; };
+  Globe.prototype.phone = function () { return window.innerWidth < 768; };
   // Screen size, by window width: the hero's own breakpoints (styles.css).
-  function device() { var w = window.innerWidth; return w >= 1100 ? "desktop" : w >= 600 ? "tablet" : "phone"; }
+  function device() { var w = window.innerWidth; return w >= 1200 ? "desktop" : w >= 768 ? "tablet" : "phone"; }
   Globe.prototype.device = device;
   var DEVICE_DEFAULT = { visible: true, size: 50, maxSize: 860, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "behind" };
+  // This screen size's settings: the shared ones, then its own entry in
+  // devices (from the config, then any set live).
   Globe.prototype.place = function () {
-    var all = this.opts.devices || {}, d = device();
-    return Object.assign({}, DEVICE_DEFAULT, (DEFAULTS.devices || {})[d], all[d]);
+    var o = this.opts, all = o.devices || {}, d = device(), shared = {};
+    Object.keys(o).forEach(function (k) { if (k !== "devices") shared[k] = o[k]; });
+    return Object.assign({}, DEVICE_DEFAULT, shared, (DEFAULTS.devices || {})[d], all[d]);
   };
 
   // Sample points for a globe `d` px across: the desktop count (dots) at
@@ -209,12 +213,12 @@
   // into a solid disc). Phones never draw more than dotsPhone.
   var REF_D = 720;
   Globe.prototype.dotCount = function (d) {
-    var o = this.opts, n = Math.round((+o.dots || 40000) * Math.pow(d / REF_D, 2));
+    var o = this.c || this.place(), n = Math.round((+o.dots || 40000) * Math.pow(d / REF_D, 2));
     if (this.phone()) n = Math.min(n, +o.dotsPhone || 15000);
     return Math.max(800, Math.min(60000, n));
   };
   Globe.prototype.rebuild = function () {
-    var o = this.opts, n = this.wantDots || Math.max(500, Math.min(60000, this.phone() ? o.dotsPhone : o.dots));
+    var o = this.c || this.place(), n = this.wantDots || Math.max(500, Math.min(60000, this.phone() ? o.dotsPhone : o.dots));
     this.dots = landDots(n);
     this.builtDots = n;
     this.builtForPhone = this.phone();
@@ -243,7 +247,11 @@
   // globe may reach past its area: it is only cut where the hero ends, and
   // fades out there.
   Globe.prototype.layout = function () {
-    var p = this.place(), dev = device(), w = this.w, h = this.h;
+    var p = this.c = this.place(), dev = device(), w = this.w, h = this.h;
+    // Rotation start: at load, and whenever this screen size's start changes.
+    var start = p.startLon + "/" + p.tilt;
+    if (start !== this.startKey) { this.startKey = start; this.lon = +p.startLon || 0; this.tilt = +p.tilt || 0; }
+    this.colors();
     var stage = this.el.parentNode, hero = this.el.closest(".hero");
     var beside = p.layer === "beside", narrowBeside = dev !== "desktop" && beside;
     var heroW = hero ? hero.clientWidth : w;
@@ -293,10 +301,15 @@
   };
 
   Globe.prototype.themeChanged = function () {
-    var dark = isDark(), o = this.opts, key = dark ? "dark" : "light";
+    this.colors();
+    this.wake();
+  };
+
+  // Dot colour and opacity for this theme and screen size.
+  Globe.prototype.colors = function () {
+    var o = this.c || this.place(), key = isDark() ? "dark" : "light";
     this.dotRgb = rgb(o.dotColor && o.dotColor[key]);
     this.dotAlpha = Math.max(0, Math.min(1, +(o.dotOpacity && o.dotOpacity[key]) || 0.8));
-    this.wake();
   };
 
   Globe.prototype.touch = function () { this.lastInput = performance.now(); this.wake(); };
@@ -304,7 +317,7 @@
   // Still drawing every frame? (The no-WebGL picture only moves when dragged.)
   Globe.prototype.animating = function () {
     if (!this.gl) return !!this.dragging;
-    return (this.opts.autoRotate && !reduced.matches) || Math.abs(this.vel) > 0.01 || !!this.dragging;
+    return (this.c.autoRotate && !reduced.matches) || Math.abs(this.vel) > 0.01 || !!this.dragging;
   };
 
   Globe.prototype.wake = function () {
@@ -314,7 +327,7 @@
   };
 
   Globe.prototype.frame = function (now) {
-    var o = this.opts, dt = this.prev ? Math.min(0.1, (now - this.prev) / 1000) : 0;
+    var o = this.c, dt = this.prev ? Math.min(0.1, (now - this.prev) / 1000) : 0;
     this.prev = now;
     // Frame rate, averaged over each second.
     this.fpsCount = (this.fpsCount || 0) + 1;
@@ -353,7 +366,7 @@
     gl.uniformMatrix3fv(p.u.uRot, false, m);
     gl.uniform2f(p.u.uCenter, (this.cx / this.w) * 2 - 1, 1 - (this.cy / this.h) * 2);
     gl.uniform2f(p.u.uScale, R / (this.w / 2), R / (this.h / 2));
-    gl.uniform1f(p.u.uSize, Math.max(1, this.opts.dotSize * this.dpr));
+    gl.uniform1f(p.u.uSize, Math.max(1, this.c.dotSize * this.dpr));
     gl.uniform4f(p.u.uColor, this.dotRgb[0], this.dotRgb[1], this.dotRgb[2], this.dotAlpha);
     gl.bindBuffer(gl.ARRAY_BUFFER, this.buf);
     gl.enableVertexAttribArray(p.aPos);
@@ -368,7 +381,7 @@
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, this.w, this.h);
     var col = this.dotRgb.map(function (v) { return Math.round(v * 255); }).join(",");
-    var s = Math.max(1, this.opts.dotSize);
+    var s = Math.max(1, this.c.dotSize);
     for (var i = 0; i < d.length; i += 3) {
       var p = apply3(m, d[i], d[i + 1], d[i + 2]);
       if (p[2] <= 0) continue;

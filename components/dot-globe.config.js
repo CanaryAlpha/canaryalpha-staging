@@ -4,9 +4,12 @@
  * components/design-panels.js) can change them live and copy them out, and
  * copied settings are made permanent by editing this file.
  *
- *   devices     placement for each screen size, chosen by window width:
- *               desktop 1100px and wider, tablet 600-1099px, phone under
- *               600px (the same breakpoints as the hero's layout). Each has:
+ *   devices     settings for each screen size, chosen by window width:
+ *               desktop 1200px and up, tablet 768-1199px, phone under
+ *               768px (the site's one set of breakpoints). Each has its
+ *               placement below, and may also hold any of the other
+ *               settings (dots, colours, rotation), which then win over the
+ *               shared value further down for that screen size:
  *     visible     false hides the globe on that screen size
  *     size        diameter as a % of the hero's width, never more than
  *     maxSize     px; on desktop also never taller than the hero's area
