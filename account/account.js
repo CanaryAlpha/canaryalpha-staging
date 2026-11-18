@@ -95,8 +95,9 @@
     }
   }).catch(function (e) { planBox.innerHTML = M.errorBox(e); });
 
-  // Log out: everywhere this session is open, then home.
-  M.wire(document.querySelector("[data-logout]"), function () {
-    return auth.signOut().then(function () { location.assign(auth.urls.home); });
-  });
+  // Log out: everywhere this session is open, then home. "main": the
+  // header's account menu has a [data-logout] button too, earlier in the
+  // page, and a plain querySelector wired that one (hidden) instead of
+  // this one, so this button did nothing.
+  auth.wireLogout(document.querySelector("main [data-logout]"), document.querySelector("[data-logout-error]"));
 })();

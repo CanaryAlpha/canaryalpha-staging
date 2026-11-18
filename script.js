@@ -3,7 +3,6 @@
   var THEME_KEY = "ca-demo-theme";
   var root = document.documentElement;
   var mq = window.matchMedia("(prefers-color-scheme: dark)");
-  var toggle = document.querySelector(".themes__toggle");
 
   function get(key) {
     try { return localStorage.getItem(key); } catch (e) { return null; }
@@ -18,22 +17,30 @@
     return t || (mq.matches ? "dark" : "light");
   }
 
-  // The toggle shows and names the theme it switches to.
+  // The toggle shows and names the theme it switches to. Looked up each
+  // time: on members' pages the header (and its toggle) is built only once
+  // the server has said who is logged in, after this script has run
+  // (components/site-header.js), so a toggle found once at load was often
+  // missing and the button did nothing.
   function render() {
-    if (!toggle) return;
     var dark = current() === "dark";
     var label = dark ? "Switch to light" : "Switch to dark";
-    toggle.classList.toggle("is-dark", dark);
-    toggle.setAttribute("aria-label", label);
-    toggle.setAttribute("data-label", label);
+    Array.prototype.forEach.call(document.querySelectorAll(".themes__toggle"), function (toggle) {
+      toggle.classList.toggle("is-dark", dark);
+      toggle.setAttribute("aria-label", label);
+      toggle.setAttribute("data-label", label);
+    });
   }
 
-  if (toggle) toggle.addEventListener("click", function () {
+  document.addEventListener("click", function (e) {
+    if (!e.target.closest || !e.target.closest(".themes__toggle")) return;
     var next = current() === "dark" ? "light" : "dark";
     root.setAttribute("data-theme", next);
     set(THEME_KEY, next);
     render();
   });
+  // site-header.js says when it has (re)built the header.
+  document.addEventListener("ca-header-built", render);
 
   // Until the reader picks a theme, keep following the OS live.
   mq.addEventListener("change", function () {

@@ -20,7 +20,15 @@
  *   CA_AUTH.fetch(path, opts) -> fetch() with the session token attached
  *   CA_AUTH.config()          -> Promise { paidPlans, clerkPublishableKey }
  *   CA_AUTH.remember(user)    -> stores what /api/me returned
- *   CA_AUTH.signOut()         -> Promise; ends the session everywhere
+ *   CA_AUTH.signOut()         -> Promise; ends the Clerk session everywhere
+ *                                and forgets this tab's copy; rejects with a
+ *                                readable message if it couldn't
+ *   CA_AUTH.logOut()          -> signOut(), then the home page (replacing
+ *                                this page in the history)
+ *   CA_AUTH.wireLogout(button, errorEl) -> makes a "Log out" button work:
+ *                                "Logging out…" while it runs, the message
+ *                                in errorEl if it fails. Every Log out
+ *                                control on the site uses this.
  *   CA_AUTH.dashboardUrl(), CA_AUTH.urls { home, login, signup, account,
  *                                pricing, contact, waitlist }
  *
@@ -150,10 +158,60 @@ window.CA_AUTH = (function () {
     : Promise.resolve(remember(null));
   ready.catch(function () {});
 
+  // Log out. A callback is passed so Clerk doesn't navigate by itself
+  // (logOut() leaves the page below, with replace). If Clerk can't be
+  // loaded or doesn't answer within 15 seconds, this rejects and the member
+  // stays logged in, with a message, rather than being sent home still
+  // logged in.
+  var SIGN_OUT_WAIT_MS = 15000;
   function signOut() {
-    remember(null);
-    return clerk().then(function (Clerk) { return Clerk.signOut(); }, function () {});
+    return clerk().then(function (Clerk) {
+      return new Promise(function (resolve, reject) {
+        var timer = setTimeout(function () { reject(new Error("no answer from Clerk")); }, SIGN_OUT_WAIT_MS);
+        function done() { clearTimeout(timer); resolve(); }
+        Promise.resolve(Clerk.signOut(done)).then(done, function (e) { clearTimeout(timer); reject(e); });
+      });
+    }).then(function () {
+      remember(null);
+    }, function (e) {
+      console.warn("auth: log out failed:", (e && e.message) || e);
+      throw new Error("We couldn't log you out. Check your connection and try again.");
+    });
   }
+  function logOut() {
+    return signOut().then(function () {
+      location.replace(ROOT);
+      return new Promise(function () {});
+    });
+  }
+  function wireLogout(button, errorEl) {
+    if (!button || button.getAttribute("data-logout-wired")) return;
+    button.setAttribute("data-logout-wired", "1");
+    button.addEventListener("click", function () {
+      if (button.disabled) return;
+      var label = button.textContent;
+      button.disabled = true;
+      button.setAttribute("aria-busy", "true");
+      button.textContent = "Logging out\u2026";
+      if (errorEl) { errorEl.textContent = ""; errorEl.hidden = true; }
+      logOut().catch(function (e) {
+        button.disabled = false;
+        button.removeAttribute("aria-busy");
+        button.textContent = label;
+        if (errorEl) { errorEl.textContent = e.message; errorEl.hidden = false; }
+      });
+    });
+  }
+
+  // Back after logging out: a page the browser restores from its memory
+  // (back/forward cache) still shows what it showed while logged in. If it
+  // was shown logged in and the session has ended since, load it again:
+  // members' pages then go to /login/ (middleware.js), public ones show
+  // the logged-out menu.
+  var shownLoggedIn = hint();
+  window.addEventListener("pageshow", function (e) {
+    if (e.persisted && shownLoggedIn && !hint()) location.reload();
+  });
 
   function getCurrentUser() { return cached(); }
   function getUserTier() { var u = cached(); return u ? u.tier : null; }
@@ -166,7 +224,7 @@ window.CA_AUTH = (function () {
     TIERS: TIERS,
     getCurrentUser: getCurrentUser, getUserTier: getUserTier, hasTier: hasTier,
     ready: ready, clerk: clerk, fetch: authFetch, config: config, me: me,
-    remember: remember, signOut: signOut, loggedInHint: hint,
+    remember: remember, signOut: signOut, logOut: logOut, wireLogout: wireLogout, loggedInHint: hint,
     dashboardUrl: function () { return ROOT + "dashboard/"; },
     urls: {
       home: ROOT, login: ROOT + "login/", signup: ROOT + "signup/", account: ROOT + "account/",

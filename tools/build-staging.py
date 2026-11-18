@@ -13,6 +13,9 @@ What it changes, and only in <dir>:
   - paths that start at the site root ("/styles.css" in 404.html) gain the
     staging address's folder (--base), because GitHub Pages serves staging at
     canaryalpha.github.io/canaryalpha-staging/, not at a domain root.
+  - the link-preview image (og:image, "https://canaryalpha.co/og/...") points
+    at staging's own copy (--origin + --base), so a share checker run on
+    staging loads the image staging serves, before production has it.
   - every script in tools/staging/ (staging-only design tools, such as the
     hero buttons chooser) is added to the homepage.
 The production site is the repo as committed; none of this ever reaches it.
@@ -38,7 +41,7 @@ def banner(sha):
             ' &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>')
 
 
-def stage_html(text, sha, base):
+def stage_html(text, sha, base, origin="https://canaryalpha.github.io"):
     head = re.search(r"<head[^>]*>", text, re.I)
     body = re.search(r"<body[^>]*>", text, re.I)
     if not head:
@@ -53,6 +56,7 @@ def stage_html(text, sha, base):
     # Root-relative paths: href="/x" or src="/x", never protocol-relative "//x".
     # data-home/data-root tell the header and footer where the site root is.
     text = re.sub(r'((?:href|src|content|data-home|data-root)=")/(?!/)', lambda m: m.group(1) + base, text)
+    text = text.replace('content="https://canaryalpha.co/og/', 'content="' + origin + base + 'og/')
     return text, True
 
 
@@ -61,6 +65,7 @@ def main():
     ap.add_argument("dir")
     ap.add_argument("--sha", required=True)
     ap.add_argument("--base", default="/canaryalpha-staging/")
+    ap.add_argument("--origin", default="https://canaryalpha.github.io")
     a = ap.parse_args()
     root = os.path.abspath(a.dir)
     if os.path.isdir(os.path.join(root, ".git")):
@@ -87,7 +92,7 @@ def main():
             p = os.path.join(d, fn)
             with open(p, encoding="utf-8") as f:
                 text = f.read()
-            new, ok = stage_html(text, a.sha, a.base)
+            new, ok = stage_html(text, a.sha, a.base, a.origin)
             if ok:
                 with open(p, "w", encoding="utf-8") as f:
                     f.write(new)

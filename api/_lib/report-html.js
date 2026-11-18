@@ -20,17 +20,17 @@ import { isHeld } from "./holdings.js";
 import { identityOf, marketOf, datesOf } from "./reports.js";
 
 export const ASSET_VERSIONS = {
-  "styles.css": 88,
-  "components/site-header.css": 45,
+  "styles.css": 89,
+  "components/site-header.css": 46,
   "components/dashboard/dashboard.css": 21,
   "components/members/members.css": 8,
   "components/site.config.js": 3,
   "components/site-mode.js": 2,
-  "components/auth.js": 5,
+  "components/auth.js": 6,
   "components/site-links.js": 16,
-  "components/site-header.js": 46,
+  "components/site-header.js": 47,
   "components/site-footer.js": 1,
-  "script.js": 41
+  "script.js": 42
 };
 const v = (f) => "/" + f + "?v=" + ASSET_VERSIONS[f];
 const SITE = "https://canaryalpha.co";
@@ -80,10 +80,10 @@ export function page({ title, description, canonical, body, back }) {
   <meta property="og:title" content="${esc(title)}">
   <meta property="og:description" content="${esc(description)}">
   <meta property="og:url" content="${esc(canonical)}">
-  <meta property="og:image" content="${SITE}/brand/og-image.png">
+  <meta property="og:image" content="${SITE}/og/canary-alpha-share-v2.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Canary Alpha Research: in-depth cryptocurrency fundamental analysis, explained simply.">
+  <meta property="og:image:alt" content="Canary Alpha Research: In-depth cryptocurrency fundamental analysis, explained simply.">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" type="image/svg+xml" href="/brand/favicon.svg">
   <link rel="icon" type="image/png" sizes="512x512" href="/brand/favicon-512.png">

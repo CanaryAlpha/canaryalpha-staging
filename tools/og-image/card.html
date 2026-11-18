@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!-- STAGING build of fb2cdb87039f03ee2e2a94d756504732c25b084e (tools/build-staging.py) -->
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="ca-staging-build" content="fb2cdb87039f03ee2e2a94d756504732c25b084e">
+  <style>.ca-staging-banner{position:fixed;left:12px;bottom:12px;z-index:2147483647;display:flex;gap:.5rem;align-items:center;max-width:calc(100vw - 88px);padding:6px 12px;border-radius:999px;background:#ffcc00;color:#000;font:600 12px/1.3 system-ui,-apple-system,sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-staging-banner a{color:#000;text-decoration:underline}@media print{.ca-staging-banner{display:none}}</style>
+<meta charset="utf-8">
+<title>Share image builder</title>
+<!-- Builds og/canary-alpha-share-v2.png, the link-preview image. Run
+     tools/og-image/serve.py and open http://localhost:8792/tools/og-image/card.html:
+     it draws the card on a 1200x630 canvas in the site's fonts and saves the PNG
+     into og/. The wordmark is the site's own: "Canary" and "Research" in Satoshi
+     500 around the traced alpha from components/site-header.js, at the
+     proportions .ca-logo uses in styles.css. -->
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@500&amp;display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400&amp;display=swap">
+<style>
+  body { margin: 0; background: #333; color: #eee; font: 14px system-ui; }
+  canvas { display: block; width: 1200px; height: 630px; }
+  #status { padding: 8px; }
+</style>
+</head>
+<body>
+  <div class="ca-staging-banner" role="note" aria-label="Staging site">STAGING &middot; not the live site &middot; build fb2cdb8 &middot; <a href="https://canaryalpha.co/">canaryalpha.co</a></div>
+<canvas id="c" width="1200" height="630"></canvas>
+<p id="status">Drawing&#x2026;</p>
+<script>
+(async function () {
+  var OUT = "canary-alpha-share-v2.png";
+  var W = 1200, H = 630;
+  var BG = "#0a0a0a", INK = "#ffffff", GREY = "#c4c4c4", CANARY = "#FFEF00";
+  var LINES = ["In-depth cryptocurrency fundamental", "analysis, explained simply."];
+  var MAX_W = 940;                       // keeps 130px clear at each side
+
+  var src = await (await fetch("../../components/site-header.js")).text();
+  var m = src.match(/viewBox="([^"]+)"[^>]*><path fill="currentColor" d="([^"]+)"/);
+  var vb = m[1].split(" ").map(Number), alpha = new Path2D(m[2]);
+
+  await document.fonts.load('500 100px "Satoshi"');
+  await document.fonts.load('400 40px "Work Sans"');
+  if (!document.fonts.check('500 100px "Satoshi"') || !document.fonts.check('400 40px "Work Sans"'))
+    throw new Error("fonts did not load");
+
+  var c = document.getElementById("c"), g = c.getContext("2d");
+  g.fillStyle = BG; g.fillRect(0, 0, W, H);
+
+  // Wordmark at the .ca-logo proportions: font-size = cap / 0.7, the alpha
+  // 1.027 caps tall with 0.27em either side, 0.005em letter spacing.
+  function wordmark(cap, draw, x, base) {
+    var fs = cap / 0.7, ls = 0.005 * fs, gap = 0.27 * fs;
+    g.font = "500 " + fs + 'px "Satoshi"'; g.letterSpacing = ls + "px";
+    var w1 = g.measureText("Canary").width, w2 = g.measureText("Research").width;
+    var ah = cap * 1.027, s = ah / vb[3], aw = vb[2] * s;
+    var total = w1 + gap + aw + gap + w2;
+    if (draw) {
+      g.fillStyle = INK; g.textBaseline = "alphabetic"; g.textAlign = "left";
+      g.fillText("Canary", x, base);
+      g.save();
+      // the svg's bottom edge sits 0.013em below the baseline
+      g.translate(x + w1 + gap, base + 0.013 * fs - ah);
+      g.scale(s, s); g.translate(-vb[0], -vb[1]);
+      g.fill(alpha); g.restore();
+      g.fillText("Research", x + w1 + gap + aw + gap, base);
+    }
+    return total;
+  }
+  var cap = 70;
+  var w = wordmark(cap, false);
+  if (w > MAX_W) { cap = cap * MAX_W / w; w = wordmark(cap, false); }
+
+  var TS = 46, LH = 62;                  // tagline size and line height
+  g.font = "400 " + TS + 'px "Work Sans"'; g.letterSpacing = "0px";
+  var tw = Math.max.apply(null, LINES.map(function (l) { return g.measureText(l).width; }));
+  if (tw > MAX_W) throw new Error("tagline too wide: " + tw);
+
+  // Block: wordmark cap height, 44px, accent bar 6px, 44px, two tagline lines.
+  var BAR_GAP = 44, BAR_H = 6, BAR_W = 72;
+  var tagCap = TS * 0.7, block = cap + BAR_GAP + BAR_H + BAR_GAP + tagCap + LH;
+  var top = Math.round((H - block) / 2);
+  var base = top + cap;
+  wordmark(cap, true, Math.round((W - w) / 2), base);
+
+  var barY = base + BAR_GAP;
+  g.fillStyle = CANARY; g.fillRect(Math.round((W - BAR_W) / 2), barY, BAR_W, BAR_H);
+
+  g.font = "400 " + TS + 'px "Work Sans"'; g.fillStyle = GREY; g.textAlign = "center";
+  var y = barY + BAR_H + BAR_GAP + tagCap;
+  LINES.forEach(function (l, i) { g.fillText(l, W / 2, y + i * LH); });
+
+  var blob = await new Promise(function (r) { c.toBlob(r, "image/png"); });
+  var res = await fetch("/save?name=" + encodeURIComponent(OUT), { method: "POST", body: blob });
+  document.getElementById("status").textContent = "wordmark " + Math.round(w) + "px wide, cap " +
+    cap.toFixed(1) + "px; tagline " + Math.round(tw) + "px; content from y=" + top + " to the last baseline at y=" + Math.round(y + LH) +
+    "; saved: " + (await res.text());
+})().catch(function (e) { document.getElementById("status").textContent = "ERROR " + e.message; });
+</script>
+</body>
+</html>

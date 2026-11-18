@@ -171,6 +171,7 @@
             '<p class="site-header__tier"><span class="site-header__tier-badge">' + TIER_NAMES[user.tier] + "</span> plan</p>" +
             (root !== null ? '<a class="site-header__logout" href="' + root + 'account/">Settings</a>' : "") +
             '<button type="button" class="site-header__logout" data-logout>Log out</button>' +
+            '<p class="site-header__logout-error" role="alert" hidden></p>' +
           "</div></div>"
       : "";
     header.innerHTML =
@@ -205,14 +206,8 @@
     }
     if (accountBtn) {
       accountBtn.addEventListener("click", function () { setAccount(accountPanel.hidden); });
-      header.querySelector("[data-logout]").addEventListener("click", function () {
-        // Ends the session (Clerk), then off a members-only page (auth-gate.js
-        // ran) to the home page.
-        auth.signOut().then(function () {
-          if (window.CA_ACCESS) location.href = auth.urls.home;
-          else location.reload();
-        });
-      });
+      // Log out (components/auth.js): ends the session, then the home page.
+      auth.wireLogout(header.querySelector("[data-logout]"), header.querySelector(".site-header__logout-error"));
       document.addEventListener("click", function (e) {
         if (!accountPanel.hidden && !e.target.closest(".site-header__account")) setAccount(false);
       });
@@ -276,7 +271,10 @@
       window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
       history.replaceState(null, "", location.pathname + location.search);
     });
-  }); }
+  });
+  // script.js sets the theme toggle's icon and label once it exists.
+  document.dispatchEvent(new Event("ca-header-built"));
+  }
 
   // Faint shadow once the page is scrolled, so content sliding under the bar
   // has an edge. Nothing shows at the top of the page.

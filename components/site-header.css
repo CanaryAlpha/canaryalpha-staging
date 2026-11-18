@@ -316,6 +316,10 @@
   font-size: 0.75rem;
   letter-spacing: 0.04em;
 }
+/* Shown under Log out when logging out fails (components/auth.js). */
+.site-header__logout-error { margin: 0.25rem 0 0; padding: 0 0.75rem; color: var(--danger); font-size: 0.875rem; }
+.site-header__logout-error[hidden] { display: none; }
+.site-header__logout[aria-busy="true"] { cursor: progress; opacity: 0.7; }
 .site-header__logout {
   display: flex;
   align-items: center;

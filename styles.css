@@ -1465,7 +1465,7 @@ button.form__submit[aria-busy="true"] { cursor: progress; background: var(--mute
 .field__pw-toggle.field__pw-toggle {
   position: absolute;
   top: 50%;
-  right: 0.25rem;
+  right: 0.125rem;   /* + the 0.625rem padding = the input's 0.75rem left padding */
   transform: translateY(-50%);
   min-width: 44px;
   min-height: 44px;

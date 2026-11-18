@@ -15,8 +15,9 @@
  * (Clerk unsafeMetadata.termsAgreedAt; Clerk keeps its own server time,
  * createdAt, alongside).
  *
- * The profile panel follows the site theme (styles.css tokens); sign in
- * uses fixed colours for the Canary panel (panelAppearance).
+ * The profile panel follows the site theme (styles.css tokens), and is
+ * drawn again when the theme changes; sign in uses fixed colours for the
+ * Canary panel (panelAppearance).
  */
 (function () {
   var auth = window.CA_AUTH;
@@ -31,24 +32,125 @@
   function next() { return "/dashboard/"; }
   function note(html) { slot.innerHTML = '<p class="clerk-slot__note">' + html + "</p>"; }
 
+  // The profile panel (account/) in the site's own colours, read from the
+  // theme tokens (styles.css) at the moment it is drawn, so it matches
+  // Light and Dark. Both of Clerk's variable sets are given (the current
+  // names and the older ones it still reads), and the parts Clerk paints
+  // itself (the side menu, the "Secured by Clerk" footer, inputs, buttons,
+  // badges, pop-up menus) are set explicitly: left to Clerk's defaults they
+  // stayed dark on a light page. When the theme changes, the panel is
+  // drawn again (watchTheme below).
+  function hexToRgb(h) {
+    var m = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(h).trim());
+    if (!m) return null;
+    var x = m[1].length === 3 ? m[1].replace(/(.)/g, "$1$1") : m[1];
+    return [0, 2, 4].map(function (i) { return parseInt(x.slice(i, i + 2), 16); });
+  }
+  // a mixed into b by t (0-1), as #rrggbb; Clerk derives its shades from
+  // plain colours, so no color-mix() here.
+  function mix(a, b, t) {
+    var x = hexToRgb(a), y = hexToRgb(b);
+    if (!x || !y) return b;
+    return "#" + x.map(function (v, i) {
+      return ("0" + Math.round(y[i] + (v - y[i]) * t).toString(16)).slice(-2);
+    }).join("");
+  }
+  // Every Clerk password field (log in, password reset, sign-up's Clerk
+  // steps, Settings > Security) is sized here, once, for both appearance
+  // objects below. The input is `h` tall with its text and placeholder
+  // centred (no vertical padding, normal line height). The show-password
+  // button fills the input's full height, so the eye is centred with equal
+  // space above and below; it is at least 44px square (tap target), and its
+  // 20px icon sits 12px from the right edge, matching the text's 12px left
+  // padding. Password inputs get 52px of right padding so typed text never
+  // runs under the icon. Clerk's own button was 44px tall pinned 3px from
+  // the top of a 36px input, which is why the eye hung low.
+  function fieldSizing(ink, h) {
+    return {
+      input: { height: h, minHeight: h, paddingTop: "0", paddingBottom: "0", paddingLeft: "12px", lineHeight: "normal" },
+      group: { position: "relative", "& input": { paddingRight: "52px" } },
+      button: {
+        position: "absolute", top: "0", bottom: "0", right: "0", left: "auto",
+        width: "44px", minWidth: "44px", height: "100%", minHeight: "44px", margin: "0", padding: "0 12px 0 0",
+        display: "flex", alignItems: "center", justifyContent: "flex-end",
+        color: ink, background: "transparent", border: "0", boxShadow: "none", borderRadius: "6px",
+        "&:hover": { background: "transparent", color: ink },
+        "&:focus": { boxShadow: "none" },
+        "&:focus-visible": { outline: "2px solid " + ink, outlineOffset: "-4px", boxShadow: "none" }
+      },
+      icon: { width: "20px", height: "20px", flexShrink: "0" }
+    };
+  }
+
   function appearance() {
     var cs = getComputedStyle(document.documentElement);
     function v(name) { return cs.getPropertyValue(name).trim(); }
+    var INK = v("--ink"), GROUND = v("--ground"), MUTED = v("--muted"), RULE = v("--rule");
+    var DANGER = v("--danger"), SUCCESS = v("--success");
+    var SOFT = mix(INK, GROUND, 0.06);   // hover and selected backgrounds
+    var line = "1px solid " + RULE;
+    var input = { backgroundColor: GROUND, color: INK, border: "1px solid " + MUTED, boxShadow: "none",
+      "&[data-variant]": { borderWidth: "1px", borderStyle: "solid", borderColor: MUTED, boxShadow: "none" },
+      "&:focus, &&[data-variant]:focus, &&[data-variant]:focus-within": { borderColor: INK, boxShadow: "0 0 0 1px " + INK } };
+    var quiet = { color: INK, "&:hover, &:focus": { backgroundColor: SOFT, color: INK } };
+    var size = fieldSizing(INK, "44px");
     return {
       variables: {
-        colorPrimary: v("--ink"), colorText: v("--ink"), colorTextSecondary: v("--muted"),
-        colorBackground: v("--ground"), colorInputBackground: v("--ground"), colorInputText: v("--ink"),
-        colorDanger: v("--danger"), colorSuccess: v("--success"), colorNeutral: v("--ink"),
+        colorPrimary: INK, colorPrimaryForeground: GROUND, colorTextOnPrimaryBackground: GROUND,
+        colorForeground: INK, colorText: INK, colorMutedForeground: MUTED, colorTextSecondary: MUTED,
+        colorBackground: GROUND, colorMuted: SOFT, colorNeutral: INK, colorBorder: RULE, colorShimmer: SOFT,
+        colorInput: GROUND, colorInputBackground: GROUND, colorInputForeground: INK, colorInputText: INK,
+        colorRing: INK, colorDanger: DANGER, colorSuccess: SUCCESS, colorWarning: INK,
         fontFamily: v("--font-body"), borderRadius: "6px", fontSize: "1rem"
       },
-      // The page has its own heading and "Log in" / "Sign up" link, and the
-      // form sits on the page like our other forms: no card frame.
       elements: {
         rootBox: { width: "100%" },
-        cardBox: { width: "100%", maxWidth: "100%", boxShadow: "none", border: "0", borderRadius: "0" },
-        card: { boxShadow: "none", border: "0", padding: "0", background: "transparent" },
-        header: kind === "profile" ? {} : { display: "none" },
-        footerAction: { display: "none" }
+        cardBox: { width: "100%", maxWidth: "100%", boxShadow: "none", border: line, borderRadius: "8px", backgroundColor: GROUND },
+        card: { boxShadow: "none", border: "0", backgroundColor: GROUND, color: INK },
+        scrollBox: { backgroundColor: GROUND, boxShadow: "none" },
+        pageScrollBox: { backgroundColor: GROUND },
+        page: { color: INK },
+        navbar: { backgroundColor: GROUND, background: GROUND, borderRight: line, boxShadow: "none" },
+        navbarMobileMenuRow: { backgroundColor: GROUND, borderBottom: line },
+        navbarMobileMenuButton: { color: INK },
+        navbarButton: Object.assign({ "&[data-active=\"true\"], &.cl-active": { backgroundColor: SOFT, color: INK } }, quiet),
+        navbarButtonIcon: { color: INK, opacity: 1 },
+        headerTitle: { color: INK },
+        headerSubtitle: { color: MUTED },
+        profileSectionTitleText: { color: INK },
+        profileSection: { borderTop: line },
+        profileSectionPrimaryButton: quiet,
+        profileSectionItem: { color: INK },
+        // "Secured by Clerk" and, on the test instance, "Development mode".
+        footer: { backgroundColor: GROUND, background: GROUND, color: MUTED, borderTop: line, "& > div": { background: "transparent" } },
+        footerItem: { color: MUTED },
+        formFieldLabel: { color: INK, fontWeight: 500 },
+        formFieldInput: Object.assign({}, input, size.input),
+        formFieldInputGroup: size.group,
+        formFieldInputShowPasswordButton: size.button,
+        formFieldInputShowPasswordIcon: size.icon,
+        formFieldHintText: { color: MUTED },
+        formFieldErrorText: { color: DANGER },
+        formFieldSuccessText: { color: SUCCESS },
+        otpCodeFieldInput: input,
+        formButtonPrimary: { backgroundColor: INK, color: GROUND, border: "1px solid " + INK, boxShadow: "none", textTransform: "none",
+          "&:hover, &:focus": { backgroundColor: MUTED, color: GROUND, borderColor: MUTED } },
+        formButtonReset: quiet,
+        button: { color: INK },
+        badge: { color: INK, backgroundColor: SOFT, border: line, boxShadow: "none" },
+        avatarImageActionsUpload: { color: INK, border: line, boxShadow: "none", backgroundColor: GROUND },
+        menuButton: { color: INK },
+        menuList: { backgroundColor: GROUND, border: line, boxShadow: "0 4px 16px rgba(0,0,0,0.18)" },
+        menuItem: Object.assign({}, quiet),
+        actionCard: { backgroundColor: GROUND, border: line, boxShadow: "none", color: INK },
+        modalContent: { backgroundColor: GROUND, color: INK },
+        alert: { backgroundColor: GROUND, color: INK, border: line },
+        alertText: { color: INK },
+        tableHead: { color: MUTED },
+        dividerLine: { backgroundColor: RULE },
+        dividerText: { color: MUTED },
+        identityPreview: { backgroundColor: GROUND, border: line, color: INK },
+        accordionTriggerButton: quiet
       }
     };
   }
@@ -73,6 +175,8 @@
     // the code boxes mark the active box with data-focus-within="true".
     var ring = { borderColor: INK, boxShadow: "0 0 0 2px " + INK };
     var focus = { "&:focus": ring, "&&[data-variant]:focus, &&[data-variant]:focus-within, &&[data-variant][data-focus-within=\"true\"]": ring };
+    // 48px: the same height as the sign-up form's own inputs on this panel.
+    var size = fieldSizing(INK, "48px");
     return {
       options: { socialButtonsVariant: "blockButton", socialButtonsPlacement: "top" },
       variables: {
@@ -115,8 +219,10 @@
         dividerLine: { backgroundColor: INK, opacity: 1 },
         dividerText: { color: INK },
         formFieldLabel: { color: INK, fontWeight: 500 },
-        formFieldInput: Object.assign({}, control, focus, { width: "100%", boxSizing: "border-box", margin: "0" }),
-        formFieldInputShowPasswordButton: { color: INK },
+        formFieldInput: Object.assign({}, control, focus, { width: "100%", boxSizing: "border-box", margin: "0" }, size.input),
+        formFieldInputGroup: size.group,
+        formFieldInputShowPasswordButton: size.button,
+        formFieldInputShowPasswordIcon: size.icon,
         formFieldAction: { color: INK, textDecoration: "underline" },
         formFieldHintText: { color: "#3D3D3D" },
         formFieldErrorText: { color: "#A30000" },
@@ -152,7 +258,21 @@
 
   auth.clerk().then(function (Clerk) {
     if (kind === "profile") {
-      Clerk.mountUserProfile(host(), { appearance: appearance(), routing: "hash" });
+      var el = host();
+      Clerk.mountUserProfile(el, { appearance: appearance(), routing: "hash" });
+      // Light / Dark changed (the toggle, or the system setting while the
+      // reader hasn't picked one): draw the panel again in the new colours.
+      // Its tab is in the address (#/security), so it comes back on the same
+      // tab.
+      var redraw = function () {
+        try { Clerk.unmountUserProfile(el); } catch (e) {}
+        el = host();
+        Clerk.mountUserProfile(el, { appearance: appearance(), routing: "hash" });
+      };
+      new MutationObserver(redraw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+      window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function () {
+        if (!document.documentElement.hasAttribute("data-theme")) redraw();
+      });
       return;
     }
     // Already logged in: nothing to do here. If the server sent us straight

@@ -57,7 +57,7 @@ live. `npm test` and both deploy commands run the same check.
 
 Every page shares the menu bar, the footer (brand, link columns, disclaimer
 and copyright) and the favicon. Public pages carry a title, description,
-canonical address and link-preview tags (`brand/og-image.png`); `robots.txt`
+canonical address and link-preview tags (`og/canary-alpha-share-v2.png`, built by `tools/og-image/`; the old `brand/og-image.png` stays so old shared links keep their image); `robots.txt`
 and `sitemap.xml` list them.
 
 The dashboards need a demo login (see Demo login below). Logged out, the

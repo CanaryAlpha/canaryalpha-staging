@@ -8,8 +8,14 @@ Edit REDIRECTS below, then run from the repo root:  python3 tools/make-redirects
 Every target is a path from the site root ("" is the home page), optionally
 ending in a #section (e.g. "#pricing"): that section then wins over any #hash
 on the old address.
+
+Link previews: apps that unfurl a shared link (iMessage, WhatsApp, Slack, X)
+read the old address's own tags and do not follow these redirects, so each
+redirect page copies the share tags of the page it points to (og:title,
+og:description, the share image), with SHARE overriding them for a #section.
+A target with no share tags of its own (the members' pages) gets none.
 """
-import os
+import html, os, re
 
 SITE = "https://canaryalpha.co/"
 
@@ -40,6 +46,43 @@ for page in ["", "contact/", "disclaimer/", "privacy/", "terms/", "login/", "sig
     REDIRECTS["demo/" + page] = page
 REDIRECTS["demo/glossary/"] = "learn/glossary/"
 
+# Share text for targets that are a section of a page, not a page.
+SHARE = {
+    "#pricing": ("Pricing — Canary Alpha Research",
+                 "Plans and pricing for Canary Alpha Research. Start free with our full Bitcoin and Ethereum reports."),
+}
+IMAGE = SITE + "og/canary-alpha-share-v2.png"
+IMAGE_ALT = "Canary Alpha Research: In-depth cryptocurrency fundamental analysis, explained simply."
+
+SHARE_TAGS = """
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Canary Alpha Research">
+  <meta property="og:title" content="{title}">
+  <meta property="og:description" content="{desc}">
+  <meta property="og:url" content="{canonical}">
+  <meta property="og:image" content="{image}">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="{alt}">
+  <meta name="twitter:card" content="summary_large_image">"""
+
+
+def share_text(target, hash):
+    """(og:title, og:description) of the target page, or None."""
+    if hash in SHARE:
+        return SHARE[hash]
+    try:
+        with open(os.path.join(target.split("?")[0], "index.html")) as f:
+            head = f.read().split("</head>")[0]
+    except OSError:
+        return None
+    def tag(name):
+        m = re.search(r'<meta property="og:%s" content="([^"]*)"' % name, head)
+        return html.unescape(m.group(1)) if m else None
+    title, desc = tag("title"), tag("description")
+    return (title, desc) if title and desc else None
+
+
 PAGE = """<!doctype html>
 <html lang="en">
 <head>
@@ -47,7 +90,7 @@ PAGE = """<!doctype html>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- Redirect page, written by tools/make-redirects.py. Don't edit by hand. -->
   <title>Moved — Canary Alpha Research</title>
-  <link rel="canonical" href="{canonical}">
+  <link rel="canonical" href="{canonical}">{share}
   <meta http-equiv="refresh" content="0; url={rel}">
   <script>location.replace("{path}" + location.search + ("{hash}" || location.hash));</script>
 </head>
@@ -63,6 +106,9 @@ for old, new in sorted(REDIRECTS.items()):
     hash = "#" + hash if hash else ""
     path = os.path.join(old, "index.html")
     os.makedirs(os.path.dirname(path), exist_ok=True)
+    text = share_text(target, hash)
+    share = SHARE_TAGS.format(title=html.escape(text[0]), desc=html.escape(text[1]), canonical=SITE + new,
+                              image=IMAGE, alt=html.escape(IMAGE_ALT)) if text else ""
     with open(path, "w") as f:
-        f.write(PAGE.format(canonical=SITE + new, rel=up + hash, path=up, hash=hash))
+        f.write(PAGE.format(canonical=SITE + new, rel=up + hash, path=up, hash=hash, share=share))
 print(len(REDIRECTS), "redirect pages written")
