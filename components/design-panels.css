@@ -20,8 +20,9 @@
   font: 400 12.5px/1.35 var(--font-body);
 }
 @media (max-width: 699px) {
-  /* Phones: along the bottom, collapsible. */
-  .ca-dpanel { top: auto; bottom: 0.75rem; right: 0.5rem; left: 0.5rem; width: auto; max-height: 55vh; }
+  /* Phones: along the bottom, collapsible, clear of the hero's scroll
+     arrow and of staging's STAGING badge. */
+  .ca-dpanel { top: auto; bottom: 3.5rem; right: 0.5rem; left: 0.5rem; width: auto; max-height: 55vh; }
   .ca-dpanel__row--select { grid-template-columns: 1fr; }
   .ca-dpanel__row--select select { grid-column: 1; max-width: 100%; }
 }
