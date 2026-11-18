@@ -70,6 +70,13 @@
     return 0.2126 * g[0] + 0.7152 * g[1] + 0.0722 * g[2] < 0.5;
   }
   function clone(o) { return JSON.parse(JSON.stringify(o)); }
+  // A custom property's raw value ("2.5rem", "16px") in px.
+  function lengthPx(v, fallback) {
+    var n = parseFloat(v);
+    if (isNaN(n)) return fallback;
+    if (/rem\s*$/.test(v)) n *= parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+    return n;
+  }
 
   // Rotation: turn about the vertical axis to face longitude `lon`, then tip
   // the north pole towards the reader by `tilt` (both degrees). Column-major.
@@ -143,7 +150,9 @@
     this.bindInput();
     this.resize();
     if (window.ResizeObserver) new ResizeObserver(function () { self.resize(); }).observe(el);
-    else window.addEventListener("resize", function () { self.resize(); });
+    // The window too: crossing a breakpoint changes which screen size's
+    // settings apply even when the stage itself keeps its size.
+    window.addEventListener("resize", function () { self.resize(); });
     if (window.IntersectionObserver) {
       new IntersectionObserver(function (es) { self.visible = es[0].isIntersecting; self.wake(); }).observe(el);
     }
@@ -172,6 +181,14 @@
   };
 
   Globe.prototype.phone = function () { return window.innerWidth < 600; };
+  // Screen size, by window width: the hero's own breakpoints (styles.css).
+  function device() { var w = window.innerWidth; return w >= 1100 ? "desktop" : w >= 600 ? "tablet" : "phone"; }
+  Globe.prototype.device = device;
+  var DEVICE_DEFAULT = { visible: true, size: 50, maxSize: 860, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "behind" };
+  Globe.prototype.place = function () {
+    var all = this.opts.devices || {}, d = device();
+    return Object.assign({}, DEVICE_DEFAULT, (DEFAULTS.devices || {})[d], all[d]);
+  };
 
   Globe.prototype.rebuild = function () {
     var o = this.opts;
@@ -194,25 +211,40 @@
     this.wake();
   };
 
-  // Where the globe sits in its stage, in CSS px: centre and radius.
+  // Where the globe sits in its stage, in CSS px: centre and radius, from
+  // this screen size's settings (opts.devices). The hero gets
+  // data-globe-layer ("behind" | "beside") and data-globe="off" when it is
+  // hidden (dot-globe.css); on tablet and phone, beside, the stage's row is
+  // as tall as the globe needs.
   Globe.prototype.layout = function () {
-    var o = this.opts, w = this.w, h = this.h, wide = window.innerWidth >= 1100;
-    var d = Math.max(60, o.size * Math.min(h, w * 0.98));
-    var cx = w / 2;
-    if (wide) {
-      var share = { left: 0.3, center: 0.5, right: 0.7 }[o.placement] || 0.5;
-      if (o.layer === "beside" && o.placement !== "center") {
-        share = o.placement === "left" ? 0.25 : 0.75;
-        d = Math.min(d, w * 0.46);
-      }
-      cx = w * share;
+    var p = this.place(), dev = device(), w = this.w, h = this.h;
+    var stage = this.el.parentNode, hero = this.el.closest(".hero");
+    var heroW = hero ? hero.clientWidth : w;
+    var d = (+p.size || 50) / 100 * heroW;
+    if (+p.maxSize > 0) d = Math.min(d, +p.maxSize);
+    if (dev === "desktop") {
+      d = Math.min(d, h);
+      if (p.layer === "beside" && p.x !== "center") d = Math.min(d, w * 0.46);
     }
-    // Offsets are desktop only: on smaller screens they would push the
-    // globe out of its row.
-    this.cx = cx + (wide ? (+o.offsetX || 0) : 0);
-    this.cy = h / 2 + (wide ? (+o.offsetY || 0) : 0);
-    this.radius = d / 2;
-    this.el.setAttribute("data-layer", o.layer === "beside" ? "beside" : "behind");
+    d = Math.max(60, d);
+    var R = d / 2, m = hero ? lengthPx(getComputedStyle(hero).getPropertyValue("--pad"), 16) : 16;
+    if (hero) {
+      hero.setAttribute("data-globe-layer", p.layer === "beside" ? "beside" : "behind");
+      if (p.visible === false) hero.setAttribute("data-globe", "off");
+      else if (hero.hasAttribute("data-globe")) {
+        // Shown again: measure the stage once it is back in the layout.
+        hero.removeAttribute("data-globe");
+        var self = this;
+        setTimeout(function () { self.resize(); }, 0);
+      }
+    }
+    if (stage && stage.style) stage.style.minHeight = dev !== "desktop" && p.layer === "beside" ? Math.ceil(d / 0.85) + "px" : "";
+    var cx = p.x === "left" ? m + R : p.x === "right" ? w - m - R : w / 2;
+    var cy = p.y === "top" ? m + R : p.y === "bottom" ? h - m - R : h / 2;
+    this.cx = cx + (+p.offsetX || 0);
+    this.cy = cy + (+p.offsetY || 0);
+    this.radius = R;
+    this.el.setAttribute("data-layer", p.layer === "beside" ? "beside" : "behind");
     this.wake();
   };
 

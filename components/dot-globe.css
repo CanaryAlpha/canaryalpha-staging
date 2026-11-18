@@ -47,3 +47,18 @@
   .hero__stage--globe { min-height: clamp(220px, 100vh - 600px, 380px); margin-inline: calc(-1 * var(--pad, 1rem)); }
   @supports (height: 1svh) { .hero__stage--globe { min-height: clamp(220px, 100svh - 600px, 380px); } }
 }
+/* Per-screen-size settings (components/dot-globe.config.js, devices): the
+   globe sets these on the hero. Hidden: no stage at all, so no empty row. */
+.hero[data-globe="off"] .hero__stage--globe { display: none; }
+/* Tablet and phone, "behind": the globe leaves its row and sits behind the
+   headline and the buttons, which stay above it. */
+@media (max-width: 1099px) {
+  .hero[data-globe-layer="behind"] .hero__stage--globe {
+    position: absolute;
+    inset: var(--site-header-h, 0px) 0 0 0;
+    min-height: 0;
+    margin: 0;
+  }
+  .hero[data-globe-layer="behind"] .hero__title,
+  .hero[data-globe-layer="behind"] .hero__foot { position: relative; z-index: 1; }
+}

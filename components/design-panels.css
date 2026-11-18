@@ -1,11 +1,14 @@
-/* Design panels (components/design-panels.js): ?design=1 only. Small
-   floating boxes in the site's colours, above everything, scrolling inside
-   themselves so they never cover the whole hero. */
+/* Design panel (components/design-panels.js): ?design=1 only. One small
+   floating box in the site's colours, above everything, on the right,
+   scrolling inside itself so it never covers the whole hero; its sections
+   (Headline, Globe, Background) open and close. In the device simulator it
+   is docked in the page instead (.ca-dpanel--docked). */
 .ca-dpanel {
   position: fixed;
   z-index: 10000;
   top: calc(var(--site-header-h, 56px) + 0.75rem);
-  width: min(300px, calc(100vw - 1.5rem));
+  right: 0.75rem;
+  width: min(320px, calc(100vw - 1.5rem));
   max-height: calc(100vh - var(--site-header-h, 56px) - 1.5rem);
   display: flex;
   flex-direction: column;
@@ -16,16 +19,80 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
   font: 400 12.5px/1.35 var(--font-body);
 }
-.ca-dpanel--left { left: 0.75rem; }
-.ca-dpanel--right { right: 0.75rem; }
 @media (max-width: 699px) {
-  /* Phones: one above the other along the bottom, each collapsible. */
-  .ca-dpanel { top: auto; max-height: 45vh; }
-  .ca-dpanel--left { bottom: 0.75rem; left: 0.5rem; width: calc(50vw - 0.75rem); }
-  .ca-dpanel--right { bottom: 0.75rem; right: 0.5rem; width: calc(50vw - 0.75rem); }
+  /* Phones: along the bottom, collapsible. */
+  .ca-dpanel { top: auto; bottom: 0.75rem; right: 0.5rem; left: 0.5rem; width: auto; max-height: 55vh; }
   .ca-dpanel__row--select { grid-template-columns: 1fr; }
   .ca-dpanel__row--select select { grid-column: 1; max-width: 100%; }
 }
+.ca-dpanel--docked { position: static; width: auto; max-height: none; box-shadow: none; }
+/* Sections: a heading button each, like the panel's own. */
+.ca-dsec { border-top: 1px solid var(--muted, #888); margin: 0 -0.75rem; }
+.ca-dsec:first-child { border-top: 0; }
+.ca-dsec__head { margin: 0; }
+.ca-dsec__toggle {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 40px;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: 700 12px/1 var(--font-body);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.ca-dsec__toggle[aria-expanded="false"] .ca-dpanel__chev::after { content: "▸"; }
+.ca-dsec__body { padding: 0 0.75rem 0.25rem; }
+.ca-dsec__body .ca-dpanel__foot { padding: 0.5rem 0; border-top: 0; }
+.ca-dpanel__row--device select { font-weight: 700; }
+.ca-dpanel__small {
+  margin: 0.25rem 0;
+  font: 600 11.5px/1 var(--font-body);
+  padding: 0.4rem 0.65rem;
+  border-radius: 999px;
+  border: 1px solid var(--ink);
+  background: var(--ground);
+  color: var(--ink);
+  cursor: pointer;
+}
+.ca-dpanel__small:disabled { opacity: 0.6; cursor: default; }
+.ca-dpanel__swatches { display: grid; grid-template-columns: 1fr 1fr; gap: 0.3rem; }
+.ca-dpanel__swatch {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 32px;
+  padding: 0.25rem 0.4rem;
+  border: 1px solid var(--muted, #888);
+  border-radius: 6px;
+  background: var(--ground);
+  color: var(--ink);
+  font: 400 11.5px/1.2 var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+.ca-dpanel__swatch[aria-pressed="true"] { border: 2px solid var(--ink); font-weight: 700; }
+.ca-dpanel__chip { flex: none; width: 18px; height: 18px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(128, 128, 128, 0.7); }
+.ca-dpanel__row--hex input {
+  grid-column: 2;
+  width: 6.5em;
+  font: 12px/1 ui-monospace, Menlo, monospace;
+  color: var(--ink);
+  background: var(--ground);
+  border: 1px solid var(--muted, #888);
+  border-radius: 4px;
+  padding: 0.25rem 0.35rem;
+}
+.ca-dpanel__row--hex input[aria-invalid="true"] { border-color: #c0392b; }
+.ca-dpanel__checks { list-style: none; margin: 0.25rem 0; padding: 0; }
+.ca-dpanel__checks li { margin: 0.15rem 0; font-variant-numeric: tabular-nums; }
+.ca-dpanel__checks .is-low { color: #c0392b; font-weight: 600; }
+.ca-dpanel__need { color: var(--muted, inherit); font-weight: 400; }
+.ca-dpanel__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .ca-dpanel__toggle {
   width: 100%;
   display: flex;
@@ -46,7 +113,8 @@
 .ca-dpanel button:focus-visible,
 .ca-dpanel input:focus-visible,
 .ca-dpanel select:focus-visible,
-.ca-dpanel textarea:focus-visible { outline: 2px solid #FFEF00; outline-offset: 1px; }
+.ca-dpanel textarea:focus-visible,
+.ca-dsec__toggle:focus-visible { outline: 2px solid #FFEF00; outline-offset: 1px; }
 .ca-dpanel__body { overflow-y: auto; padding: 0 0.75rem 0.5rem; border-top: 1px solid var(--muted, #888); }
 .ca-dpanel__group { margin: 0.75rem 0 0.25rem; font-weight: 700; color: var(--muted, inherit); text-transform: uppercase; letter-spacing: 0.06em; font-size: 10.5px; }
 .ca-dpanel__row { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 0.15rem 0.5rem; margin: 0.35rem 0; }
@@ -82,7 +150,11 @@
 }
 .ca-dpanel__foot button:hover { color: #FFEF00; text-shadow: 0.5px 0 #000, -0.5px 0 #000, 0 0.5px #000, 0 -0.5px #000; }
 .ca-dpanel__status { flex-basis: 100%; color: var(--muted, inherit); font-size: 11.5px; min-height: 1em; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ca-dpanel__warn { color: #ff8a80; } }
-:root[data-theme="dark"] .ca-dpanel__warn { color: #ff8a80; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .ca-dpanel__warn,
+  :root:not([data-theme="light"]) .ca-dpanel__checks .is-low { color: #ff8a80; }
+}
+:root[data-theme="dark"] .ca-dpanel__warn,
+:root[data-theme="dark"] .ca-dpanel__checks .is-low { color: #ff8a80; }
 .ca-dpanel__copybox { flex-basis: 100%; width: 100%; font: 11px/1.3 ui-monospace, Menlo, monospace; color: var(--ink); background: var(--ground); border: 1px solid var(--muted, #888); border-radius: 4px; }
 .ca-dpanel [hidden] { display: none !important; }

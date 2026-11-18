@@ -4,12 +4,18 @@
  * components/design-panels.js) can change them live and copy them out, and
  * copied settings are made permanent by editing this file.
  *
- *   placement   where the globe sits in the hero: "left" | "center" | "right"
- *   layer       "behind" (the text sits over it) or "beside" (kept to the
- *               side of the headline on desktop)
- *   size        globe diameter as a share of the hero's free height (0.3-1.4)
- *   offsetX/Y   nudge in px, desktop (1100px+) only; below that the globe
- *               stays centred in its own row
+ *   devices     placement for each screen size, chosen by window width:
+ *               desktop 1100px and wider, tablet 600-1099px, phone under
+ *               600px (the same breakpoints as the hero's layout). Each has:
+ *     visible     false hides the globe on that screen size
+ *     size        diameter as a % of the hero's width, never more than
+ *     maxSize     px; on desktop also never taller than the hero's area
+ *     x, offsetX  "left" | "center" | "right", then a nudge in px
+ *     y, offsetY  "top" | "middle" | "bottom", then a nudge in px
+ *     layer       "behind" (the text sits over it) or "beside": on desktop
+ *                 kept to the side of the headline (left or right only);
+ *                 on tablet and phone its own row between the headline and
+ *                 the buttons, as before
  *   dots        number of sample points on the sphere (only those on land are
  *               drawn); phones use dotsPhone
  *   dotSize     px; dotColor/dotOpacity per theme
@@ -22,11 +28,13 @@
  * The globe has a fixed size: it doesn't zoom. Colours: monochrome dots.
  */
 window.CA_DOT_GLOBE_DEFAULTS = {
-  placement: "center",
-  layer: "behind",
-  size: 0.85,
-  offsetX: 381,
-  offsetY: 0,
+  // Matches the globe before per-device settings at 1440x900, 820x1180
+  // and 390x844 (2026-11-17).
+  devices: {
+    desktop: { visible: true, size: 50, maxSize: 860, x: "center", offsetX: 381, y: "middle", offsetY: 0, layer: "behind" },
+    tablet: { visible: true, size: 54, maxSize: 460, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "beside" },
+    phone: { visible: true, size: 53, maxSize: 340, x: "center", offsetX: 0, y: "middle", offsetY: 0, layer: "beside" }
+  },
 
   dots: 40000,
   dotsPhone: 15000,
