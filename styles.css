@@ -273,10 +273,19 @@ table, .is-num { font-variant-numeric: tabular-nums; }
    asked for fewer lines than fit at these sizes, so it takes the most
    width it can: 2 lines at 1440px, 3 on an 820px tablet and a 390px
    phone). Subheading 20px everywhere.
-   Desktop: headline 62px. */
+   Desktop is laid out at 1440px wide (the device simulator's desktop
+   frame) and scales with the window, so every desktop looks like that
+   frame: each size is its 1440px value as a share of the width (1vw =
+   14.4px there). At 1440px: margins 40px, headline 62px, subheading 20px
+   (at most 1000px wide), buttons 16px with 19px side padding, the foot
+   76px above the bottom. */
 @media (min-width: 1200px) {
-  .hero .hero__title { font-size: 62px; max-width: calc(100% - 2 * var(--pad)); }
-  .hero__foot .hero__text { font-size: 20px; }
+  .hero { --pad: 2.7778vw; --arrow-clear: 5.2778vw; }
+  .hero .hero__title { top: calc(var(--site-header-h, 0px) + 2.7778vw); font-size: 4.3056vw; max-width: calc(100% - 2 * var(--pad)); }
+  .hero .hero__foot { gap: 2.7778vw; }
+  .hero .hero__foot .hero__text { font-size: 1.3889vw; max-width: min(69.4444vw, 100%); }
+  .hero .hero__actions { --hero-btn-pad: 1.3194vw; }
+  .hero .hero__actions .button.button { font-size: 1.1111vw; }
 }
 /* Tablet (768-1199px): headline 45px. */
 @media (min-width: 768px) and (max-width: 1199px) {

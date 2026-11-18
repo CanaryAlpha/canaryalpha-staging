@@ -396,6 +396,9 @@
   // scroll or zoom the page as usual.
   Globe.prototype.bindInput = function () {
     var self = this, el = this.el, grab = this.grab, active = null, last = null;
+    // A click or drag never focuses the globe, so its focus ring (for the
+    // keyboard: Tab, then the arrow keys) never shows after mouse use.
+    grab.addEventListener("mousedown", function (e) { e.preventDefault(); });
     grab.addEventListener("pointerdown", function (e) {
       if (active !== null || (e.pointerType === "mouse" && e.button !== 0)) return;
       active = e.pointerId;

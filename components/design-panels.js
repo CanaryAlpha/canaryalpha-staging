@@ -215,10 +215,13 @@
           (h.align === "center" ? "margin-inline:auto;" : h.align === "right" ? "margin-left:auto;margin-right:0;" : "") +
           "transform:translate(" + dx + "," + dy + ");}");
       }
-      if (h.headline) r.push(".hero .hero__title{font-size:" + h.headline + "px;}");
-      if (h.subheading) r.push(".hero .hero__foot .hero__text{font-size:" + h.subheading + "px;}");
+      // Desktop sizes are px at 1440px wide and scale with the window, as
+      // the site's own desktop CSS does (styles.css): 1vw = 14.4px there.
+      function px(v) { return d === "desktop" ? +(v / 14.4).toFixed(4) + "vw" : v + "px"; }
+      if (h.headline) r.push(".hero .hero__title{font-size:" + px(h.headline) + ";}");
+      if (h.subheading) r.push(".hero .hero__foot .hero__text{font-size:" + px(h.subheading) + ";}");
       // Buttons.
-      if (+b.size && +b.size !== 16) r.push(".hero .hero__actions .button.button{font-size:" + (+b.size) + "px;}");
+      if (+b.size && +b.size !== 16) r.push(".hero .hero__actions .button.button{font-size:" + px(+b.size) + ";}");
       if (b.order === "signup") r.push(".hero .hero__actions .hero__btn--main{order:-1;}");
       if (d === "desktop") {
         // The site's CSS centres them in the space right of the text.
@@ -523,7 +526,7 @@
     warnEl.setAttribute("role", "status");
     b.appendChild(warnEl);
     var n = hint(b);
-    shows.push(function () { n.textContent = cur === "desktop" ? "Desktop: the headline is its own layer; Vertical places it in the hero." : "Below 1200px the headline sits in the page's flow: alignment and offsets only."; });
+    shows.push(function () { n.textContent = cur === "desktop" ? "Desktop: the headline is its own layer; Vertical places it in the hero. Sizes are at 1440px wide (the simulator's desktop frame); wider and narrower desktops scale them with the window." : "Below 1200px the headline sits in the page's flow: alignment and offsets only."; });
   }
 
   // ---------------- Buttons ----------------

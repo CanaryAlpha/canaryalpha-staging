@@ -40,6 +40,7 @@
      a pinch zooms the page as usual (the globe itself never zooms). */
   touch-action: pan-y pinch-zoom;
 }
+/* Keyboard only (a click never focuses it, dot-globe.js). */
 .dot-globe__grab:focus-visible { box-shadow: 0 0 0 2px var(--ink); }
 .dot-globe.is-dragging .dot-globe__grab { cursor: grabbing; }
 /* The hero's stage. Desktop (1200px+): nothing to reserve, the globe sits
