@@ -20,17 +20,17 @@ import { isHeld } from "./holdings.js";
 import { identityOf, marketOf, datesOf } from "./reports.js";
 
 export const ASSET_VERSIONS = {
-  "styles.css": 89,
-  "components/site-header.css": 46,
+  "styles.css": 90,
+  "components/site-header.css": 47,
   "components/dashboard/dashboard.css": 21,
   "components/members/members.css": 8,
   "components/site.config.js": 3,
   "components/site-mode.js": 2,
   "components/auth.js": 6,
   "components/site-links.js": 16,
-  "components/site-header.js": 47,
+  "components/site-header.js": 48,
   "components/site-footer.js": 1,
-  "script.js": 42
+  "script.js": 43
 };
 const v = (f) => "/" + f + "?v=" + ASSET_VERSIONS[f];
 const SITE = "https://canaryalpha.co";

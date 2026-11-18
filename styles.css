@@ -343,7 +343,10 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   --canary-halo-icon: drop-shadow(0 0 0.6px #000) drop-shadow(0 0 0.6px #000) drop-shadow(0 0 0.6px #000);
 }
 .has-halo-filter .hero__actions { --canary-halo-icon: url(#ca-halo-icon); }
-.hero__actions .button.button { min-width: 0; justify-content: center; padding-inline: 19px; }
+.hero__actions .button.button { min-width: 0; justify-content: center; padding-inline: var(--hero-btn-pad, 19px); }
+/* Phones: a little less padding beside each label, so the three buttons
+   fit one row on a 375px screen, as on desktop. */
+@media (max-width: 599px) { .hero__actions { --hero-btn-pad: 12px; } }
 :root:not([data-auth-state="in"]) .hero__actions [data-auth="in"],
 :root[data-auth-state="in"] .hero__actions [data-auth="out"] { display: none; }
 @media (min-width: 1100px) {
@@ -353,9 +356,9 @@ table, .is-num { font-variant-numeric: tabular-nums; }
 }
 /* Below 1100px: the slogan, the visual and the foot stack in normal flow
    (no overlap at any height; the hero grows past one screen if it must),
-   with the buttons under the text, Sign up / Go to dashboard first. Tablet:
-   one row, evenly spaced, the first label in line with the text. Phone
-   (under 600px): stacked, full width. */
+   with the buttons under the text in desktop's order (Learn more, Sign up,
+   Log in) and style: one left-aligned row, the first label in line with the
+   text, wrapping to a second line only where they don't fit. */
 @media (max-width: 1099px) {
   .hero {
     display: grid;
@@ -370,15 +373,10 @@ table, .is-num { font-variant-numeric: tabular-nums; }
   .hero__stage { position: static; grid-row: 2; }
   .hero__foot { position: static; grid-row: 3; }
   /* Never further than the page margin, so no button reaches off screen. */
-  .hero__actions { margin-left: calc(-1 * min(19px, var(--pad))); }
-  .hero__btn--main { order: -1; }
+  .hero__actions { margin-left: calc(-1 * min(var(--hero-btn-pad, 19px), var(--pad))); }
 }
 @media (min-width: 768px) and (max-width: 1099px) {
   .hero { padding-top: calc(var(--site-header-h, 0px) + 2.5rem); }
-}
-@media (max-width: 599px) {
-  .hero__actions { flex-direction: column; align-items: stretch; gap: 0.5rem; width: 100%; margin-left: 0; }
-  .hero__actions .button.button { flex: none; width: 100%; }
 }
 /* The hero visual (components/hero-visuals.css) gives up the buttons'
    height, so the hero still fits one screen where it can: in flow it is

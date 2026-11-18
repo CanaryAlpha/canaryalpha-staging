@@ -467,8 +467,8 @@
     window.addEventListener("resize", showDevice);
 
     heading(b, "Dots");
-    add("dots", { type: "range", label: "Density (desktop)", min: 2000, max: 40000, step: 500 });
-    add("dotsPhone", { type: "range", label: "Density (phone)", min: 1000, max: 15000, step: 500 });
+    add("dots", { type: "range", label: "Density (dots at 720px)", min: 2000, max: 40000, step: 500 });
+    add("dotsPhone", { type: "range", label: "Most dots on a phone", min: 1000, max: 15000, step: 500 });
     add("dotSize", { type: "range", label: "Dot size", min: 0.5, max: 4, step: 0.1, unit: "px" });
     add("dotColor.light", { type: "color", label: "Dot colour on light backgrounds" });
     add("dotOpacity.light", { type: "range", label: "Opacity on light", min: 0.1, max: 1, step: 0.05 });

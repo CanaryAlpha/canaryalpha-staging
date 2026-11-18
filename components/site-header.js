@@ -276,8 +276,9 @@
   document.dispatchEvent(new Event("ca-header-built"));
   }
 
-  // Faint shadow once the page is scrolled, so content sliding under the bar
-  // has an edge. Nothing shows at the top of the page.
+  // Solid background and a thin line once the page is scrolled, so content
+  // sliding under the bar never shows through (site-header.css). Transparent
+  // at the top of the page. The same on every screen size.
   function onScroll() {
     var scrolled = window.scrollY > 0;
     Array.prototype.forEach.call(headers, function (header) {

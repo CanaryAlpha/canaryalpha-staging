@@ -146,9 +146,8 @@
       this.ctx2d = this.canvas.getContext("2d");
     }
 
-    this.rebuild();
     this.bindInput();
-    this.resize();
+    this.resize(); // lays out, which builds the dots for this size
     if (window.ResizeObserver) new ResizeObserver(function () { self.resize(); }).observe(el);
     // The window too: crossing a breakpoint changes which screen size's
     // settings apply even when the stage itself keeps its size.
@@ -175,7 +174,7 @@
     });
     if ("startLon" in partial) this.lon = o.startLon;
     if ("tilt" in partial) this.tilt = o.tilt;
-    if (rebuild) this.rebuild();
+    if (rebuild) this.builtDots = 0; // layout() rebuilds for the new count
     this.layout();
     this.themeChanged();
   };
@@ -190,9 +189,20 @@
     return Object.assign({}, DEVICE_DEFAULT, (DEFAULTS.devices || {})[d], all[d]);
   };
 
+  // Sample points for a globe `d` px across: the desktop count (dots) at
+  // the desktop size (720px), scaled by area, so the dots sit as far apart
+  // on a phone as on desktop (a fixed count on a small globe packed them
+  // into a solid disc). Phones never draw more than dotsPhone.
+  var REF_D = 720;
+  Globe.prototype.dotCount = function (d) {
+    var o = this.opts, n = Math.round((+o.dots || 40000) * Math.pow(d / REF_D, 2));
+    if (this.phone()) n = Math.min(n, +o.dotsPhone || 15000);
+    return Math.max(800, Math.min(60000, n));
+  };
   Globe.prototype.rebuild = function () {
-    var o = this.opts;
-    this.dots = landDots(Math.max(500, Math.min(60000, this.phone() ? o.dotsPhone : o.dots)));
+    var o = this.opts, n = this.wantDots || Math.max(500, Math.min(60000, this.phone() ? o.dotsPhone : o.dots));
+    this.dots = landDots(n);
+    this.builtDots = n;
     this.builtForPhone = this.phone();
     if (this.gl) {
       this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buf);
@@ -206,7 +216,6 @@
     this.w = Math.max(1, r.width); this.h = Math.max(1, r.height); this.dpr = dpr;
     this.canvas.width = Math.round(this.w * dpr);
     this.canvas.height = Math.round(this.h * dpr);
-    if (this.builtForPhone !== this.phone()) this.rebuild();
     this.layout();
     this.wake();
   };
@@ -227,6 +236,11 @@
       if (p.layer === "beside" && p.x !== "center") d = Math.min(d, w * 0.46);
     }
     d = Math.max(60, d);
+    // Rebuild the dots when the size calls for a clearly different count.
+    var want = this.dotCount(d);
+    if (!this.builtDots || Math.abs(want - this.builtDots) / this.builtDots > 0.08 || (this.builtForPhone !== this.phone() && want !== this.builtDots)) {
+      this.wantDots = want; this.rebuild();
+    }
     var R = d / 2, m = hero ? lengthPx(getComputedStyle(hero).getPropertyValue("--pad"), 16) : 16;
     if (hero) {
       hero.setAttribute("data-globe-layer", p.layer === "beside" ? "beside" : "behind");

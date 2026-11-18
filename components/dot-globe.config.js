@@ -16,8 +16,10 @@
  *                 kept to the side of the headline (left or right only);
  *                 on tablet and phone its own row between the headline and
  *                 the buttons, as before
- *   dots        number of sample points on the sphere (only those on land are
- *               drawn); phones use dotsPhone
+ *   dots        sample points on the sphere (only those on land are drawn)
+ *               for a globe 720px across; other sizes scale it by area so
+ *               the dots are as far apart on every screen size
+ *   dotsPhone   the most a phone draws, for speed
  *   dotSize     px; dotColor/dotOpacity per theme
  *   autoRotate, speed (degrees a second), direction (1 east, -1 west),
  *   startLon    the longitude facing the reader at load (10 = Europe/Africa,

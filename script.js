@@ -41,6 +41,9 @@
   });
   // site-header.js says when it has (re)built the header.
   document.addEventListener("ca-header-built", render);
+  // And whenever the theme changes by any other route (the device
+  // simulator, the design panel), so the icon always matches the theme.
+  new MutationObserver(render).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
 
   // Until the reader picks a theme, keep following the OS live.
   mq.addEventListener("change", function () {

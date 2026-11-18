@@ -4,16 +4,18 @@
  * rem, independent of the page's --scale, so the font slider never affects it.
  * Pages offset their content with var(--site-header-h).
  *
- * No border: the bar blends into the page until it scrolls, then gets a
- * faint shadow (.is-scrolled, set by site-header.js). Dark grounds need a
- * deeper shadow to read at all.
+ * The same bar on every screen size (desktop is the reference): fixed to
+ * the top, transparent at the top of the page, and once the page scrolls
+ * (.is-scrolled, set by site-header.js) a solid page-colour background
+ * with a thin --rule line under it, so text never shows through. The drop-
+ * down panels keep a faint shadow (--site-header-shadow); dark grounds need
+ * a deeper one to read at all.
  */
-:root { --site-header-h: 56px; --site-header-shadow: 0 2px 12px rgb(0 0 0 / 0.08); }
+:root { --site-header-h: 64px; --site-header-shadow: 0 2px 12px rgb(0 0 0 / 0.08); }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme]) { --site-header-shadow: 0 2px 12px rgb(0 0 0 / 0.6); }
 }
 :root[data-theme="dark"] { --site-header-shadow: 0 2px 12px rgb(0 0 0 / 0.6); }
-@media (min-width: 768px) { :root { --site-header-h: 64px; } }
 
 .site-header {
   position: fixed;
@@ -22,20 +24,28 @@
   right: 0;
   z-index: 10;
   height: var(--site-header-h);
-  background: var(--ground);
+  box-sizing: border-box;
+  background: transparent;
+  border-bottom: 1px solid transparent;
   color: var(--ink);
   font-family: var(--font-body, "Work Sans", "Helvetica Neue", Helvetica, Arial, sans-serif);
   font-weight: 400;
-  transition: box-shadow 0.2s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
 }
-.site-header.is-scrolled { box-shadow: var(--site-header-shadow); }
+.site-header.is-scrolled { background: var(--ground); border-bottom-color: var(--rule); }
+@media (prefers-reduced-motion: reduce) { .site-header { transition: none; } }
 
 .site-header__inner {
   height: 100%;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0 0.75rem;
+  gap: 1.5rem;
+  padding: 0 1.5rem;
+}
+/* The smallest phones (under 360px) can't fit desktop's spacing next to the
+   logo and two 44px buttons: only the gaps shrink. */
+@media (max-width: 359px) {
+  .site-header__inner { gap: 0.5rem; padding: 0 0.75rem; }
 }
 
 .site-header__brand {
@@ -46,29 +56,29 @@
   align-items: center;
   min-width: 0;
 }
-/* The logo keeps the cap height of the outlined logo it replaced (10.7px,
-   12.1px from 768px). It never shrinks, so it stays on one line. */
-.site-header__logo { --logo-cap: 0.67rem; flex: none; }
+/* The logo keeps the cap height of the outlined logo it replaced (12.1px),
+   on every screen size. It never shrinks, so it stays on one line. */
+.site-header__logo { --logo-cap: 0.759rem; flex: none; }
 
-/* The menu is a drop-down panel at every width: the menu button opens it
-   under the bar. On phones it spans the bar; from 768px it hangs from the
-   button as a compact drop-down. At its top, three display options (Show,
+/* The menu is a drop-down panel at every width: the menu button opens it,
+   hanging from the button as a compact drop-down. At its top, three display options (Show,
    Auto hide, Hide; see site-header.js); under them the links (from
    site-links.js). The link for the section in view (aria-current, set by
    the page's script) and the chosen display option get the same filled
    pill as the active theme. No animation. */
-.site-header__nav { flex: 1; display: flex; justify-content: flex-end; min-width: 0; }
+.site-header__nav { flex: 1; display: flex; justify-content: flex-end; min-width: 0; position: relative; align-self: center; }
 .site-header__panel {
   display: none;
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: calc(100% + 0.625rem);
   right: 0;
   z-index: 1;
+  width: min(15rem, calc(100vw - 1.5rem));
   flex-direction: column;
-  padding: 0.5rem 0.75rem 0.75rem;
+  padding: 0.5rem;
   background: var(--ground);
-  border-bottom: 1px solid var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
   box-shadow: var(--site-header-shadow);
 }
 .site-header.is-open .site-header__panel { display: flex; }
@@ -131,18 +141,6 @@
   .site-header__mode[data-mode="show"] { display: none; }
 }
 .site-header__mode[aria-pressed="true"] { background: var(--selected-bg); color: var(--selected-ink); }
-@media (min-width: 768px) {
-  .site-header__nav { position: relative; align-self: center; }
-  .site-header__panel {
-    top: calc(100% + 0.625rem);
-    left: auto;
-    right: 0;
-    width: 15rem;
-    padding: 0.5rem;
-    border: 1px solid var(--rule);
-    border-radius: 6px;
-  }
-}
 /* Menu button: opens and closes the list. */
 .site-header__toggle {
   display: inline-grid;
@@ -218,11 +216,7 @@
   outline-offset: 2px;
 }
 
-@media (min-width: 768px) {
-  .site-header__inner { padding: 0 1.5rem; gap: 1.5rem; }
-  .site-header__logo { --logo-cap: 0.759rem; }
-  .site-header .themes { gap: 0.25rem; }
-}
+.site-header .themes { gap: 0.25rem; }
 
 /* ---- Logged in (components/auth.js) --------------------------------------- */
 /* My account group in the menu: a button that opens its links (Dashboard,
@@ -265,7 +259,7 @@
 .site-header__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* Account button: the user's initial in a ring, a 44px target. */
-.site-header__account { flex: none; display: flex; }
+.site-header__account { flex: none; display: flex; position: relative; align-self: center; }
 .site-header__account-btn {
   display: inline-grid;
   place-items: center;
@@ -293,13 +287,14 @@
 .site-header__account-btn[aria-expanded="true"] { color: var(--muted); }
 .site-header__account-panel {
   position: absolute;
-  top: 100%;
-  left: 0;
+  top: calc(100% + 0.625rem);
   right: 0;
   z-index: 1;
-  padding: 0.75rem;
+  width: min(15rem, calc(100vw - 1.5rem));
+  padding: 0.5rem 0.25rem;
   background: var(--ground);
-  border-bottom: 1px solid var(--rule);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
   box-shadow: var(--site-header-shadow);
 }
 .site-header__account-panel[hidden] { display: none; }
@@ -336,16 +331,4 @@
   font-size: 0.9375rem;
   text-align: left;
   cursor: pointer;
-}
-@media (min-width: 768px) {
-  .site-header__account { position: relative; align-self: center; }
-  .site-header__account-panel {
-    top: calc(100% + 0.625rem);
-    left: auto;
-    right: 0;
-    width: 15rem;
-    padding: 0.5rem 0.25rem;
-    border: 1px solid var(--rule);
-    border-radius: 6px;
-  }
 }
