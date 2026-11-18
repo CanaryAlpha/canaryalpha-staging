@@ -71,5 +71,5 @@ test("the simulator's frames, pages and note", () => {
   for (const s of ['w: 390, h: 844', 'w: 820, h: 1180', 'w: 1440, h: 900']) assert.ok(sim.includes(s), s);
   for (const p of ['value="">Homepage', 'value="#pricing">Pricing', 'value="learn/">Learn', 'value="learn/glossary/">Glossary', 'value="signup/">Sign up']) assert.ok(sim.includes(p), p);
   assert.ok(sim.includes("Approximates screen sizes; check real devices before going live."));
-  assert.ok(sim.includes('"?design=1&sim=1"'));
+  assert.ok(sim.includes('"?design=1&sim=1&t=" + Date.now()'));
 });
